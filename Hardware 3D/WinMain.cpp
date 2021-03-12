@@ -15,6 +15,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	HWND hWnd = CreateWindowEx(0, pClassName, L"Happy Hard Window", WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 200, 200, 640, 480, nullptr, nullptr, hInstance, nullptr);
 	ShowWindow(hWnd, nShowCmd);
 
-	while (true);
+	MSG msg = {};
+	while (GetMessage(&msg, nullptr, 0, 0) != WM_QUIT)
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
 	return 0;
 }
