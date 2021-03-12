@@ -1,5 +1,17 @@
 #include <Windows.h>
 
+LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (msg)
+	{
+	case WM_CLOSE:
+		PostQuitMessage(69);
+		break;
+	}
+
+	return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
 	const LPCWSTR pClassName = L"hw3dbutts";
@@ -7,7 +19,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	WNDCLASSEX wc = {};
 	wc.cbSize = sizeof(wc);
 	wc.hInstance = hInstance;
-	wc.lpfnWndProc = DefWindowProc;
+	wc.lpfnWndProc = WndProc;
 	wc.lpszClassName = pClassName;
 	wc.style = CS_OWNDC;
 	RegisterClassEx(&wc);
@@ -16,11 +28,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	ShowWindow(hWnd, nShowCmd);
 
 	MSG msg = {};
-	while (GetMessage(&msg, nullptr, 0, 0) != WM_QUIT)
+	BOOL bReturn = FALSE;
+	while ((bReturn = GetMessage(&msg, nullptr, 0, 0)) != 0)
 	{
+		if (bReturn == -1)
+			return -1;
+
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
-	return 0;
+	return static_cast<int>(msg.wParam);
 }
