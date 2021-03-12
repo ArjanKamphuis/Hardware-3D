@@ -1,3 +1,4 @@
+#include <sstream>
 #include <Windows.h>
 #include "WindowsMessageMap.h"
 
@@ -18,6 +19,21 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 		if (wParam == 'F')
 			SetWindowText(hWnd, L"Dangerfield");
+		break;
+	case WM_CHAR:
+		{
+			static std::wstring title;
+			title.push_back(static_cast<wchar_t>(wParam));
+			SetWindowText(hWnd, title.c_str());
+		}
+		break;
+	case WM_LBUTTONDOWN:
+		{
+			POINTS pt = MAKEPOINTS(lParam);
+			std::wostringstream oss;
+			oss << L"(" << pt.x << "," << pt.y << L")";
+			SetWindowText(hWnd, oss.str().c_str());
+		}
 		break;
 	}
 
