@@ -31,12 +31,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	BOOL bReturn = FALSE;
 	while ((bReturn = GetMessage(&msg, nullptr, 0, 0)) != 0)
 	{
-		if (bReturn == -1)
-			return -1;
-
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
-	return static_cast<int>(msg.wParam);
+	return bReturn == -1 ? -1 : static_cast<int>(msg.wParam);
 }
