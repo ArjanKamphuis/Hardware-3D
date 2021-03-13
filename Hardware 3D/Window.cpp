@@ -26,9 +26,9 @@ std::string Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
 {
     char* pMsgBuf = nullptr;
     DWORD nMsgLength = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr);
+        nullptr, hr, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr);
     if (nMsgLength == 0)
-        return "Unidentified error code";
+        return "Unidentified error code.\r\n";
 
     std::string errorString = pMsgBuf;
     LocalFree(pMsgBuf);
@@ -72,16 +72,22 @@ Window::WindowClass::~WindowClass()
     UnregisterClass(mWndClassName, GetInstance());
 }
 
-Window::Window(int width, int height, const wchar_t* name) noexcept
+Window::Window(int width, int height, const wchar_t* name)
     : mWidth(width), mHeight(height)
 {
     RECT wr = { 100, 100, 0, 0 };
     wr.right = wr.left + width;
     wr.bottom = wr.top + height;
-    AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, false);
+    if (AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE) == FALSE)
+        throw CHWND_LAST_EXCEPT();
+
     mhWnd = CreateWindow(WindowClass::GetName(), name, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 
         CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top, 
         nullptr, nullptr, WindowClass::GetInstance(), this);
+
+    if (mhWnd == nullptr)
+        throw CHWND_LAST_EXCEPT();
+
     ShowWindow(mhWnd, SW_SHOWDEFAULT);
 }
 

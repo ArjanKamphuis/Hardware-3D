@@ -6,7 +6,7 @@
 class Window
 {
 public:
-	class Exception : ChiliException
+	class Exception : public ChiliException
 	{
 	public:
 		Exception(int line, const char* file, HRESULT hr) noexcept;
@@ -40,7 +40,7 @@ private:
 	};
 
 public:
-	Window(int width, int height, const wchar_t* name) noexcept;
+	Window(int width, int height, const wchar_t* name);
 	Window(const Window&) = delete;
 	Window& operator=(const Window&) = delete;
 	~Window();
