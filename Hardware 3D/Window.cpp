@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include <sstream>
+#include "resource.h"
 
 Window::WindowClass Window::WindowClass::mWndClass;
 
@@ -60,6 +61,8 @@ Window::WindowClass::WindowClass() noexcept
 {
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(wc);
+    wc.hIcon = static_cast<HICON>(LoadImage(mhInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 32, 32, 0));
+    wc.hIconSm = static_cast<HICON>(LoadImage(mhInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 16, 16, 0));
     wc.hInstance = GetInstance();
     wc.lpfnWndProc = HandleMsgSetup;
     wc.lpszClassName = GetName();
