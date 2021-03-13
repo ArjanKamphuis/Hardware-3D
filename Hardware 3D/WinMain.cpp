@@ -57,7 +57,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
 	MSG msg = {};
 	BOOL bReturn = FALSE;
-	while ((bReturn = GetMessage(&msg, nullptr, 0, 0)) != 0)
+	while ((bReturn = GetMessage(&msg, nullptr, 0, 0)) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
