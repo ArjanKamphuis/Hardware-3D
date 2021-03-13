@@ -1,6 +1,49 @@
 #include "Window.h"
 
+#include <sstream>
+
 Window::WindowClass Window::WindowClass::mWndClass;
+
+Window::Exception::Exception(int line, const char* file, HRESULT hr) noexcept
+    : ChiliException(line, file), mHR(hr)
+{
+}
+
+const char* Window::Exception::what() const noexcept
+{
+    std::stringstream oss;
+    oss << GetType() << std::endl << "[Error Code] " << GetErrorCode() << std::endl << "[Description] " << GetErrorString() << std::endl << GetOriginString();
+    mWhatBuffer = oss.str();
+    return mWhatBuffer.c_str();
+}
+
+const char* Window::Exception::GetType() const noexcept
+{
+    return "Chili Window Exception";
+}
+
+std::string Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
+{
+    char* pMsgBuf = nullptr;
+    DWORD nMsgLength = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr);
+    if (nMsgLength == 0)
+        return "Unidentified error code";
+
+    std::string errorString = pMsgBuf;
+    LocalFree(pMsgBuf);
+    return errorString;
+}
+
+HRESULT Window::Exception::GetErrorCode() const noexcept
+{
+    return mHR;
+}
+
+std::string Window::Exception::GetErrorString() const noexcept
+{
+    return TranslateErrorCode(mHR);
+}
 
 const wchar_t* Window::WindowClass::GetName() noexcept
 {

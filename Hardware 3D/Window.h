@@ -1,9 +1,25 @@
 #pragma once
 
 #include "ChiliWin.h"
+#include "ChiliException.h"
 
 class Window
 {
+public:
+	class Exception : ChiliException
+	{
+	public:
+		Exception(int line, const char* file, HRESULT hr) noexcept;
+		const char* what() const noexcept override;
+		const char* GetType() const noexcept override;
+		static std::string TranslateErrorCode(HRESULT hr) noexcept;
+		HRESULT GetErrorCode() const noexcept;
+		std::string GetErrorString() const noexcept;
+
+	private:
+		HRESULT mHR;
+	};
+
 private:
 	class WindowClass
 	{
@@ -18,7 +34,7 @@ private:
 		~WindowClass();
 
 	private:
-		static constexpr const wchar_t* mWndClassName = L"Chili Direct3D Enginge Window";
+		static constexpr const wchar_t* mWndClassName = L"Chili Direct3D Engine Window";
 		static WindowClass mWndClass;
 		HINSTANCE mhInstance;
 	};
@@ -40,3 +56,5 @@ private:
 	HWND mhWnd;
 };
 
+#define CHWND_EXCEPT(hr) Window::Exception(__LINE__, __FILE__, hr)
+#define CHWND_LAST_EXCEPT() Window::Exception(__LINE__, __FILE__, GetLastError())
