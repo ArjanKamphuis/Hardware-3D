@@ -9,12 +9,14 @@ public:
 	class Exception : public ChiliException
 	{
 	public:
-		Exception(int line, const char* file, HRESULT hr) noexcept;
-		const char* what() const noexcept override;
-		const char* GetType() const noexcept override;
-		static std::string TranslateErrorCode(HRESULT hr) noexcept;
+		Exception(int line, const wchar_t* file, HRESULT hr) noexcept;
+		const wchar_t* GetType() const noexcept override;
+		static std::wstring TranslateErrorCode(HRESULT hr) noexcept;
 		HRESULT GetErrorCode() const noexcept;
-		std::string GetErrorString() const noexcept;
+		std::wstring GetErrorString() const noexcept;
+
+	protected:
+		void GenerateMessage() const noexcept override;
 
 	private:
 		HRESULT mHR;
@@ -56,5 +58,5 @@ private:
 	HWND mhWnd;
 };
 
-#define CHWND_EXCEPT(hr) Window::Exception(__LINE__, __FILE__, hr)
-#define CHWND_LAST_EXCEPT() Window::Exception(__LINE__, __FILE__, GetLastError())
+#define CHWND_EXCEPT(hr) Window::Exception(__LINE__, __FILEW__, hr)
+#define CHWND_LAST_EXCEPT() Window::Exception(__LINE__, __FILEW__, GetLastError())

@@ -14,15 +14,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 			DispatchMessage(&msg);
 		}
 
-		return bReturn == -1 ? -1 : static_cast<int>(msg.wParam);
+		if (bReturn == -1)
+			throw CHWND_LAST_EXCEPT();
+
+		return static_cast<int>(msg.wParam);
 	}
 	catch (const ChiliException& e)
 	{
-		MessageBoxA(nullptr, e.what(), e.GetType(), MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(nullptr, e.GetFullMessage(), e.GetType(), MB_OK | MB_ICONEXCLAMATION);
 	}
 	catch (const std::exception& e)
 	{
-		MessageBoxA(nullptr, e.what(), "Standard Exception", MB_OK | MB_ICONEXCLAMATION);
+		const std::string message = std::string(e.what());
+		MessageBox(nullptr, std::wstring(message.begin(), message.end()).c_str(), L"Standard Exception", MB_OK | MB_ICONEXCLAMATION);
 	}
 	catch (...)
 	{

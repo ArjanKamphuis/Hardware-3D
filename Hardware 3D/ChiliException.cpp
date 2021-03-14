@@ -2,22 +2,32 @@
 
 #include <sstream>
 
-ChiliException::ChiliException(int line, const char* file) noexcept
+ChiliException::ChiliException(int line, const wchar_t* file) noexcept
 	: mLine(line), mFile(file)
 {
 }
 
 const char* ChiliException::what() const noexcept
 {
-	std::ostringstream oss;
-	oss << GetType() << std::endl << GetOriginString();
-	mWhatBuffer = oss.str();
+	GenerateMessage();
+
+	char s[1024] = {};
+	size_t i = 0;
+	wcstombs_s(&i, s, mWideWhatBuffer.size() + 1, mWideWhatBuffer.c_str(), mWideWhatBuffer.size());
+	mWhatBuffer.assign(s);
+
 	return mWhatBuffer.c_str();
 }
 
-const char* ChiliException::GetType() const noexcept
+const wchar_t* ChiliException::GetFullMessage() const noexcept
 {
-	return "Chili Exception";
+	GenerateMessage();
+	return mWideWhatBuffer.c_str();
+}
+
+const wchar_t* ChiliException::GetType() const noexcept
+{
+	return L"Chili Exception";
 }
 
 int ChiliException::GetLine() const noexcept
@@ -25,14 +35,21 @@ int ChiliException::GetLine() const noexcept
 	return mLine;
 }
 
-const std::string& ChiliException::GetFile() const noexcept
+const std::wstring& ChiliException::GetFile() const noexcept
 {
 	return mFile;
 }
 
-std::string ChiliException::GetOriginString() const noexcept
+std::wstring ChiliException::GetOriginString() const noexcept
 {
-	std::ostringstream oss;
+	std::wostringstream oss;
 	oss << "[File] " << mFile << std::endl << "[Line] " << mLine;
 	return oss.str();
+}
+
+void ChiliException::GenerateMessage() const noexcept
+{
+	std::wostringstream oss;
+	oss << GetType() << std::endl << GetOriginString();
+	mWideWhatBuffer = oss.str();
 }

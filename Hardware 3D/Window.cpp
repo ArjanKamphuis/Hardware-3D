@@ -5,33 +5,25 @@
 
 Window::WindowClass Window::WindowClass::mWndClass;
 
-Window::Exception::Exception(int line, const char* file, HRESULT hr) noexcept
+Window::Exception::Exception(int line, const wchar_t* file, HRESULT hr) noexcept
     : ChiliException(line, file), mHR(hr)
 {
 }
 
-const char* Window::Exception::what() const noexcept
+const wchar_t* Window::Exception::GetType() const noexcept
 {
-    std::stringstream oss;
-    oss << GetType() << std::endl << "[Error Code] " << GetErrorCode() << std::endl << "[Description] " << GetErrorString() << std::endl << GetOriginString();
-    mWhatBuffer = oss.str();
-    return mWhatBuffer.c_str();
+    return L"Chili Window Exception";
 }
 
-const char* Window::Exception::GetType() const noexcept
+std::wstring Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
 {
-    return "Chili Window Exception";
-}
-
-std::string Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
-{
-    char* pMsgBuf = nullptr;
-    DWORD nMsgLength = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr, hr, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPSTR>(&pMsgBuf), 0, nullptr);
+    wchar_t* pMsgBuf = nullptr;
+    DWORD nMsgLength = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        nullptr, hr, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPWSTR>(&pMsgBuf), 0, nullptr);
     if (nMsgLength == 0)
-        return "Unidentified error code.\r\n";
+        return L"Unidentified error code.\r\n";
 
-    std::string errorString = pMsgBuf;
+    std::wstring errorString = pMsgBuf;
     LocalFree(pMsgBuf);
     return errorString;
 }
@@ -41,9 +33,16 @@ HRESULT Window::Exception::GetErrorCode() const noexcept
     return mHR;
 }
 
-std::string Window::Exception::GetErrorString() const noexcept
+std::wstring Window::Exception::GetErrorString() const noexcept
 {
     return TranslateErrorCode(mHR);
+}
+
+void Window::Exception::GenerateMessage() const noexcept
+{
+    std::wstringstream oss;
+    oss << GetType() << std::endl << "[Error Code] " << GetErrorCode() << std::endl << "[Description] " << GetErrorString() << std::endl << GetOriginString();
+    mWideWhatBuffer = oss.str();
 }
 
 const wchar_t* Window::WindowClass::GetName() noexcept
