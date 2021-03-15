@@ -77,25 +77,37 @@ Window::WindowClass::~WindowClass()
 Window::Window(int width, int height, const wchar_t* name)
     : mWidth(width), mHeight(height)
 {
-    RECT wr = { 100, 100, 0, 0 };
-    wr.right = wr.left + width;
-    wr.bottom = wr.top + height;
-    if (AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE) == FALSE)
+    if ((mhWnd = CreateWindow(WindowClass::GetName(), name, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 0, 0, 0, 0, nullptr, nullptr, WindowClass::GetInstance(), this)) == nullptr)
         throw CHWND_LAST_EXCEPT();
-
-    mhWnd = CreateWindow(WindowClass::GetName(), name, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 
-        CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left, wr.bottom - wr.top, 
-        nullptr, nullptr, WindowClass::GetInstance(), this);
-
-    if (mhWnd == nullptr)
-        throw CHWND_LAST_EXCEPT();
-
+    AdjustAndCenterWindow();
     ShowWindow(mhWnd, SW_SHOWDEFAULT);
 }
 
 Window::~Window()
 {
     DestroyWindow(mhWnd);
+}
+
+void Window::AdjustAndCenterWindow()
+{
+    WINDOWINFO wi = {};
+    wi.cbSize = sizeof(wi);
+    if (GetWindowInfo(mhWnd, &wi) == FALSE)
+        throw CHWND_LAST_EXCEPT();
+
+    RECT wr = { 0, 0, mWidth, mHeight };
+    if (AdjustWindowRect(&wr, wi.dwStyle, FALSE) == FALSE)
+        throw CHWND_LAST_EXCEPT();
+
+    const int clientWidth = wr.right - wr.left;
+    const int clientHeight = wr.bottom - wr.top;
+
+    MONITORINFO mi = {};
+    mi.cbSize = sizeof(mi);
+    if (GetMonitorInfo(MonitorFromWindow(mhWnd, MONITOR_DEFAULTTONEAREST), &mi) == FALSE)
+        throw CHWND_LAST_EXCEPT();
+    if (SetWindowPos(mhWnd, nullptr, (mi.rcMonitor.right - clientWidth) / 2, (mi.rcMonitor.bottom - clientHeight) / 2, clientWidth, clientHeight, 0) == FALSE)
+        throw CHWND_LAST_EXCEPT();
 }
 
 LRESULT CALLBACK Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
