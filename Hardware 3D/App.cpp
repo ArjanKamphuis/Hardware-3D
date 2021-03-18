@@ -1,5 +1,6 @@
 #include "App.h"
 
+#include <iomanip>
 #include <sstream>
 
 App::App()
@@ -27,4 +28,7 @@ int App::Go()
 
 void App::DoFrame()
 {
+	std::wostringstream oss;
+	oss << L"Time elapsed: " << std::setprecision(1) << std::fixed << mTimer.Peek() << "s";
+	mWnd.SetTitle(oss.str());
 }

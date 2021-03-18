@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ChiliTimer.h"
 #include "Window.h"
 
 class App
@@ -13,5 +14,6 @@ private:
 
 private:
 	Window mWnd;
+	ChiliTimer mTimer;
 };
 
