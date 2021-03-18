@@ -1,5 +1,7 @@
 #include "Window.h"
 
+#include <sstream>
+
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
 	try
@@ -14,7 +16,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 			DispatchMessage(&msg);
 
 			if (wnd.Mouse.LeftIsPressed())
-				MessageBox(nullptr, L"MOUSESS", L"", MB_ICONASTERISK | MB_OK);
+			{
+				std::wstringstream ss;
+				ss << L"Hello Window!!!! (" << wnd.Mouse.GetPosX() << L"," << wnd.Mouse.GetPosY() << L")";
+				wnd.SetTitle(ss.str().c_str());
+			}
 		}
 
 		if (bReturn == -1)

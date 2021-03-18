@@ -88,6 +88,12 @@ Window::~Window()
     DestroyWindow(mhWnd);
 }
 
+void Window::SetTitle(const std::wstring& title)
+{
+    if (SetWindowText(mhWnd, title.c_str()) == FALSE)
+        throw CHWND_LAST_EXCEPT();
+}
+
 void Window::AdjustAndCenterWindow()
 {
     WINDOWINFO wi = {};

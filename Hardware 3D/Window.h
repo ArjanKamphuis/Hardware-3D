@@ -49,6 +49,8 @@ public:
 	Window& operator=(const Window&) = delete;
 	~Window();
 
+	void SetTitle(const std::wstring& title);
+
 private:
 	void AdjustAndCenterWindow();
 
