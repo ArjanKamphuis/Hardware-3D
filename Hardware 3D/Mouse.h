@@ -57,6 +57,7 @@ private:
 	void OnRightReleased(int x, int y) noexcept;
 	void OnWheelUp(int x, int y) noexcept;
 	void OnWheelDown(int x, int y) noexcept;
+	void OnWheelDelta(int x, int y, short delta) noexcept;
 	void OnMouseEnter() noexcept;
 	void OnMouseLeave() noexcept;
 	void TrimBuffer() noexcept;
@@ -67,6 +68,7 @@ private:
 
 	int mX = 0;
 	int mY = 0;
+	int mWheelDeltaCarry = 0;
 	bool mLeftIsPressed = false;
 	bool mRightIsPressed = false;
 	bool mIsInWindow = false;

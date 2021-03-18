@@ -218,13 +218,10 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
             }
             break;
         }
-    case WM_MOUSEHWHEEL:
+    case WM_MOUSEWHEEL:
         {
             const POINTS pt = MAKEPOINTS(lParam);
-            if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
-                Mouse.OnWheelUp(pt.x, pt.y);
-            else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
-                Mouse.OnWheelDown(pt.x, pt.y);
+            Mouse.OnWheelDelta(pt.x, pt.y, GET_WHEEL_DELTA_WPARAM(wParam));
             break;
         }
     }

@@ -1,5 +1,7 @@
 #include "Mouse.h"
 
+#include "ChiliWin.h"
+
 Mouse::Event::Event(Type type, const Mouse& parent) noexcept
     : mType(type), mLeftIsPresed(parent.mLeftIsPressed), mRightIsPressed(parent.mRightIsPressed), mX(parent.mX), mY(parent.mY)
 {
@@ -138,6 +140,22 @@ void Mouse::OnWheelDown(int x, int y) noexcept
 {
     mBuffer.emplace(Mouse::Event::Type::WheelDown, *this);
     TrimBuffer();
+}
+
+void Mouse::OnWheelDelta(int x, int y, short delta) noexcept
+{
+    mWheelDeltaCarry += delta;
+
+    while (mWheelDeltaCarry >= WHEEL_DELTA)
+    {
+        mWheelDeltaCarry -= WHEEL_DELTA;
+        OnWheelUp(x, y);
+    }
+    while (mWheelDeltaCarry <= -WHEEL_DELTA)
+    {
+        mWheelDeltaCarry += WHEEL_DELTA;
+        OnWheelDown(x, y);
+    }
 }
 
 void Mouse::OnMouseEnter() noexcept

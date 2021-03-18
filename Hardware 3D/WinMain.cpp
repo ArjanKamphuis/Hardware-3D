@@ -15,20 +15,28 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
+			static int i = 0;
 			while (!wnd.Mouse.IsEmpty())
 			{
 				const Mouse::Event e = wnd.Mouse.Read();
 				switch (e.GetType())
 				{
-				case Mouse::Event::Type::Leave:
-					wnd.SetTitle(L"Mouse gone!");
-					break;
-				case Mouse::Event::Type::Move:
+				case Mouse::Event::Type::WheelUp:
+					i++;
 					{
-						std::wstringstream ss;
-						ss << L"Mouse moved to (" << e.GetPosX() << L"," << e.GetPosY() << L")";
-						wnd.SetTitle(ss.str());
+						std::wostringstream oss;
+						oss << L"Up: " << i;
+						wnd.SetTitle(oss.str());
 					}
+					break;
+				case Mouse::Event::Type::WheelDown:
+					i--;
+					{
+						std::wstringstream oss;
+						oss << L"Down: " << i;
+						wnd.SetTitle(oss.str());
+					}
+					break;
 				}
 			}
 		}
