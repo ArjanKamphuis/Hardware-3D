@@ -1,10 +1,5 @@
 #include "Keyboard.h"
 
-Keyboard::Event::Event() noexcept
-	: mType(Type::Invalid), mCode(0u)
-{
-}
-
 Keyboard::Event::Event(Type type, unsigned char code) noexcept
 	: mType(type), mCode(code)
 {

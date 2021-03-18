@@ -13,8 +13,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
-			if (wnd.Keyboard.KeyIsPressed(VK_MENU))
-				MessageBox(nullptr, L"Something Happon!", L"Alt Key Was Pressed", MB_OK | MB_ICONEXCLAMATION);
+			if (wnd.Mouse.LeftIsPressed())
+				MessageBox(nullptr, L"MOUSESS", L"", MB_ICONASTERISK | MB_OK);
 		}
 
 		if (bReturn == -1)

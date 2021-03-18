@@ -3,6 +3,7 @@
 #include "ChiliWin.h"
 #include "ChiliException.h"
 #include "Keyboard.h"
+#include "Mouse.h"
 
 class Window
 {
@@ -57,6 +58,7 @@ private:
 
 public:
 	Keyboard Keyboard;
+	Mouse Mouse;
 
 private:
 	int mWidth;

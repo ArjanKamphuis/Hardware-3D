@@ -153,6 +153,46 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
     case WM_CHAR:
         Keyboard.OnChar(static_cast<unsigned char>(wParam));
         break;
+
+    case WM_MOUSEMOVE:
+        {
+            const POINTS pt = MAKEPOINTS(lParam);
+            Mouse.OnMouseMove(pt.x, pt.y);
+            break;
+        }
+    case WM_LBUTTONDOWN:
+        {
+            const POINTS pt = MAKEPOINTS(lParam);
+            Mouse.OnLeftPresed(pt.x, pt.y);
+            break;
+        }
+    case WM_LBUTTONUP:
+        {
+            const POINTS pt = MAKEPOINTS(lParam);
+            Mouse.OnLeftReleased(pt.x, pt.y);
+            break;
+        }
+    case WM_RBUTTONDOWN:
+        {
+            const POINTS pt = MAKEPOINTS(lParam);
+            Mouse.OnRightPressed(pt.x, pt.y);
+            break;
+        }
+    case WM_RBUTTONUP:
+        {
+            const POINTS pt = MAKEPOINTS(lParam);
+            Mouse.OnRightReleased(pt.x, pt.y);
+            break;
+        }
+    case WM_MOUSEHWHEEL:
+        {
+            const POINTS pt = MAKEPOINTS(lParam);
+            if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
+                Mouse.OnWheelUp(pt.x, pt.y);
+            else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+                Mouse.OnWheelDown(pt.x, pt.y);
+            break;
+        }
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);

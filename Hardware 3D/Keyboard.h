@@ -14,8 +14,8 @@ public:
 		enum class Type { Press, Release, Invalid };
 
 	public:
-		Event() noexcept;
-		Event(Type type, unsigned char  code) noexcept;
+		Event() noexcept = default;
+		Event(Type type, unsigned char code) noexcept;
 
 		bool IsPress() const noexcept;
 		bool IsRelease() const noexcept;
@@ -23,8 +23,8 @@ public:
 		unsigned char GetCode() const noexcept;
 
 	private:
-		Type mType;
-		unsigned char mCode;
+		Type mType = Type::Invalid;
+		unsigned char mCode = 0u;
 	};
 
 public:
