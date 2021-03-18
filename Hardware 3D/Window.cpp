@@ -142,10 +142,12 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         break;
 
     case WM_KEYDOWN:
+    case WM_SYSKEYDOWN:
         if (!(lParam & 0x40000000) || Keyboard.AutorepeatIsEnabled())
             Keyboard.OnKeyPressed(static_cast<unsigned char>(wParam));
         break;
     case WM_KEYUP:
+    case WM_SYSKEYUP:
         Keyboard.OnKeyReleased(static_cast<unsigned char>(wParam));
         break;
     case WM_CHAR:
