@@ -137,6 +137,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
     case WM_CLOSE:
         PostQuitMessage(0);
         return 0;
+    case WM_KILLFOCUS:
+        Keyboard.ClearState();
+        break;
 
     case WM_KEYDOWN:
         Keyboard.OnKeyPressed(static_cast<unsigned char>(wParam));
