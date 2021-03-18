@@ -55,6 +55,11 @@ bool Mouse::IsEmpty() const noexcept
     return mBuffer.empty();
 }
 
+bool Mouse::IsInWindow() const noexcept
+{
+    return false;
+}
+
 int Mouse::GetPosX() const noexcept
 {
     return mX;
@@ -95,10 +100,9 @@ void Mouse::OnMouseMove(int x, int y) noexcept
     TrimBuffer();
 }
 
-void Mouse::OnLeftPresed(int x, int y) noexcept
+void Mouse::OnLeftPressed(int x, int y) noexcept
 {
     mLeftIsPressed = true;
-
     mBuffer.emplace(Mouse::Event::Type::LPress, *this);
     TrimBuffer();
 }
@@ -106,7 +110,6 @@ void Mouse::OnLeftPresed(int x, int y) noexcept
 void Mouse::OnLeftReleased(int x, int y) noexcept
 {
     mLeftIsPressed = false;
-
     mBuffer.emplace(Mouse::Event::Type::LRelease, *this);
     TrimBuffer();
 }
@@ -114,7 +117,6 @@ void Mouse::OnLeftReleased(int x, int y) noexcept
 void Mouse::OnRightPressed(int x, int y) noexcept
 {
     mRightIsPressed = true;
-
     mBuffer.emplace(Mouse::Event::Type::RPress, *this);
     TrimBuffer();
 }
@@ -122,7 +124,6 @@ void Mouse::OnRightPressed(int x, int y) noexcept
 void Mouse::OnRightReleased(int x, int y) noexcept
 {
     mRightIsPressed = false;
-
     mBuffer.emplace(Mouse::Event::Type::RRelease, *this);
     TrimBuffer();
 }
@@ -136,6 +137,20 @@ void Mouse::OnWheelUp(int x, int y) noexcept
 void Mouse::OnWheelDown(int x, int y) noexcept
 {
     mBuffer.emplace(Mouse::Event::Type::WheelDown, *this);
+    TrimBuffer();
+}
+
+void Mouse::OnMouseEnter() noexcept
+{
+    mIsInWindow = true;
+    mBuffer.emplace(Mouse::Event::Type::Enter, *this);
+    TrimBuffer();
+}
+
+void Mouse::OnMouseLeave() noexcept
+{
+    mIsInWindow = false;
+    mBuffer.emplace(Mouse::Event::Type::Leave, *this);
     TrimBuffer();
 }
 

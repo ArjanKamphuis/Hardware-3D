@@ -15,11 +15,21 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
-			if (wnd.Mouse.LeftIsPressed())
+			while (!wnd.Mouse.IsEmpty())
 			{
-				std::wstringstream ss;
-				ss << L"Hello Window!!!! (" << wnd.Mouse.GetPosX() << L"," << wnd.Mouse.GetPosY() << L")";
-				wnd.SetTitle(ss.str().c_str());
+				const Mouse::Event e = wnd.Mouse.Read();
+				switch (e.GetType())
+				{
+				case Mouse::Event::Type::Leave:
+					wnd.SetTitle(L"Mouse gone!");
+					break;
+				case Mouse::Event::Type::Move:
+					{
+						std::wstringstream ss;
+						ss << L"Mouse moved to (" << e.GetPosX() << L"," << e.GetPosY() << L")";
+						wnd.SetTitle(ss.str());
+					}
+				}
 			}
 		}
 

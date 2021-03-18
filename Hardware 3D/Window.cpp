@@ -163,19 +163,42 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
     case WM_MOUSEMOVE:
         {
             const POINTS pt = MAKEPOINTS(lParam);
-            Mouse.OnMouseMove(pt.x, pt.y);
+            if (pt.x >= 0 && pt.x < mWidth && pt.y >= 0 && pt.y < mHeight)
+            {
+                Mouse.OnMouseMove(pt.x, pt.y);
+                if (!Mouse.IsInWindow())
+                {
+                    SetCapture(mhWnd);
+                    Mouse.OnMouseEnter();
+                }
+            }
+            else
+            {
+                if (Mouse.LeftIsPressed() || Mouse.RightIsPressed())
+                    Mouse.OnMouseMove(pt.x, pt.y);
+                else
+                {
+                    ReleaseCapture();
+                    Mouse.OnMouseLeave();
+                }
+            }            
             break;
         }
     case WM_LBUTTONDOWN:
         {
             const POINTS pt = MAKEPOINTS(lParam);
-            Mouse.OnLeftPresed(pt.x, pt.y);
+            Mouse.OnLeftPressed(pt.x, pt.y);
             break;
         }
     case WM_LBUTTONUP:
         {
             const POINTS pt = MAKEPOINTS(lParam);
-            Mouse.OnLeftReleased(pt.x, pt.y);
+            Mouse.OnLeftReleased(pt.x, pt.y);;
+            if (pt.x < 0 || pt.x >= mWidth || pt.y < 0 || pt.y >= mHeight)
+            {
+                ReleaseCapture();
+                Mouse.OnMouseLeave();
+            }
             break;
         }
     case WM_RBUTTONDOWN:
@@ -187,7 +210,12 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
     case WM_RBUTTONUP:
         {
             const POINTS pt = MAKEPOINTS(lParam);
-            Mouse.OnRightReleased(pt.x, pt.y);
+            Mouse.OnRightReleased(pt.x, pt.y);;
+            if (pt.x < 0 || pt.x >= mWidth || pt.y < 0 || pt.y >= mHeight)
+            {
+                ReleaseCapture();
+                Mouse.OnMouseLeave();
+            }
             break;
         }
     case WM_MOUSEHWHEEL:

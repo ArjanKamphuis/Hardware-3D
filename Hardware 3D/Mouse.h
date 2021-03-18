@@ -10,7 +10,7 @@ public:
 	class Event
 	{
 	public:
-		enum class Type { LPress, LRelease, RPress, RRelease, WheelUp, WheelDown, Move, Invalid };
+		enum class Type { LPress, LRelease, RPress, RRelease, WheelUp, WheelDown, Move, Enter, Leave, Invalid };
 
 	public:
 		Event() noexcept = default;
@@ -23,7 +23,6 @@ public:
 		int GetPosX() const noexcept;
 		int GetPosY() const noexcept;
 		std::pair<int, int> GetPos() const noexcept;
-
 
 	private:
 		Type mType = Type::Invalid;
@@ -41,6 +40,7 @@ public:
 	bool LeftIsPressed() const noexcept;
 	bool RightIsPressed() const noexcept;
 	bool IsEmpty() const noexcept;
+	bool IsInWindow() const noexcept;
 
 	int GetPosX() const noexcept;
 	int GetPosY() const noexcept;
@@ -51,12 +51,14 @@ public:
 
 private:
 	void OnMouseMove(int x, int y) noexcept;
-	void OnLeftPresed(int x, int y) noexcept;
+	void OnLeftPressed(int x, int y) noexcept;
 	void OnLeftReleased(int x, int y) noexcept;
 	void OnRightPressed(int x, int y) noexcept;
 	void OnRightReleased(int x, int y) noexcept;
 	void OnWheelUp(int x, int y) noexcept;
 	void OnWheelDown(int x, int y) noexcept;
+	void OnMouseEnter() noexcept;
+	void OnMouseLeave() noexcept;
 	void TrimBuffer() noexcept;
 
 private:
@@ -67,4 +69,5 @@ private:
 	int mY = 0;
 	bool mLeftIsPressed = false;
 	bool mRightIsPressed = false;
+	bool mIsInWindow = false;
 };
