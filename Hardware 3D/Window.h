@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChiliWin.h"
+#include <optional>
 #include "ChiliException.h"
 #include "Keyboard.h"
 #include "Mouse.h"
@@ -50,6 +51,7 @@ public:
 	~Window();
 
 	void SetTitle(const std::wstring& title);
+	static std::optional<int> ProcessMessages();
 
 private:
 	void AdjustAndCenterWindow();

@@ -10,20 +10,10 @@ App::App()
 
 int App::Go()
 {
-	MSG msg = {};
-	BOOL bReturn = FALSE;
-	while ((bReturn = GetMessage(&msg, nullptr, 0, 0)) > 0)
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-
+	std::optional<int> exitcode;
+	while (!(exitcode = Window::ProcessMessages()))
 		DoFrame();
-	}
-
-	if (bReturn == -1)
-		throw CHWND_LAST_EXCEPT();
-
-	return static_cast<int>(msg.wParam);
+	return *exitcode;
 }
 
 void App::DoFrame()
@@ -31,4 +21,5 @@ void App::DoFrame()
 	std::wostringstream oss;
 	oss << L"Time elapsed: " << std::setprecision(1) << std::fixed << mTimer.Peek() << "s";
 	mWnd.SetTitle(oss.str());
+	Sleep(1);
 }
