@@ -1,8 +1,10 @@
 #pragma once
 
 #include "ChiliWin.h"
+#include <memory>
 #include <optional>
 #include "ChiliException.h"
+#include "Graphics.h"
 #include "Keyboard.h"
 #include "Mouse.h"
 
@@ -53,6 +55,8 @@ public:
 	void SetTitle(const std::wstring& title);
 	static std::optional<int> ProcessMessages();
 
+	Graphics& Gfx() const;
+
 private:
 	void AdjustAndCenterWindow();
 
@@ -68,6 +72,8 @@ private:
 	int mWidth;
 	int mHeight;
 	HWND mhWnd;
+
+	std::unique_ptr<Graphics> mGfx;
 };
 
 #define CHWND_EXCEPT(hr) Window::Exception(__LINE__, __FILEW__, hr)

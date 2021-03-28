@@ -81,6 +81,8 @@ Window::Window(int width, int height, const wchar_t* name)
         throw CHWND_LAST_EXCEPT();
     AdjustAndCenterWindow();
     ShowWindow(mhWnd, SW_SHOWDEFAULT);
+
+    mGfx = std::make_unique<Graphics>(mhWnd);
 }
 
 Window::~Window()
@@ -107,6 +109,11 @@ std::optional<int> Window::ProcessMessages()
     }
 
     return {};
+}
+
+Graphics& Window::Gfx() const
+{
+    return *mGfx;
 }
 
 void Window::AdjustAndCenterWindow()
