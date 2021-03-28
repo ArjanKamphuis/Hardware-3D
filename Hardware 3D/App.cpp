@@ -18,5 +18,7 @@ int App::Go()
 
 void App::DoFrame()
 {
+	const float c = 0.5f * std::sin(mTimer.Peek()) + 0.5f;
+	mWnd.Gfx().ClearBuffer(c, c, 1.0f);
 	mWnd.Gfx().EndFrame();
 }
