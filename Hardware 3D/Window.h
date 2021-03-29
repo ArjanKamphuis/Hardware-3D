@@ -13,18 +13,31 @@ class Window
 public:
 	class Exception : public ChiliException
 	{
+		using ChiliException::ChiliException;
 	public:
-		Exception(int line, const wchar_t* file, HRESULT hr) noexcept;
-		const wchar_t* GetType() const noexcept override;
 		static std::wstring TranslateErrorCode(HRESULT hr) noexcept;
+	};
+
+	class HrException : public Exception
+	{
+	public:
+		HrException(int line, const wchar_t* file, HRESULT hr) noexcept;
+		const wchar_t* GetType() const noexcept override;
 		HRESULT GetErrorCode() const noexcept;
-		std::wstring GetErrorString() const noexcept;
+		std::wstring GetErrorDescription() const noexcept;
 
 	protected:
 		void GenerateMessage() const noexcept override;
 
 	private:
 		HRESULT mHR;
+	};
+
+	class NoGfxException : public Exception
+	{
+	public:
+		using Exception::Exception;
+		const wchar_t* GetType() const noexcept override;
 	};
 
 private:
@@ -53,7 +66,7 @@ public:
 	~Window();
 
 	void SetTitle(const std::wstring& title);
-	static std::optional<int> ProcessMessages();
+	static std::optional<int> ProcessMessages() noexcept;
 
 	Graphics& Gfx() const;
 
@@ -75,6 +88,3 @@ private:
 
 	std::unique_ptr<Graphics> mGfx;
 };
-
-#define CHWND_EXCEPT(hr) Window::Exception(__LINE__, __FILEW__, hr)
-#define CHWND_LAST_EXCEPT() Window::Exception(__LINE__, __FILEW__, GetLastError())

@@ -3,46 +3,58 @@
 #include <sstream>
 #include "resource.h"
 
+#define CHWND_EXCEPT(hr) Window::HrException(__LINE__, __FILEW__, hr)
+#define CHWND_LAST_EXCEPT() Window::HrException(__LINE__, __FILEW__, GetLastError())
+#define CHWND_NOGFX_EXCEPT() Window::NoGfxException(__LINE__, __FILEW__)
+
 Window::WindowClass Window::WindowClass::mWndClass;
-
-Window::Exception::Exception(int line, const wchar_t* file, HRESULT hr) noexcept
-    : ChiliException(line, file), mHR(hr)
-{
-}
-
-const wchar_t* Window::Exception::GetType() const noexcept
-{
-    return L"Chili Window Exception";
-}
 
 std::wstring Window::Exception::TranslateErrorCode(HRESULT hr) noexcept
 {
     wchar_t* pMsgBuf = nullptr;
-    DWORD nMsgLength = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    const DWORD nMsgLength = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr, hr, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), reinterpret_cast<LPWSTR>(&pMsgBuf), 0, nullptr);
     if (nMsgLength == 0)
-        return L"Unidentified error code.\r\n";
+        return L"Unidentified error code.";
 
     std::wstring errorString = pMsgBuf;
     LocalFree(pMsgBuf);
+
+    // delete the /r/n nasty line
+    errorString.erase(std::prev(errorString.end(), 2), errorString.end());
     return errorString;
 }
 
-HRESULT Window::Exception::GetErrorCode() const noexcept
+Window::HrException::HrException(int line, const wchar_t* file, HRESULT hr) noexcept
+    : Exception(line, file), mHR(hr)
+{
+}
+
+const wchar_t* Window::HrException::GetType() const noexcept
+{
+    return L"Chili Window Exception";
+}
+
+HRESULT Window::HrException::GetErrorCode() const noexcept
 {
     return mHR;
 }
 
-std::wstring Window::Exception::GetErrorString() const noexcept
+std::wstring Window::HrException::GetErrorDescription() const noexcept
 {
     return TranslateErrorCode(mHR);
 }
 
-void Window::Exception::GenerateMessage() const noexcept
+void Window::HrException::GenerateMessage() const noexcept
 {
     std::wstringstream oss;
-    oss << GetType() << std::endl << "[Error Code] " << GetErrorCode() << std::endl << "[Description] " << GetErrorString() << std::endl << GetOriginString();
+    oss << GetType() << std::endl << "[Error Code] " << GetErrorCode() << std::endl << "[Description] " << GetErrorDescription() << std::endl << GetOriginString();
     mWideWhatBuffer = oss.str();
+}
+
+const wchar_t* Window::NoGfxException::GetType() const noexcept
+{
+    return L"Chili Window Exception [No Graphics]";
 }
 
 const wchar_t* Window::WindowClass::GetName() noexcept
@@ -80,9 +92,10 @@ Window::Window(int width, int height, const wchar_t* name)
     if ((mhWnd = CreateWindow(WindowClass::GetName(), name, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 0, 0, 0, 0, nullptr, nullptr, WindowClass::GetInstance(), this)) == nullptr)
         throw CHWND_LAST_EXCEPT();
     AdjustAndCenterWindow();
-    ShowWindow(mhWnd, SW_SHOWDEFAULT);
 
     mGfx = std::make_unique<Graphics>(mhWnd);
+
+    ShowWindow(mhWnd, SW_SHOWDEFAULT);    
 }
 
 Window::~Window()
@@ -96,7 +109,7 @@ void Window::SetTitle(const std::wstring& title)
         throw CHWND_LAST_EXCEPT();
 }
 
-std::optional<int> Window::ProcessMessages()
+std::optional<int> Window::ProcessMessages() noexcept
 {
     MSG msg;
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -113,6 +126,8 @@ std::optional<int> Window::ProcessMessages()
 
 Graphics& Window::Gfx() const
 {
+    if (mGfx == nullptr)
+        throw CHWND_NOGFX_EXCEPT();
     return *mGfx;
 }
 
