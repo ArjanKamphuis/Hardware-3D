@@ -14,10 +14,12 @@ using Microsoft::WRL::ComPtr;
 #define GFX_EXCEPT(hr) Graphics::HrException(__LINE__, __FILEW__, (hr), mInfoManager.GetMessages())
 #define GFX_THROW_INFO(hrcall) { mInfoManager.Set(); HRESULT hr__ = hrcall; if (FAILED(hr__)) throw GFX_EXCEPT(hr__); }
 #define GFX_DEVICE_REMOVED_EXCEPT(hr) Graphics::DeviceRemovedException(__LINE__, __FILEW__, hr, mInfoManager.GetMessages())
+#define GFX_THROW_INFO_ONLY(call) { mInfoManager.Set(); (call); auto v = mInfoManager.GetMessages(); if (!v.empty()) throw Graphics::InfoException(__LINE__, __FILEW__, v); }
 #else
 #define GFX_EXCEPT(hr) Graphics::HrException(__LINE__, __FILEW__, (hr))
 #define GFX_THROW_INFO(hrcall) GFX_THROW_NOINFO(hrcall)
 #define GFX_DEVICE_REMOVED_EXCEPT(hr) Graphics::DeviceRemovedException(__LINE__, __FILEW__, (hr))
+#define GFX_THROW_INFO_ONLY(call) (call)
 #endif
 
 Graphics::HrException::HrException(int line, const wchar_t* file, HRESULT hr, std::vector<std::wstring> infoMsgs) noexcept
@@ -71,6 +73,36 @@ void Graphics::HrException::GenerateMessage() const noexcept
 	if (!mInfo.empty())
 		oss << L"\r\n[Error Info]\r\n" << GetErrorInfo() << std::endl << std::endl;
 	oss << GetOriginString();
+	mWideWhatBuffer = oss.str();
+}
+
+Graphics::InfoException::InfoException(int line, const wchar_t* file, std::vector<std::wstring> infoMsgs) noexcept
+	: Exception(line, file)
+{
+	for (const std::wstring& m : infoMsgs)
+	{
+		mInfo += m;
+		mInfo.push_back(L'\n');
+	}
+
+	if (!mInfo.empty())
+		mInfo.pop_back();
+}
+
+const wchar_t* Graphics::InfoException::GetType() const noexcept
+{
+	return L"Chili Graphics Info Exception";
+}
+
+std::wstring Graphics::InfoException::GetErrorInfo() const noexcept
+{
+	return mInfo;
+}
+
+void Graphics::InfoException::GenerateMessage() const noexcept
+{
+	std::wstringstream oss;
+	oss << GetType() << std::endl << L"\r\n[Error Info]\r\n" << GetErrorInfo() << std::endl << std::endl << GetOriginString();
 	mWideWhatBuffer = oss.str();
 }
 
@@ -152,5 +184,5 @@ void Graphics::DrawTestTriangle()
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0u;
 	mDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
-	mDeviceContext->Draw(3u, 0u);
+	GFX_THROW_INFO_ONLY(mDeviceContext->Draw(3u, 0u));
 }

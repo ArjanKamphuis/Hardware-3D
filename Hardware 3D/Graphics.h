@@ -32,6 +32,20 @@ public:
 		std::wstring mInfo;
 	};
 
+	class InfoException : public Exception
+	{
+	public:
+		InfoException(int line, const wchar_t* file, std::vector<std::wstring> infoMsgs) noexcept;
+		const wchar_t* GetType() const noexcept override;
+		std::wstring GetErrorInfo() const noexcept;
+
+	protected:
+		void GenerateMessage() const noexcept override;
+
+	private:
+		std::wstring mInfo;
+	};
+
 	class DeviceRemovedException : public HrException
 	{
 		using HrException::HrException;
