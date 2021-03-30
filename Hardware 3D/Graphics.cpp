@@ -1,6 +1,9 @@
 #include "Graphics.h"
 
+#include <d3dcompiler.h>
+
 #pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 
 using Microsoft::WRL::ComPtr;
 
@@ -92,5 +95,12 @@ void Graphics::DrawTestTriangle()
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0u;
 	mDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
-	GFX_THROW_INFO_ONLY(mDeviceContext->Draw(3u, 0u));
+
+	ComPtr<ID3D11VertexShader> pVertexShader;
+	ComPtr<ID3DBlob> pBlob;
+	GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &pBlob));
+	GFX_THROW_INFO(mDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
+	mDeviceContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
+
+	GFX_THROW_INFO_ONLY(mDeviceContext->Draw(static_cast<UINT>(std::size(vertices)), 0u));
 }
