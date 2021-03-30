@@ -102,5 +102,10 @@ void Graphics::DrawTestTriangle()
 	GFX_THROW_INFO(mDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
 	mDeviceContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 
+	ComPtr<ID3D11PixelShader> pPixelShader;
+	GFX_THROW_INFO(D3DReadFileToBlob(L"PixelShader.cso", &pBlob));
+	GFX_THROW_INFO(mDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
+	mDeviceContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
+
 	GFX_THROW_INFO_ONLY(mDeviceContext->Draw(static_cast<UINT>(std::size(vertices)), 0u));
 }
