@@ -82,12 +82,12 @@ const wchar_t* Graphics::DeviceRemovedException::GetType() const noexcept
 Graphics::Graphics(HWND hWnd)
 {
 	DXGI_SWAP_CHAIN_DESC sd = {};
-	sd.BufferCount = 1;
+	sd.BufferCount = 2;
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.OutputWindow = hWnd;
 	sd.SampleDesc = { 1, 0 };
-	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Windowed = TRUE;
 
 	UINT createDeviceFlags = 0;

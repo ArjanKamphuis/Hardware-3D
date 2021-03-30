@@ -41,13 +41,10 @@ std::vector<std::wstring> DxgiInfoManager::GetMessages() const
 
 		GFX_THROW_NOINFO(mDxgiInfoQueue->GetMessage(DXGI_DEBUG_ALL, it, pMessage, &messageLength));
 
-		if (pMessage->Severity == DXGI_INFO_QUEUE_MESSAGE_SEVERITY::DXGI_INFO_QUEUE_MESSAGE_SEVERITY_ERROR || pMessage->Severity == DXGI_INFO_QUEUE_MESSAGE_SEVERITY::DXGI_INFO_QUEUE_MESSAGE_SEVERITY_CORRUPTION)
-		{
-			wchar_t s[1024];
-			size_t i = 0;
-			mbstowcs_s(&i, s, messageLength, pMessage->pDescription, messageLength);
-			messages.push_back(s);
-		}
+		wchar_t s[1024];
+		size_t i = 0;
+		mbstowcs_s(&i, s, messageLength, pMessage->pDescription, messageLength);
+		messages.push_back(s);
 	}
 	return messages;
 }
