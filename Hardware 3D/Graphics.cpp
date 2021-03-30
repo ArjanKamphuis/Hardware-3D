@@ -70,20 +70,27 @@ void Graphics::DrawTestTriangle()
 {
 	struct Vertex
 	{
-		float X = 0.0f;
-		float Y = 0.0f;
-		unsigned char R = 0;
-		unsigned char G = 0;
-		unsigned char B = 0;
-		unsigned char A = 0;
+		struct
+		{
+			float X = 0.0f;
+			float Y = 0.0f;
+		} Position;
+		struct
+		{
+			unsigned char R = 0;
+			unsigned char G = 0;
+			unsigned char B = 0;
+			unsigned char A = 0;
+		} Color;
 	};
 
-	const Vertex vertices[] =
+	Vertex vertices[] =
 	{
 		{ 0.0f, 0.5f, 255, 0, 0, 0 },
 		{ 0.5f, -0.5f, 0, 255, 0, 0 },
 		{ -0.5f, -0.5f, 0, 0, 255, 0 }
 	};
+	vertices[0].Color.G = 255;
 
 	D3D11_BUFFER_DESC vbd = {};
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
