@@ -72,13 +72,16 @@ void Graphics::DrawTestTriangle()
 	{
 		float X = 0.0f;
 		float Y = 0.0f;
+		float R = 0.0f;
+		float G = 0.0f;
+		float B = 0.0f;
 	};
 
 	const Vertex vertices[] =
 	{
-		{ 0.0f, 0.5f },
-		{ 0.5f, -0.5f },
-		{ -0.5f, -0.5f }
+		{ 0.0f, 0.5f, 1.0f, 0.0f, 0.0f },
+		{ 0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
+		{ -0.5f, -0.5f, 0.0f, 0.0f, 1.0f }
 	};
 
 	D3D11_BUFFER_DESC vbd = {};
@@ -110,7 +113,8 @@ void Graphics::DrawTestTriangle()
 	ComPtr<ID3D11InputLayout> pInputLayout;
 	const D3D11_INPUT_ELEMENT_DESC ied[] =
 	{
-		{ "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	GFX_THROW_INFO(mDevice->CreateInputLayout(ied, static_cast<UINT>(std::size(ied)), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
 	mDeviceContext->IASetInputLayout(pInputLayout.Get());
