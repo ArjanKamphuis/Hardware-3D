@@ -1,6 +1,7 @@
 #pragma once
 
 #include <bitset>
+#include <optional>
 #include <queue>
 
 class Keyboard
@@ -14,17 +15,15 @@ public:
 		enum class Type { Press, Release, Invalid };
 
 	public:
-		Event() noexcept = default;
 		Event(Type type, unsigned char code) noexcept;
 
 		bool IsPress() const noexcept;
 		bool IsRelease() const noexcept;
-		bool IsValid() const noexcept;
 		unsigned char GetCode() const noexcept;
 
 	private:
-		Type mType = Type::Invalid;
-		unsigned char mCode = 0u;
+		Type mType;
+		unsigned char mCode;
 	};
 
 public:
@@ -33,10 +32,10 @@ public:
 	Keyboard& operator=(const Keyboard&) = delete;
 
 	bool KeyIsPressed(unsigned char keycode) const noexcept;
-	Event ReadKey() noexcept;
+	std::optional<Event> ReadKey() noexcept;
 	bool KeyIsEmpty() const noexcept;
 
-	char ReadChar() noexcept;
+	std::optional<char> ReadChar() noexcept;
 	bool CharIsEmpty() const noexcept;
 
 	void FlushKey() noexcept;

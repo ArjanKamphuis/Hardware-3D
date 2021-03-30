@@ -15,11 +15,6 @@ bool Keyboard::Event::IsRelease() const noexcept
 	return mType == Type::Release;
 }
 
-bool Keyboard::Event::IsValid() const noexcept
-{
-	return mType == Type::Invalid;
-}
-
 unsigned char Keyboard::Event::GetCode() const noexcept
 {
 	return mCode;
@@ -30,7 +25,7 @@ bool Keyboard::KeyIsPressed(unsigned char keycode) const noexcept
 	return mKeyStates[keycode];
 }
 
-Keyboard::Event Keyboard::ReadKey() noexcept
+std::optional<Keyboard::Event> Keyboard::ReadKey() noexcept
 {
 	if (mKeyBuffer.size() > 0)
 	{
@@ -38,7 +33,7 @@ Keyboard::Event Keyboard::ReadKey() noexcept
 		mKeyBuffer.pop();
 		return e;
 	}
-	return Keyboard::Event();
+	return {};
 }
 
 bool Keyboard::KeyIsEmpty() const noexcept
@@ -46,7 +41,7 @@ bool Keyboard::KeyIsEmpty() const noexcept
 	return mKeyBuffer.empty();
 }
 
-char Keyboard::ReadChar() noexcept
+std::optional<char> Keyboard::ReadChar() noexcept
 {
 	if (mCharBuffer.size() > 0)
 	{
@@ -54,7 +49,7 @@ char Keyboard::ReadChar() noexcept
 		mCharBuffer.pop();
 		return charCode;
 	}
-	return 0;
+	return {};
 }
 
 bool Keyboard::CharIsEmpty() const noexcept

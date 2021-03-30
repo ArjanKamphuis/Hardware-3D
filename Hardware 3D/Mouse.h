@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <queue>
 
 class Mouse
@@ -13,10 +14,8 @@ public:
 		enum class Type { LPress, LRelease, RPress, RRelease, WheelUp, WheelDown, Move, Enter, Leave, Invalid };
 
 	public:
-		Event() noexcept = default;
 		Event(Type type, const Mouse& parent) noexcept;
 
-		bool IsValid() const noexcept;
 		bool LeftIsPressed() const noexcept;
 		bool RightIsPressed() const noexcept;
 		Type GetType() const noexcept;
@@ -25,11 +24,11 @@ public:
 		std::pair<int, int> GetPos() const noexcept;
 
 	private:
-		Type mType = Type::Invalid;
-		bool mLeftIsPresed = false;
-		bool mRightIsPressed = false;
-		int mX = 0;
-		int mY = 0;
+		Type mType;
+		bool mLeftIsPresed;
+		bool mRightIsPressed;
+		int mX;
+		int mY;
 	};
 
 public:
@@ -46,7 +45,7 @@ public:
 	int GetPosY() const noexcept;
 	std::pair<int, int> GetPos() const noexcept;
 
-	Mouse::Event Read() noexcept;
+	std::optional<Mouse::Event> Read() noexcept;
 	void Flush() noexcept;
 
 private:

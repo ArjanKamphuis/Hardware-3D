@@ -7,11 +7,6 @@ Mouse::Event::Event(Type type, const Mouse& parent) noexcept
 {
 }
 
-bool Mouse::Event::IsValid() const noexcept
-{
-    return mType != Type::Invalid;
-}
-
 bool Mouse::Event::LeftIsPressed() const noexcept
 {
     return mLeftIsPresed;
@@ -77,7 +72,7 @@ std::pair<int, int> Mouse::GetPos() const noexcept
     return { mX, mY };
 }
 
-Mouse::Event Mouse::Read() noexcept
+std::optional<Mouse::Event> Mouse::Read() noexcept
 {
     if (mBuffer.size() > 0)
     {
@@ -85,7 +80,7 @@ Mouse::Event Mouse::Read() noexcept
         mBuffer.pop();
         return e;
     }
-    return Mouse::Event();
+    return {};
 }
 
 void Mouse::Flush() noexcept
