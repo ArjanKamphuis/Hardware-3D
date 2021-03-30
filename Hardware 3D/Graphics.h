@@ -50,6 +50,8 @@ public:
 	void EndFrame();
 	void ClearBuffer(float r, float g, float b) noexcept;
 
+	void DrawTestTriangle();
+
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
 	DxgiInfoManager mInfoManager;

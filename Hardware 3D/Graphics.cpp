@@ -122,3 +122,35 @@ void Graphics::ClearBuffer(float r, float g, float b) noexcept
 	const float color[] = { r, g, b, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
 }
+
+void Graphics::DrawTestTriangle()
+{
+	struct Vertex
+	{
+		float X = 0.0f;
+		float Y = 0.0f;
+	};
+
+	const Vertex vertices[] =
+	{
+		{ 0.0f, 0.5f },
+		{ 0.5f, -0.5f },
+		{ -0.5f, -0.5f }
+	};
+
+	D3D11_BUFFER_DESC vbd = {};
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	vbd.ByteWidth = sizeof(vertices);
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;
+
+	D3D11_SUBRESOURCE_DATA vInitData = {};
+	vInitData.pSysMem = vertices;
+
+	ComPtr<ID3D11Buffer> pVertexBuffer;
+	GFX_THROW_INFO(mDevice->CreateBuffer(&vbd, &vInitData, &pVertexBuffer));
+
+	const UINT stride = sizeof(Vertex);
+	const UINT offset = 0u;
+	mDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
+	mDeviceContext->Draw(3u, 0u);
+}
