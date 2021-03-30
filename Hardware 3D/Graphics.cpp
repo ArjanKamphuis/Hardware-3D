@@ -107,5 +107,10 @@ void Graphics::DrawTestTriangle()
 	GFX_THROW_INFO(mDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
 	mDeviceContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 
+	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), nullptr);
+
+	D3D11_VIEWPORT vp = { 0, 0, 800, 600, 0, 1 };
+	mDeviceContext->RSSetViewports(1u, &vp);
+
 	GFX_THROW_INFO_ONLY(mDeviceContext->Draw(static_cast<UINT>(std::size(vertices)), 0u));
 }
