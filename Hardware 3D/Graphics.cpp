@@ -84,28 +84,46 @@ void Graphics::DrawTestTriangle()
 		} Color;
 	};
 
-	Vertex vertices[] =
+	const Vertex vertices[] =
 	{
 		{ 0.0f, 0.5f, 255, 0, 0, 0 },
 		{ 0.5f, -0.5f, 0, 255, 0, 0 },
-		{ -0.5f, -0.5f, 0, 0, 255, 0 }
+		{ -0.5f, -0.5f, 0, 0, 255, 0 },
+		{ -0.3f, 0.3f, 0, 255, 0, 0 },
+		{ 0.3f, 0.3f, 0, 0, 255, 0 },
+		{ 0.0f, -0.8f, 255, 0, 0, 0 },
 	};
-	vertices[0].Color.G = 255;
+
+	const unsigned short indices[] =
+	{
+		0, 1, 2,
+		0, 2, 3,
+		0, 4, 1,
+		2, 1, 5,
+	};
 
 	D3D11_BUFFER_DESC vbd = {};
 	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vbd.ByteWidth = sizeof(vertices);
 	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-
 	D3D11_SUBRESOURCE_DATA vInitData = {};
 	vInitData.pSysMem = vertices;
-
 	ComPtr<ID3D11Buffer> pVertexBuffer;
 	GFX_THROW_INFO(mDevice->CreateBuffer(&vbd, &vInitData, &pVertexBuffer));
+
+	D3D11_BUFFER_DESC ibd = {};
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	ibd.ByteWidth = sizeof(indices);
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;
+	D3D11_SUBRESOURCE_DATA iInitData = {};
+	iInitData.pSysMem = indices;
+	ComPtr<ID3D11Buffer> pIndexBuffer;
+	GFX_THROW_INFO(mDevice->CreateBuffer(&ibd, &iInitData, &pIndexBuffer));
 
 	const UINT stride = sizeof(Vertex);
 	const UINT offset = 0u;
 	mDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
+	mDeviceContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 
 	ComPtr<ID3DBlob> pBlob;
 	ComPtr<ID3D11PixelShader> pPixelShader;
@@ -134,5 +152,5 @@ void Graphics::DrawTestTriangle()
 
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	GFX_THROW_INFO_ONLY(mDeviceContext->Draw(static_cast<UINT>(std::size(vertices)), 0u));
+	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(static_cast<UINT>(std::size(indices)), 0u, 0u));
 }
