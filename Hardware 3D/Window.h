@@ -10,6 +10,7 @@
 
 class Window
 {
+#pragma region Exceptions
 public:
 	class Exception : public ChiliException
 	{
@@ -58,6 +59,7 @@ private:
 		static WindowClass mWndClass;
 		HINSTANCE mhInstance;
 	};
+#pragma endregion
 
 public:
 	Window(int width, int height, const wchar_t* name);

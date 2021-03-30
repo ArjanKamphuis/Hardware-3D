@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\ExceptionDefinitions">
+      <UniqueIdentifier>{8ebde90b-c802-445a-b67c-aae1b3c463a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -22,9 +25,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ChiliException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Keyboard.cpp">
@@ -46,6 +46,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DxgiInfoManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsExceptions.cpp">
+      <Filter>Source Files\ExceptionDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowExceptions.cpp">
+      <Filter>Source Files\ExceptionDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="ChiliException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

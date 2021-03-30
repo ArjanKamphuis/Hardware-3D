@@ -8,6 +8,7 @@
 
 class Graphics
 {
+#pragma region Exceptions
 public:
 	class Exception : public ChiliException
 	{
@@ -55,6 +56,7 @@ public:
 	private:
 		std::wstring mReason;
 	};
+#pragma endregion
 
 public:
 	Graphics(HWND hWnd);
