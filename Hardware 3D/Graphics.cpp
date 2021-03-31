@@ -92,7 +92,7 @@ void Graphics::DrawTestTriangle(float angle)
 		{ -0.5f, -0.5f, 0, 0, 255, 0 },
 		{ -0.3f, 0.3f, 0, 255, 0, 0 },
 		{ 0.3f, 0.3f, 0, 0, 255, 0 },
-		{ 0.0f, -0.8f, 255, 0, 0, 0 },
+		{ 0.0f, -1.0f, 255, 0, 0, 0 },
 	};
 
 	const unsigned short indices[] =
@@ -137,10 +137,10 @@ void Graphics::DrawTestTriangle(float angle)
 	const ConstantBuffer cb =
 	{
 		{
-			std::cos(angle),	std::sin(angle),	0.0f,	0.0f,
-			-std::sin(angle),	std::cos(angle),	0.0f,	0.0f,
-			0.0f,				0.0f,				1.0f,	0.0f,
-			0.0f,				0.0f,				0.0f,	1.0f,
+			0.75f * std::cos(angle),	std::sin(angle),	0.0f,	0.0f,
+			-0.75f * std::sin(angle),	std::cos(angle),	0.0f,	0.0f,
+			0.0f,						0.0f,				1.0f,	0.0f,
+			0.0f,						0.0f,				0.0f,	1.0f,
 		}
 	};
 
