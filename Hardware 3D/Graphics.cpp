@@ -1,5 +1,6 @@
 #include "Graphics.h"
 
+#include <cmath>
 #include <d3dcompiler.h>
 
 #pragma comment(lib, "d3d11.lib")
@@ -66,7 +67,7 @@ void Graphics::ClearBuffer(float r, float g, float b) noexcept
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
 }
 
-void Graphics::DrawTestTriangle()
+void Graphics::DrawTestTriangle(float angle)
 {
 	struct Vertex
 	{
@@ -124,6 +125,35 @@ void Graphics::DrawTestTriangle()
 	const UINT offset = 0u;
 	mDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
 	mDeviceContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
+
+	struct ConstantBuffer
+	{
+		struct
+		{
+			float Element[4][4];
+		} Transformation;
+	};
+
+	const ConstantBuffer cb =
+	{
+		{
+			std::cos(angle),	std::sin(angle),	0.0f,	0.0f,
+			-std::sin(angle),	std::cos(angle),	0.0f,	0.0f,
+			0.0f,				0.0f,				1.0f,	0.0f,
+			0.0f,				0.0f,				0.0f,	1.0f,
+		}
+	};
+
+	ComPtr<ID3D11Buffer> pConstantBuffer;
+	D3D11_BUFFER_DESC cbd = {};
+	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbd.ByteWidth = sizeof(cb);
+	cbd.Usage = D3D11_USAGE_DYNAMIC;
+	D3D11_SUBRESOURCE_DATA cInitData = {};
+	cInitData.pSysMem = &cb;
+	GFX_THROW_INFO(mDevice->CreateBuffer(&cbd, &cInitData, &pConstantBuffer));
+	mDeviceContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 
 	ComPtr<ID3DBlob> pBlob;
 	ComPtr<ID3D11PixelShader> pPixelShader;

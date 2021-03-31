@@ -66,7 +66,7 @@ public:
 	void EndFrame();
 	void ClearBuffer(float r, float g, float b) noexcept;
 
-	void DrawTestTriangle();
+	void DrawTestTriangle(float angle);
 
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
