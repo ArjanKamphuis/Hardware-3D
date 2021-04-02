@@ -2,11 +2,13 @@
 
 #include <cmath>
 #include <d3dcompiler.h>
+#include <DirectXMath.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
 using Microsoft::WRL::ComPtr;
+using namespace DirectX;
 
 #define GFX_EXCEPT_NOINFO(hr) Graphics::HrException(__LINE__, __FILEW__, hr)
 #define GFX_THROW_NOINFO(hrcall) { HRESULT hr__ = hrcall; if(FAILED(hr__)) throw Graphics::HrException(__LINE__, __FILEW__, hr__); }
@@ -67,21 +69,21 @@ void Graphics::ClearBuffer(float r, float g, float b) noexcept
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
 }
 
-void Graphics::DrawTestTriangle(float angle)
+void Graphics::DrawTestTriangle(float angle, float x, float y)
 {
 	struct Vertex
 	{
 		struct
 		{
-			float X = 0.0f;
-			float Y = 0.0f;
+			float X;
+			float Y;
 		} Position;
 		struct
 		{
-			unsigned char R = 0;
-			unsigned char G = 0;
-			unsigned char B = 0;
-			unsigned char A = 0;
+			unsigned char R;
+			unsigned char G;
+			unsigned char B;
+			unsigned char A;
 		} Color;
 	};
 
@@ -128,23 +130,14 @@ void Graphics::DrawTestTriangle(float angle)
 
 	struct ConstantBuffer
 	{
-		struct
-		{
-			float Element[4][4];
-		} Transformation;
+		XMMATRIX Transform;
 	};
 
 	const ConstantBuffer cb =
 	{
-		{
-			0.75f * std::cos(angle),	std::sin(angle),	0.0f,	0.0f,
-			-0.75f * std::sin(angle),	std::cos(angle),	0.0f,	0.0f,
-			0.0f,						0.0f,				1.0f,	0.0f,
-			0.0f,						0.0f,				0.0f,	1.0f,
-		}
+		XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixScaling(0.75f, 1.0f, 1.0f) * XMMatrixTranslation(x, y, 0.0f))
 	};
 
-	ComPtr<ID3D11Buffer> pConstantBuffer;
 	D3D11_BUFFER_DESC cbd = {};
 	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -152,6 +145,7 @@ void Graphics::DrawTestTriangle(float angle)
 	cbd.Usage = D3D11_USAGE_DYNAMIC;
 	D3D11_SUBRESOURCE_DATA cInitData = {};
 	cInitData.pSysMem = &cb;
+	ComPtr<ID3D11Buffer> pConstantBuffer;
 	GFX_THROW_INFO(mDevice->CreateBuffer(&cbd, &cInitData, &pConstantBuffer));
 	mDeviceContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 
