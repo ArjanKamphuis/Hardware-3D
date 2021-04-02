@@ -171,6 +171,7 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         {
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnLeftPressed(pt.x, pt.y);
+            SetForegroundWindow(mhWnd);
             break;
         }
     case WM_LBUTTONUP:
