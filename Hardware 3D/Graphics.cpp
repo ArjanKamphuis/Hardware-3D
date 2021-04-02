@@ -77,6 +77,7 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 		{
 			float X;
 			float Y;
+			float Z;
 		} Position;
 		struct
 		{
@@ -89,20 +90,24 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 
 	const Vertex vertices[] =
 	{
-		{ 0.0f, 0.5f, 255, 0, 0, 0 },
-		{ 0.5f, -0.5f, 0, 255, 0, 0 },
-		{ -0.5f, -0.5f, 0, 0, 255, 0 },
-		{ -0.3f, 0.3f, 0, 255, 0, 0 },
-		{ 0.3f, 0.3f, 0, 0, 255, 0 },
-		{ 0.0f, -1.0f, 255, 0, 0, 0 },
+		{ -1.0f, -1.0f, -1.0f, 255, 0, 0, 0 },
+		{ 1.0f, -1.0f, -1.0f, 0, 255, 0, 0 },
+		{ -1.0f, 1.0f, -1.0f, 0, 0, 255, 0 },
+		{ 1.0f, 1.0f, -1.0f, 255, 255, 0, 0 },
+		{ -1.0f, -1.0f, 1.0f, 255, 0, 255, 0 },
+		{ 1.0f, -1.0f, 1.0f, 0, 255, 255, 0 },
+		{ -1.0f, 1.0f, 1.0f, 0, 0, 0, 0 },
+		{ 1.0f, 1.0f, 1.0f, 255, 255, 255, 0 }
 	};
 
 	const unsigned short indices[] =
 	{
-		0, 1, 2,
-		0, 2, 3,
-		0, 4, 1,
-		2, 1, 5,
+		0, 2, 1,	2, 3, 1,
+		1, 3, 5,	3, 7, 5,
+		2, 6, 3,	3, 6, 7,
+		4, 5, 7,	4, 7, 6,
+		0, 4, 2,	2, 4, 6,
+		0, 1, 4,	1, 5, 4
 	};
 
 	D3D11_BUFFER_DESC vbd = {};
@@ -135,7 +140,7 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 
 	const ConstantBuffer cb =
 	{
-		XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixScaling(0.75f, 1.0f, 1.0f) * XMMatrixTranslation(x, y, 0.0f))
+		XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x, y, 4.0f) * XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 10.0f))
 	};
 
 	D3D11_BUFFER_DESC cbd = {};
@@ -163,8 +168,8 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 	ComPtr<ID3D11InputLayout> pInputLayout;
 	const D3D11_INPUT_ELEMENT_DESC ied[] =
 	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0u, DXGI_FORMAT_R8G8B8A8_UNORM, 0u, 8u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0u, DXGI_FORMAT_R8G8B8A8_UNORM, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	GFX_THROW_INFO(mDevice->CreateInputLayout(ied, static_cast<UINT>(std::size(ied)), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
 	mDeviceContext->IASetInputLayout(pInputLayout.Get());

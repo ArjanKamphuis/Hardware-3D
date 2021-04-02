@@ -9,10 +9,10 @@ cbuffer CBuf
 	matrix Transform;
 };
 
-VSOut main(float2 pos : POSITION, float3 color : COLOR)
+VSOut main(float3 pos : POSITION, float3 color : COLOR)
 {
 	VSOut vout;
-	vout.PosH = mul(float4(pos.x, pos.y, 0.0f, 1.0f), Transform);
+	vout.PosH = mul(float4(pos, 1.0f), Transform);
 	vout.Color = color;
 	return vout;
 }
