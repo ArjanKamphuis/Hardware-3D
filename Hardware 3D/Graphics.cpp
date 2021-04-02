@@ -79,25 +79,18 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 			float Y;
 			float Z;
 		} Position;
-		struct
-		{
-			unsigned char R;
-			unsigned char G;
-			unsigned char B;
-			unsigned char A;
-		} Color;
 	};
 
 	const Vertex vertices[] =
 	{
-		{ -1.0f, -1.0f, -1.0f, 255, 0, 0, 0 },
-		{ 1.0f, -1.0f, -1.0f, 0, 255, 0, 0 },
-		{ -1.0f, 1.0f, -1.0f, 0, 0, 255, 0 },
-		{ 1.0f, 1.0f, -1.0f, 255, 255, 0, 0 },
-		{ -1.0f, -1.0f, 1.0f, 255, 0, 255, 0 },
-		{ 1.0f, -1.0f, 1.0f, 0, 255, 255, 0 },
-		{ -1.0f, 1.0f, 1.0f, 0, 0, 0, 0 },
-		{ 1.0f, 1.0f, 1.0f, 255, 255, 255, 0 }
+		{ -1.0f, -1.0f, -1.0f },
+		{ 1.0f, -1.0f, -1.0f },
+		{ -1.0f, 1.0f, -1.0f },
+		{ 1.0f, 1.0f, -1.0f },
+		{ -1.0f, -1.0f, 1.0f },
+		{ 1.0f, -1.0f, 1.0f },
+		{ -1.0f, 1.0f, 1.0f },
+		{ 1.0f, 1.0f, 1.0f }
 	};
 
 	const unsigned short indices[] =
@@ -154,6 +147,39 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 	GFX_THROW_INFO(mDevice->CreateBuffer(&cbd, &cInitData, &pConstantBuffer));
 	mDeviceContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 
+	struct ColorConstantBuffer
+	{
+		struct
+		{
+			float R;
+			float G;
+			float B;
+			float A;
+		} FaceColors[6];
+	};
+
+	const ColorConstantBuffer colorData =
+	{
+		{
+			{ 1.0f, 0.0f, 1.0f},
+			{ 1.0f, 0.0f, 0.0f},
+			{ 0.0f, 1.0f, 0.0f},
+			{ 0.0f, 0.0f, 1.0f},
+			{ 1.0f, 1.0f, 0.0f},
+			{ 0.0f, 1.0f, 1.0f}
+		}
+	};
+
+	D3D11_BUFFER_DESC colorBufDesc = {};
+	colorBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	colorBufDesc.ByteWidth = sizeof(colorData);
+	colorBufDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	D3D11_SUBRESOURCE_DATA colorInitData = {};
+	colorInitData.pSysMem = &colorData;
+	ComPtr<ID3D11Buffer> pColorBuffer;
+	GFX_THROW_INFO(mDevice->CreateBuffer(&colorBufDesc, &colorInitData, &pColorBuffer));
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, pColorBuffer.GetAddressOf());
+
 	ComPtr<ID3DBlob> pBlob;
 	ComPtr<ID3D11PixelShader> pPixelShader;
 	GFX_THROW_INFO(D3DReadFileToBlob(L"PixelShader.cso", &pBlob));
@@ -168,8 +194,7 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 	ComPtr<ID3D11InputLayout> pInputLayout;
 	const D3D11_INPUT_ELEMENT_DESC ied[] =
 	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0u, DXGI_FORMAT_R8G8B8A8_UNORM, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 	GFX_THROW_INFO(mDevice->CreateInputLayout(ied, static_cast<UINT>(std::size(ied)), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
 	mDeviceContext->IASetInputLayout(pInputLayout.Get());
