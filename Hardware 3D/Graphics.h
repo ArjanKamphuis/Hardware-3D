@@ -66,7 +66,7 @@ public:
 	void EndFrame();
 	void ClearBuffer(float r, float g, float b) noexcept;
 
-	void DrawTestTriangle(float angle, float x, float y);
+	void DrawTestTriangle(float angle, float x, float z);
 
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
@@ -76,5 +76,6 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
 };
 

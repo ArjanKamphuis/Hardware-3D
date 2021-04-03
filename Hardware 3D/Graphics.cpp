@@ -46,6 +46,30 @@ Graphics::Graphics(HWND hWnd)
 	ComPtr<ID3D11Resource> pBackBuffer;
 	GFX_THROW_INFO(mSwapChain->GetBuffer(0, IID_PPV_ARGS(&pBackBuffer)));
 	GFX_THROW_INFO(mDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &mRenderTargetView));
+
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	ComPtr<ID3D11DepthStencilState> pDSState;
+	GFX_THROW_INFO(mDevice->CreateDepthStencilState(&depthStencilDesc, &pDSState));
+	mDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1u);
+
+	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+	depthBufferDesc.ArraySize = 1u;
+	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthBufferDesc.Height = 600u;
+	depthBufferDesc.MipLevels = 1u;
+	depthBufferDesc.SampleDesc = { 1, 0 };
+	depthBufferDesc.Width = 800u;
+	ComPtr<ID3D11Texture2D> pDepthStencil;
+	GFX_THROW_INFO(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &pDepthStencil));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	GFX_THROW_INFO(mDevice->CreateDepthStencilView(pDepthStencil.Get(), &dsvDesc, &mDepthStencilView));
 }
 
 void Graphics::EndFrame()
@@ -67,9 +91,10 @@ void Graphics::ClearBuffer(float r, float g, float b) noexcept
 {
 	const float color[] = { r, g, b, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
+	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
-void Graphics::DrawTestTriangle(float angle, float x, float y)
+void Graphics::DrawTestTriangle(float angle, float x, float z)
 {
 	struct Vertex
 	{
@@ -133,7 +158,7 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 
 	const ConstantBuffer cb =
 	{
-		XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x, y, 4.0f) * XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 10.0f))
+		XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x, 0.0f, z + 4.0f) * XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 10.0f))
 	};
 
 	D3D11_BUFFER_DESC cbd = {};
@@ -199,12 +224,12 @@ void Graphics::DrawTestTriangle(float angle, float x, float y)
 	GFX_THROW_INFO(mDevice->CreateInputLayout(ied, static_cast<UINT>(std::size(ied)), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
 	mDeviceContext->IASetInputLayout(pInputLayout.Get());
 
-	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), nullptr);
-
 	const D3D11_VIEWPORT vp = { 0, 0, 800, 600, 0, 1 };
 	mDeviceContext->RSSetViewports(1u, &vp);
 
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
 
 	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(static_cast<UINT>(std::size(indices)), 0u, 0u));
 }
