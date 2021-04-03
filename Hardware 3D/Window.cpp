@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "resource.h"
+#include "WindowThrowMacros.h"
 
 Window::WindowClass Window::WindowClass::mWndClass;
 const wchar_t* Window::WindowClass::GetName() noexcept
