@@ -16,7 +16,7 @@
 #endif
 
 #if defined(DEBUG) | defined(_DEBUG)
-#define INFOMAN() HRESULT hr; DxgiInfoManager& infoManager = GetInfoManager()
+#define INFOMAN(gfx) DxgiInfoManager& mInfoManager = GetInfoManager((gfx))
 #else
-#define INFOMAN() HRESULT hr
+#define INFOMAN(gfx)
 #endif

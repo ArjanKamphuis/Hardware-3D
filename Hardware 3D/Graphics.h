@@ -2,12 +2,15 @@
 
 #include "ChiliWin.h"
 #include <d3d11.h>
+#include <d3dcompiler.h>
 #include <wrl.h>
 #include "ChiliException.h"
 #include "DxgiInfoManager.h"
 
 class Graphics
 {
+	friend class Bindable;
+
 #pragma region Exceptions
 public:
 	class Exception : public ChiliException
@@ -70,8 +73,9 @@ public:
 
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
-	DxgiInfoManager mInfoManager;
+	mutable DxgiInfoManager mInfoManager;
 #endif
+
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;

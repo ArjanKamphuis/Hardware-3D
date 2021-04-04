@@ -3,7 +3,10 @@
 #include <cmath>
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
+#include <memory>
 #include "GraphicsThrowMacros.h"
+
+#include "BindableBase.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -114,49 +117,15 @@ void Graphics::DrawTestTriangle(float angle, float x, float z)
 		0, 1, 4,	1, 5, 4
 	};
 
-	D3D11_BUFFER_DESC vbd = {};
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vbd.ByteWidth = sizeof(vertices);
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;
-	D3D11_SUBRESOURCE_DATA vInitData = {};
-	vInitData.pSysMem = vertices;
-	ComPtr<ID3D11Buffer> pVertexBuffer;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&vbd, &vInitData, &pVertexBuffer));
-
-	D3D11_BUFFER_DESC ibd = {};
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	ibd.ByteWidth = sizeof(indices);
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;
-	D3D11_SUBRESOURCE_DATA iInitData = {};
-	iInitData.pSysMem = indices;
-	ComPtr<ID3D11Buffer> pIndexBuffer;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&ibd, &iInitData, &pIndexBuffer));
-
-	const UINT stride = sizeof(Vertex);
-	const UINT offset = 0u;
-	mDeviceContext->IASetVertexBuffers(0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);
-	mDeviceContext->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
-
-	struct ConstantBuffer
+	struct TransformBuffer
 	{
 		XMMATRIX Transform;
 	};
 
-	const ConstantBuffer cb =
+	const TransformBuffer cb =
 	{
 		XMMatrixTranspose(XMMatrixRotationZ(angle) * XMMatrixRotationX(angle) * XMMatrixTranslation(x, 0.0f, z + 4.0f) * XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 10.0f))
 	};
-
-	D3D11_BUFFER_DESC cbd = {};
-	cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	cbd.ByteWidth = sizeof(cb);
-	cbd.Usage = D3D11_USAGE_DYNAMIC;
-	D3D11_SUBRESOURCE_DATA cInitData = {};
-	cInitData.pSysMem = &cb;
-	ComPtr<ID3D11Buffer> pConstantBuffer;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&cbd, &cInitData, &pConstantBuffer));
-	mDeviceContext->VSSetConstantBuffers(0u, 1u, pConstantBuffer.GetAddressOf());
 
 	struct ColorConstantBuffer
 	{
@@ -180,42 +149,39 @@ void Graphics::DrawTestTriangle(float angle, float x, float z)
 			{ 0.0f, 1.0f, 1.0f}
 		}
 	};
+	
 
-	D3D11_BUFFER_DESC colorBufDesc = {};
-	colorBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	colorBufDesc.ByteWidth = sizeof(colorData);
-	colorBufDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	D3D11_SUBRESOURCE_DATA colorInitData = {};
-	colorInitData.pSysMem = &colorData;
-	ComPtr<ID3D11Buffer> pColorBuffer;
-	GFX_THROW_INFO(mDevice->CreateBuffer(&colorBufDesc, &colorInitData, &pColorBuffer));
-	mDeviceContext->PSSetConstantBuffers(0u, 1u, pColorBuffer.GetAddressOf());
-
-	ComPtr<ID3DBlob> pBlob;
-	ComPtr<ID3D11PixelShader> pPixelShader;
-	GFX_THROW_INFO(D3DReadFileToBlob(L"PixelShader.cso", &pBlob));
-	GFX_THROW_INFO(mDevice->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader));
-	mDeviceContext->PSSetShader(pPixelShader.Get(), nullptr, 0u);
-
-	ComPtr<ID3D11VertexShader> pVertexShader;
-	GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &pBlob));
-	GFX_THROW_INFO(mDevice->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader));
-	mDeviceContext->VSSetShader(pVertexShader.Get(), nullptr, 0u);
-
-	ComPtr<ID3D11InputLayout> pInputLayout;
-	const D3D11_INPUT_ELEMENT_DESC ied[] =
+	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
 		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
-	GFX_THROW_INFO(mDevice->CreateInputLayout(ied, static_cast<UINT>(std::size(ied)), pBlob->GetBufferPointer(), pBlob->GetBufferSize(), &pInputLayout));
-	mDeviceContext->IASetInputLayout(pInputLayout.Get());
+	
 
 	const D3D11_VIEWPORT vp = { 0, 0, 800, 600, 0, 1 };
 	mDeviceContext->RSSetViewports(1u, &vp);
 
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
 
-	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(static_cast<UINT>(std::size(indices)), 0u, 0u));
+	std::vector<USHORT> ivec(std::begin(indices), std::end(indices));
+	std::vector<Vertex> vvec(std::begin(vertices), std::end(vertices));
+
+	std::vector<std::unique_ptr<Bindable>> binds;
+	binds.emplace_back(std::make_unique<PixelShader>(*this, L"PixelShader.cso"));
+	binds.emplace_back(std::make_unique<Topology>(*this, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	binds.emplace_back(std::make_unique<IndexBuffer>(*this, ivec));
+	binds.emplace_back(std::make_unique<VertexBuffer>(*this, vvec));	
+
+	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(*this, L"VertexShader.cso");
+	binds.emplace_back(std::make_unique<InputLayout>(*this, ied, vs->GetByteCode()));
+	binds.emplace_back(std::move(vs));
+	
+	for (auto& bind : binds)
+		bind->Bind(*this);
+
+	VertexConstantBuffer<TransformBuffer> vcb(*this, cb);
+	PixelConstantBuffer<ColorConstantBuffer> icb(*this, colorData);
+	vcb.Bind(*this);
+	icb.Bind(*this);
+
+	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(static_cast<UINT>(ivec.size()), 0u, 0u));
 }
