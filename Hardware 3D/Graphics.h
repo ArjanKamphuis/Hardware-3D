@@ -3,6 +3,9 @@
 #include "ChiliWin.h"
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <DirectXMath.h>
+#include <memory>
+#include <random>
 #include <wrl.h>
 #include "ChiliException.h"
 #include "DxgiInfoManager.h"
@@ -66,15 +69,20 @@ public:
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
 
+	void BeginFrame(float r = 0.0f, float g = 0.0f, float b = 0.0f);
 	void EndFrame();
-	void ClearBuffer(float r, float g, float b) noexcept;
 
-	void DrawTestTriangle(float angle, float x, float z);
+	void DrawIndexed(UINT count) const noexcept(!IS_DEBUG);
+
+	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
+	DirectX::XMMATRIX GetProjection() const noexcept;
 
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
 	mutable DxgiInfoManager mInfoManager;
 #endif
+
+	DirectX::XMMATRIX mProjection = DirectX::XMMatrixIdentity();
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
