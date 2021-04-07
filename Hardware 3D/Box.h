@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Drawable.h"
+#include "DrawableBase.h"
 
-class Box : public Drawable
+class Box : public DrawableBase<Box>
 {
 private:
 	struct AngularParameters
@@ -23,6 +23,9 @@ public:
 	
 	void Update(float dt) noexcept override;
 	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
+
+private:
+	void StaticInitialize(const Graphics& gfx) override;
 
 private:
 	float mRadius;

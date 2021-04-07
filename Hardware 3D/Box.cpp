@@ -8,6 +8,27 @@ Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<
 	, std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist)
 	: mRadius(rdist(rng)), mAngles({ 0.0f, 0.0f, 0.0f, adist(rng), adist(rng), adist(rng) }), mDelta({ ddist(rng), ddist(rng), ddist(rng), odist(rng), odist(rng), odist(rng)})
 {
+	if (IsStaticInitialized())
+		SetIndexFromStatic();
+	else
+		StaticInitialize(gfx);
+
+	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
+}
+
+void Box::Update(float dt) noexcept
+{
+	mAngles.Update(mDelta, dt);
+}
+
+DirectX::XMMATRIX Box::GetTransformMatrix() const noexcept
+{
+	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) *
+		XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi) * XMMatrixTranslation(0.0f, 0.0f, 20.0f);
+}
+
+void Box::StaticInitialize(const Graphics& gfx)
+{
 	struct Vertex
 	{
 		struct
@@ -70,26 +91,15 @@ Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<
 
 
 	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"VertexShader.cso");
-	AddBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
-	AddBind(std::move(vs));
+	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
+	AddStaticBind(std::move(vs));
 
-	AddBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
-	AddBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddBind(std::make_unique<IndexBuffer>(gfx, indices));
-	AddBind(std::make_unique<VertexBuffer>(gfx, vertices));
-	AddBind(std::make_unique<PixelConstantBuffer<ColorConstantBuffer>>(gfx, colorData));
-	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-}
+	AddStaticBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
+	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddStaticBind(std::make_unique<VertexBuffer>(gfx, vertices));
+	AddStaticBind(std::make_unique<PixelConstantBuffer<ColorConstantBuffer>>(gfx, colorData));
 
-void Box::Update(float dt) noexcept
-{
-	mAngles.Update(mDelta, dt);
-}
-
-DirectX::XMMATRIX Box::GetTransformMatrix() const noexcept
-{
-	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) *
-		XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi) * XMMatrixTranslation(0.0f, 0.0f, 20.0f);
+	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 }
 
 void Box::AngularParameters::Update(const AngularParameters& delta, float dt)

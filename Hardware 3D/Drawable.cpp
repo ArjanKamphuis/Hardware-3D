@@ -16,5 +16,7 @@ void Drawable::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
 	for (auto& b : mBinds)
 		b->Bind(gfx);
+	for (auto& b : GetStaticBinds())
+		b->Bind(gfx);
 	gfx.DrawIndexed(mIndexBuffer->GetSize());
 }
