@@ -19,6 +19,7 @@ Window::WindowClass::WindowClass() noexcept
 {
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(wc);
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
     wc.hIcon = static_cast<HICON>(LoadImage(mhInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 32, 32, 0));
     wc.hIconSm = static_cast<HICON>(LoadImage(mhInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 16, 16, 0));
     wc.hInstance = GetInstance();
