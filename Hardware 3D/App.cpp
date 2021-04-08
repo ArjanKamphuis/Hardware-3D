@@ -9,11 +9,11 @@ App::App()
 {
 	std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> adist(0.0f, XM_2PI);
-	std::uniform_real_distribution<float> ddist(0.0f, XM_2PI);
-	std::uniform_real_distribution<float> odist(0.0f, XM_PI * 0.3f);
+	std::uniform_real_distribution<float> ddist(0.0f, XM_PI);
+	std::uniform_real_distribution<float> odist(0.0f, XM_PI * 0.08f);
 	std::uniform_real_distribution<float> rdist(6.0f, 20.0f);
 
-	for (int i = 0; i < 80; i++)
+	for (int i = 0; i < 180; i++)
 		mBoxes.push_back(std::make_unique<Box>(mWnd.Gfx(), rng, adist, ddist, odist, rdist));
 
 	mWnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 40.0f));
@@ -27,7 +27,11 @@ int App::Go()
 {
 	std::optional<int> exitcode;
 	while (!(exitcode = Window::ProcessMessages()))
+	{
+		if (mWnd.Keyboard.KeyIsPressed(VK_ESCAPE))
+			PostQuitMessage(0);
 		DoFrame();
+	}
 	return *exitcode;
 }
 

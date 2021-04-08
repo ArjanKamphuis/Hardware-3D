@@ -5,5 +5,5 @@ cbuffer ColorBuffer
 
 float4 main(uint tid : SV_PRIMITIVEID) : SV_TARGET
 {
-	return FaceColors[tid / 2];
+	return FaceColors[(tid / 2) % 6];
 }

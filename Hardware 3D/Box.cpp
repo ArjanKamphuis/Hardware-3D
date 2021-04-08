@@ -1,6 +1,7 @@
 #include "Box.h"
 
 #include "BindableBase.h"
+#include "Sphere.h"
 
 using namespace DirectX;
 
@@ -31,34 +32,7 @@ void Box::StaticInitialize(const Graphics& gfx)
 {
 	struct Vertex
 	{
-		struct
-		{
-			float X;
-			float Y;
-			float Z;
-		} Position;
-	};
-
-	const std::vector<Vertex> vertices =
-	{
-		{ -1.0f, -1.0f, -1.0f },
-		{ 1.0f, -1.0f, -1.0f },
-		{ -1.0f, 1.0f, -1.0f },
-		{ 1.0f, 1.0f, -1.0f },
-		{ -1.0f, -1.0f, 1.0f },
-		{ 1.0f, -1.0f, 1.0f },
-		{ -1.0f, 1.0f, 1.0f },
-		{ 1.0f, 1.0f, 1.0f }
-	};
-
-	const std::vector<USHORT> indices =
-	{
-		0, 2, 1,	2, 3, 1,
-		1, 3, 5,	3, 7, 5,
-		2, 6, 3,	3, 6, 7,
-		4, 5, 7,	4, 7, 6,
-		0, 4, 2,	2, 4, 6,
-		0, 1, 4,	1, 5, 4
+		XMFLOAT3 Position;
 	};
 
 	struct ColorConstantBuffer
@@ -89,6 +63,8 @@ void Box::StaticInitialize(const Graphics& gfx)
 		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
+	IndexedTriangleList<Vertex> model = Sphere::Make<Vertex>();
+	model.Transform(XMMatrixScaling(1.0f, 1.0f, 1.2f));
 
 	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"VertexShader.cso");
 	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
@@ -96,10 +72,10 @@ void Box::StaticInitialize(const Graphics& gfx)
 
 	AddStaticBind(std::make_unique<PixelShader>(gfx, L"PixelShader.cso"));
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, vertices));
+	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
 	AddStaticBind(std::make_unique<PixelConstantBuffer<ColorConstantBuffer>>(gfx, colorData));
 
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
+	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
 }
 
 void Box::AngularParameters::Update(const AngularParameters& delta, float dt)
