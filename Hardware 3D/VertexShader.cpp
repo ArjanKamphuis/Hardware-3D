@@ -6,7 +6,7 @@ VertexShader::VertexShader(const Graphics& gfx, const std::wstring& path)
 {
 	INFOMAN(gfx);
 
-	GFX_THROW_INFO(D3DReadFileToBlob(L"VertexShader.cso", &mByteCode));
+	GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &mByteCode));
 	GFX_THROW_INFO(GetDevice(gfx)->CreateVertexShader(mByteCode->GetBufferPointer(), mByteCode->GetBufferSize(), nullptr, &mShader));
 }
 
