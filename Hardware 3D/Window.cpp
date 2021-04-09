@@ -210,6 +210,11 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
             Mouse.OnWheelDelta(pt.x, pt.y, GET_WHEEL_DELTA_WPARAM(wParam));
             break;
         }
+
+    case WM_SIZE:
+        if (wParam == SIZE_RESTORED && mGfx != nullptr)
+            mGfx->OnResize(LOWORD(lParam), HIWORD(lParam));
+        break;
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);

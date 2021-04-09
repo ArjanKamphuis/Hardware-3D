@@ -12,6 +12,7 @@ public:
 	int Go();
 
 private:
+	void HandleInput();
 	void DoFrame();
 
 private:

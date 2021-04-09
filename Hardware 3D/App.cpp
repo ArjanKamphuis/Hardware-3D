@@ -45,8 +45,6 @@ App::App()
 	Factory f(mWnd.Gfx());
 	mDrawables.reserve(mNumDrawables);
 	std::generate_n(std::back_inserter(mDrawables), mNumDrawables, f);
-
-	mWnd.Gfx().SetProjection(DirectX::XMMatrixPerspectiveLH(1.0f, 0.75f, 0.5f, 40.0f));
 }
 
 App::~App()
@@ -58,11 +56,26 @@ int App::Go()
 	std::optional<int> exitcode;
 	while (!(exitcode = Window::ProcessMessages()))
 	{
-		if (mWnd.Keyboard.KeyIsPressed(VK_ESCAPE))
-			PostQuitMessage(0);
+		HandleInput();
 		DoFrame();
 	}
 	return *exitcode;
+}
+
+void App::HandleInput()
+{
+	while (const auto e = mWnd.Keyboard.ReadKey())
+	{
+		if (!e->IsPress())
+			return;
+
+		switch (e->GetCode())
+		{
+		case VK_ESCAPE:
+			PostQuitMessage(0);
+			break;
+		}
+	}
 }
 
 void App::DoFrame()

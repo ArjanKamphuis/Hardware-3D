@@ -68,6 +68,7 @@ public:
 	Graphics(HWND hWnd);
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
+	~Graphics() noexcept;
 
 	void BeginFrame(float r = 0.0f, float g = 0.0f, float b = 0.0f);
 	void EndFrame();
@@ -76,6 +77,8 @@ public:
 
 	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
 	DirectX::XMMATRIX GetProjection() const noexcept;
+
+	void OnResize(UINT width, UINT height);
 
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
@@ -89,5 +92,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
+
+	static constexpr UINT mBufferCount = 2;
 };
 

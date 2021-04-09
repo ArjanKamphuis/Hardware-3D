@@ -15,7 +15,7 @@ using namespace DirectX;
 Graphics::Graphics(HWND hWnd)
 {
 	DXGI_SWAP_CHAIN_DESC sd = {};
-	sd.BufferCount = 2;
+	sd.BufferCount = mBufferCount;
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.OutputWindow = hWnd;
@@ -37,25 +37,11 @@ Graphics::Graphics(HWND hWnd)
 	ComPtr<ID3D11DepthStencilState> pDSState;
 	GFX_THROW_INFO(mDevice->CreateDepthStencilState(&depthStencilDesc, &pDSState));
 	mDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1u);
+}
 
-	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
-	depthBufferDesc.ArraySize = 1u;
-	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	depthBufferDesc.Height = 600u;
-	depthBufferDesc.MipLevels = 1u;
-	depthBufferDesc.SampleDesc = { 1, 0 };
-	depthBufferDesc.Width = 800u;
-	ComPtr<ID3D11Texture2D> pDepthStencil;
-	GFX_THROW_INFO(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &pDepthStencil));
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
-	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	GFX_THROW_INFO(mDevice->CreateDepthStencilView(pDepthStencil.Get(), &dsvDesc, &mDepthStencilView));
-
-	const D3D11_VIEWPORT vp = { 0, 0, 800, 600, 0, 1 };
-	mDeviceContext->RSSetViewports(1u, &vp);
+Graphics::~Graphics() noexcept
+{
+	mSwapChain->SetFullscreenState(FALSE, nullptr);
 }
 
 void Graphics::BeginFrame(float r, float g, float b)
@@ -98,4 +84,36 @@ void Graphics::SetProjection(DirectX::FXMMATRIX proj) noexcept
 DirectX::XMMATRIX Graphics::GetProjection() const noexcept
 {
 	return mProjection;
+}
+
+void Graphics::OnResize(UINT width, UINT height)
+{
+	if (mRenderTargetView) mRenderTargetView.Reset();
+	if (mDepthStencilView) mDepthStencilView.Reset();
+
+	GFX_THROW_INFO(mSwapChain->ResizeBuffers(mBufferCount, width, height, DXGI_FORMAT_UNKNOWN, 0));
+
+	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+	depthBufferDesc.ArraySize = 1u;
+	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthBufferDesc.Height = height;
+	depthBufferDesc.MipLevels = 1u;
+	depthBufferDesc.SampleDesc = { 1, 0 };
+	depthBufferDesc.Width = width;
+	ComPtr<ID3D11Texture2D> pDepthStencil;
+	GFX_THROW_INFO(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &pDepthStencil));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
+	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	GFX_THROW_INFO(mDevice->CreateDepthStencilView(pDepthStencil.Get(), &dsvDesc, &mDepthStencilView));
+
+	const float fwidth = static_cast<float>(width);
+	const float fheight = static_cast<float>(height);
+
+	const D3D11_VIEWPORT vp = { 0.0f, 0.0f, fwidth, fheight, 0.0f, 1.0f };
+	mDeviceContext->RSSetViewports(1u, &vp);
+	
+	SetProjection(XMMatrixPerspectiveLH(1.0f, fheight / fwidth, 0.5f, 40.0f));
 }
