@@ -4,6 +4,11 @@
 #include "Melon.h"
 #include "Pyramid.h"
 
+#include "Surface.h"
+#include "GDIPlusManager.h"
+
+GDIPlusManager gdipm;
+
 using namespace DirectX;
 
 App::App()
@@ -45,6 +50,9 @@ App::App()
 	Factory f(mWnd.Gfx());
 	mDrawables.reserve(mNumDrawables);
 	std::generate_n(std::back_inserter(mDrawables), mNumDrawables, f);
+
+	const auto s = Surface::FromFile(L"Images/kappa50.png");
+	s.Save(L"copyofkappa.bmp");
 }
 
 App::~App()
