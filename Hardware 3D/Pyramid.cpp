@@ -44,8 +44,8 @@ void Pyramid::StaticInitialize(const Graphics& gfx)
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0u, DXGI_FORMAT_R8G8B8A8_UNORM, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
+		{ "COLOR", 0u, DXGI_FORMAT_R8G8B8A8_UNORM, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
 	IndexedTriangleList<Vertex> model = Cone::MakeTesselated<Vertex>(4);

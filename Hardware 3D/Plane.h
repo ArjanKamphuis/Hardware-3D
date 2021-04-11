@@ -61,6 +61,6 @@ public:
 	template<class V>
 	static IndexedTriangleList<V> Make()
 	{
-		return MakeTesselated<V>(6, 6);
+		return MakeTesselated<V>(1, 1);
 	}
 };

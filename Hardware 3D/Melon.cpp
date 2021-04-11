@@ -59,7 +59,7 @@ void Melon::StaticInitialize(const Graphics& gfx)
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
 
