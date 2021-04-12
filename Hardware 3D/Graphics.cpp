@@ -19,7 +19,7 @@ Graphics::Graphics(HWND hWnd)
 	sd.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.OutputWindow = hWnd;
-	sd.SampleDesc = { 1, 0 };
+	sd.SampleDesc = { 1u, 0u };
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Windowed = TRUE;
 
