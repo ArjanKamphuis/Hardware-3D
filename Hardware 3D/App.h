@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChiliTimer.h"
+#include "ImguiManager.h"
 #include "Window.h"
 
 class App
@@ -16,6 +17,7 @@ private:
 	void DoFrame();
 
 private:
+	ImguiManager mImgui;
 	Window mWnd;
 	ChiliTimer mTimer;
 

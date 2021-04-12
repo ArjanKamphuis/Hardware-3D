@@ -7,16 +7,16 @@ class Plane
 {
 public:
 	template<class V>
-	static IndexedTriangleList<V> MakeTesselated(int divisionsX, int divisionsY)
+	static IndexedTriangleList<V> MakeTesselated(size_t divisionsX, size_t divisionsY)
 	{
 		assert(divisionsX >= 1);
 		assert(divisionsY >= 1);
 
 		constexpr float width = 2.0f;
 		constexpr float height = 2.0f;
-		const int nVerticesX = divisionsX + 1;
-		const int nVerticesY = divisionsY + 1;
-		std::vector<V> vertices(static_cast<size_t>(nVerticesX) * nVerticesY);
+		const size_t nVerticesX = divisionsX + 1;
+		const size_t nVerticesY = divisionsY + 1;
+		std::vector<V> vertices(nVerticesX * nVerticesY);
 
 		const float sideX = 0.5f * width;
 		const float sideY = 0.5f * height;
@@ -24,10 +24,10 @@ public:
 		const float divisionSizeY = width / static_cast<float>(divisionsY);
 		const DirectX::XMVECTOR bottomLeft = DirectX::XMVectorSet(-sideX, -sideY, 0.0f, 0.0f);
 
-		for (int y = 0, i = 0; y < nVerticesY; y++)
+		for (size_t y = 0, i = 0; y < nVerticesY; y++)
 		{
 			const float yPos = static_cast<float>(y) * divisionSizeY;
-			for (int x = 0; x < nVerticesX; x++, i++)
+			for (size_t x = 0; x < nVerticesX; x++, i++)
 			{
 				const DirectX::XMVECTOR v = DirectX::XMVectorAdd(bottomLeft, DirectX::XMVectorSet(static_cast<float>(x) * divisionSizeX, yPos, 0.0f, 0.0f));
 				DirectX::XMStoreFloat3(&vertices[i].Position, v);

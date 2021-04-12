@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Shader bytecode
 *.cso
+
+# imgui config
+/Hardware 3D/imgui.ini

@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 #include <memory>
 #include "GraphicsThrowMacros.h"
+#include "imgui/imgui_impl_dx11.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -37,10 +38,13 @@ Graphics::Graphics(HWND hWnd)
 	ComPtr<ID3D11DepthStencilState> pDSState;
 	GFX_THROW_INFO(mDevice->CreateDepthStencilState(&depthStencilDesc, &pDSState));
 	mDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1u);
+
+	ImGui_ImplDX11_Init(mDevice.Get(), mDeviceContext.Get());
 }
 
 Graphics::~Graphics() noexcept
 {
+	ImGui_ImplDX11_Shutdown();
 	mSwapChain->SetFullscreenState(FALSE, nullptr);
 }
 

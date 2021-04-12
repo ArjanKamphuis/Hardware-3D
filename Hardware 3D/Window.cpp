@@ -2,6 +2,7 @@
 
 #include "resource.h"
 #include "WindowThrowMacros.h"
+#include "imgui/imgui_impl_win32.h"
 
 Window::WindowClass Window::WindowClass::mWndClass;
 const wchar_t* Window::WindowClass::GetName() noexcept
@@ -41,13 +42,15 @@ Window::Window(int width, int height, const wchar_t* name)
         throw CHWND_LAST_EXCEPT();
     AdjustAndCenterWindow();
 
+    ImGui_ImplWin32_Init(mhWnd);
     mGfx = std::make_unique<Graphics>(mhWnd);
 
-    ShowWindow(mhWnd, SW_SHOWDEFAULT);    
+    ShowWindow(mhWnd, SW_SHOWDEFAULT);
 }
 
 Window::~Window()
 {
+    ImGui_ImplWin32_Shutdown();
     DestroyWindow(mhWnd);
 }
 
@@ -123,6 +126,9 @@ LRESULT CALLBACK Window::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 
 LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+        return true;
+
     switch (msg)
     {
     case WM_CLOSE:

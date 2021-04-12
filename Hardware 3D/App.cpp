@@ -9,6 +9,9 @@
 #include "Surface.h"
 #include "GDIPlusManager.h"
 
+#include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
+
 GDIPlusManager gdipm;
 
 using namespace DirectX;
@@ -95,5 +98,16 @@ void App::DoFrame()
 		d->Update(mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		d->Draw(mWnd.Gfx());
 	}
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	static bool showDemoWindow = true;
+	if (showDemoWindow)
+		ImGui::ShowDemoWindow(&showDemoWindow);
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 	mWnd.Gfx().EndFrame();
 }
