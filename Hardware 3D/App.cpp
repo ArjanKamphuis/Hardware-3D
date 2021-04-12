@@ -91,7 +91,10 @@ void App::HandleInput()
 void App::DoFrame()
 {
 	const float dt = mTimer.Mark() * mSpeedFactor;
+
 	mWnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
+	mWnd.Gfx().SetCamera(mCamera.GetMatrix());
+
 	for (auto& d : mDrawables)
 	{
 		d->Update(mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
@@ -111,8 +114,10 @@ void App::DoImGui()
 		ImGui::SliderFloat("Speed Factor", &mSpeedFactor, 0.0f, 4.0f);
 		const float frameRate = ImGui::GetIO().Framerate;
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS", 1000.0f / frameRate, frameRate);
-		ImGui::Text("Status: %s", mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
+		ImGui::Text("Status: %s", mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING (hold spacebar to pause)");
 	}
+
+	mCamera.SpawnControlWindow();
 
 	ImGui::End();
 }

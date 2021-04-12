@@ -91,7 +91,7 @@ private:
 #endif
 
 	DirectX::XMMATRIX mProjection = DirectX::XMMatrixIdentity();
-	DirectX::XMMATRIX mCamera = DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f);
+	DirectX::XMMATRIX mCamera = DirectX::XMMatrixIdentity();
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;

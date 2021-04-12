@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Camera.h"
 #include "ChiliTimer.h"
 #include "ImguiManager.h"
 #include "Window.h"
@@ -21,6 +22,7 @@ private:
 	ImguiManager mImgui;
 	Window mWnd;
 	ChiliTimer mTimer;
+	Camera mCamera;
 
 	static constexpr size_t mNumDrawables = 180;
 	std::vector<std::unique_ptr<class Drawable>> mDrawables;

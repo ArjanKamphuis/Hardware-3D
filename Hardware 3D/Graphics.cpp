@@ -143,7 +143,7 @@ void Graphics::OnResize(UINT width, UINT height)
 	const D3D11_VIEWPORT vp = { 0.0f, 0.0f, fwidth, fheight, 0.0f, 1.0f };
 	mDeviceContext->RSSetViewports(1u, &vp);
 	
-	SetProjection(XMMatrixPerspectiveLH(1.0f, fheight / fwidth, 0.5f, 40.0f));
+	SetProjection(XMMatrixPerspectiveLH(1.0f, fheight / fwidth, 0.5f, 100.0f));
 }
 
 void Graphics::ToggleImgui(bool state) noexcept
