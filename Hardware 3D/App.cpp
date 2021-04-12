@@ -86,13 +86,11 @@ void App::HandleInput()
 			break;
 		}
 	}
-
-	mWnd.Gfx().ToggleImgui(!mWnd.Keyboard.KeyIsPressed(VK_CONTROL));
 }
 
 void App::DoFrame()
 {
-	const float dt = mTimer.Mark();
+	const float dt = mTimer.Mark() * mSpeedFactor;
 	mWnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	for (auto& d : mDrawables)
 	{
@@ -100,8 +98,23 @@ void App::DoFrame()
 		d->Draw(mWnd.Gfx());
 	}
 
-	if (mWnd.Gfx().IsImguiEnabled() && mShowDemoWindow)
-		ImGui::ShowDemoWindow(&mShowDemoWindow);
-
+	if (mWnd.Gfx().IsImguiEnabled())
+		DoImGui();
+	
 	mWnd.Gfx().EndFrame();
+}
+
+void App::DoImGui()
+{
+	static char buffer[1024];
+
+	if (ImGui::Begin("Simulation Speed"))
+	{
+		ImGui::SliderFloat("Speed Factor", &mSpeedFactor, 0.0f, 4.0f);
+		const float frameRate = ImGui::GetIO().Framerate;
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS", 1000.0f / frameRate, frameRate);
+		ImGui::InputText("Butts", buffer, sizeof(buffer));
+	}
+
+	ImGui::End();
 }

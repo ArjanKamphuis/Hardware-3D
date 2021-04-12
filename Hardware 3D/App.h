@@ -15,6 +15,7 @@ public:
 private:
 	void HandleInput();
 	void DoFrame();
+	void DoImGui();
 
 private:
 	ImguiManager mImgui;
@@ -23,6 +24,6 @@ private:
 
 	static constexpr size_t mNumDrawables = 180;
 	std::vector<std::unique_ptr<class Drawable>> mDrawables;
-	bool mShowDemoWindow = true;
+	float mSpeedFactor = 1.0f;
 };
 
