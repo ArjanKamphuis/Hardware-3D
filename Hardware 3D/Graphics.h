@@ -77,6 +77,8 @@ public:
 
 	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
 	DirectX::XMMATRIX GetProjection() const noexcept;
+	void SetCamera(DirectX::FXMMATRIX camera) noexcept;
+	DirectX::XMMATRIX GetCamera() const noexcept;
 
 	void OnResize(UINT width, UINT height);
 
@@ -89,6 +91,7 @@ private:
 #endif
 
 	DirectX::XMMATRIX mProjection = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX mCamera = DirectX::XMMatrixTranslation(0.0f, 0.0f, 20.0f);
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;

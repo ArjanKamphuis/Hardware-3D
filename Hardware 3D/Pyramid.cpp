@@ -24,8 +24,7 @@ void Pyramid::Update(float dt) noexcept
 
 XMMATRIX Pyramid::GetTransformMatrix() const noexcept
 {
-	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) *
-		XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi) * XMMatrixTranslation(0.0f, 0.0f, 20.0f);
+	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) * XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
 }
 
 void Pyramid::StaticInitialize(const Graphics& gfx)

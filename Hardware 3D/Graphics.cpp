@@ -104,6 +104,16 @@ DirectX::XMMATRIX Graphics::GetProjection() const noexcept
 	return mProjection;
 }
 
+void Graphics::SetCamera(DirectX::FXMMATRIX camera) noexcept
+{
+	mCamera = camera;
+}
+
+DirectX::XMMATRIX Graphics::GetCamera() const noexcept
+{
+	return mCamera;
+}
+
 void Graphics::OnResize(UINT width, UINT height)
 {
 	if (mRenderTargetView) mRenderTargetView.Reset();

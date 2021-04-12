@@ -13,6 +13,6 @@ TransformCBuf::TransformCBuf(const Graphics& gfx, const Drawable& parent)
 
 void TransformCBuf::Bind(const Graphics& gfx) noexcept
 {
-	mVCBuffer->Update(gfx, XMMatrixTranspose(mParent.GetTransformMatrix() * gfx.GetProjection()));
+	mVCBuffer->Update(gfx, XMMatrixTranspose(mParent.GetTransformMatrix() * gfx.GetCamera() * gfx.GetProjection()));
 	mVCBuffer->Bind(gfx);
 }
