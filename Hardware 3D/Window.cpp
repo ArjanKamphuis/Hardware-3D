@@ -129,6 +129,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
         return true;
 
+    const ImGuiIO& imio = ImGui::GetIO();
+
     switch (msg)
     {
     case WM_CLOSE:
@@ -140,19 +142,28 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
+        if (imio.WantCaptureKeyboard)
+            break;
         if (!(lParam & 0x40000000) || Keyboard.AutorepeatIsEnabled())
             Keyboard.OnKeyPressed(static_cast<unsigned char>(wParam));
         break;
     case WM_KEYUP:
     case WM_SYSKEYUP:
+        if (imio.WantCaptureKeyboard)
+            break;
         Keyboard.OnKeyReleased(static_cast<unsigned char>(wParam));
         break;
     case WM_CHAR:
+        if (imio.WantCaptureKeyboard)
+            break;
         Keyboard.OnChar(static_cast<unsigned char>(wParam));
         break;
 
     case WM_MOUSEMOVE:
         {
+            if (imio.WantCaptureMouse)
+                break;
+
             const POINTS pt = MAKEPOINTS(lParam);
             if (pt.x >= 0 && pt.x < mWidth && pt.y >= 0 && pt.y < mHeight)
             {
@@ -177,6 +188,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         }
     case WM_LBUTTONDOWN:
         {
+            if (imio.WantCaptureMouse)
+                break;
+
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnLeftPressed(pt.x, pt.y);
             SetForegroundWindow(mhWnd);
@@ -184,6 +198,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         }
     case WM_LBUTTONUP:
         {
+            if (imio.WantCaptureMouse)
+                break;
+
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnLeftReleased(pt.x, pt.y);;
             if (pt.x < 0 || pt.x >= mWidth || pt.y < 0 || pt.y >= mHeight)
@@ -195,12 +212,18 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         }
     case WM_RBUTTONDOWN:
         {
+            if (imio.WantCaptureMouse)
+                break;
+
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnRightPressed(pt.x, pt.y);
             break;
         }
     case WM_RBUTTONUP:
         {
+            if (imio.WantCaptureMouse)
+                break;
+
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnRightReleased(pt.x, pt.y);;
             if (pt.x < 0 || pt.x >= mWidth || pt.y < 0 || pt.y >= mHeight)
@@ -212,6 +235,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         }
     case WM_MOUSEWHEEL:
         {
+            if (imio.WantCaptureMouse)
+                break;
+
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnWheelDelta(pt.x, pt.y, GET_WHEEL_DELTA_WPARAM(wParam));
             break;
