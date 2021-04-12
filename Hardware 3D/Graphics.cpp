@@ -6,6 +6,7 @@
 #include <memory>
 #include "GraphicsThrowMacros.h"
 #include "imgui/imgui_impl_dx11.h"
+#include "imgui/imgui_impl_win32.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -55,6 +56,13 @@ void Graphics::BeginFrame(float r, float g, float b)
 	GFX_THROW_INFO(mDevice->CreateRenderTargetView(pBackBuffer.Get(), nullptr, &mRenderTargetView));
 	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), mDepthStencilView.Get());
 
+	if (mImguiEnabled)
+	{
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+	}
+
 	const float color[] = { r, g, b, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
@@ -62,6 +70,12 @@ void Graphics::BeginFrame(float r, float g, float b)
 
 void Graphics::EndFrame()
 {
+	if (mImguiEnabled)
+	{
+		ImGui::Render();
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	}
+
 #if defined(DEBUG) | defined(_DEBUG)
 	mInfoManager.Set();
 #endif
@@ -120,4 +134,14 @@ void Graphics::OnResize(UINT width, UINT height)
 	mDeviceContext->RSSetViewports(1u, &vp);
 	
 	SetProjection(XMMatrixPerspectiveLH(1.0f, fheight / fwidth, 0.5f, 40.0f));
+}
+
+void Graphics::ToggleImgui(bool state) noexcept
+{
+	mImguiEnabled = state;
+}
+
+bool Graphics::IsImguiEnabled() const noexcept
+{
+	return mImguiEnabled;
 }

@@ -80,6 +80,9 @@ public:
 
 	void OnResize(UINT width, UINT height);
 
+	void ToggleImgui(bool state) noexcept;
+	bool IsImguiEnabled() const noexcept;
+
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
 	mutable DxgiInfoManager mInfoManager;
@@ -94,5 +97,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
 
 	static constexpr UINT mBufferCount = 2;
+	bool mImguiEnabled = true;
 };
 

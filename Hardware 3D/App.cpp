@@ -9,8 +9,7 @@
 #include "Surface.h"
 #include "GDIPlusManager.h"
 
-#include "imgui/imgui_impl_dx11.h"
-#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui.h"
 
 GDIPlusManager gdipm;
 
@@ -87,6 +86,8 @@ void App::HandleInput()
 			break;
 		}
 	}
+
+	mWnd.Gfx().ToggleImgui(!mWnd.Keyboard.KeyIsPressed(VK_CONTROL));
 }
 
 void App::DoFrame()
@@ -99,15 +100,8 @@ void App::DoFrame()
 		d->Draw(mWnd.Gfx());
 	}
 
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-
-	static bool showDemoWindow = true;
-	if (showDemoWindow)
-		ImGui::ShowDemoWindow(&showDemoWindow);
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	if (mWnd.Gfx().IsImguiEnabled() && mShowDemoWindow)
+		ImGui::ShowDemoWindow(&mShowDemoWindow);
 
 	mWnd.Gfx().EndFrame();
 }
