@@ -4,6 +4,7 @@
 #include "Melon.h"
 #include "Pyramid.h"
 #include "Sheet.h"
+#include "SkinnedBox.h"
 
 #include "Surface.h"
 #include "GDIPlusManager.h"
@@ -30,6 +31,7 @@ App::App()
 			case 1: return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist);
 			case 2:	return std::make_unique<Melon>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mLongDist, mLatDist);
 			case 3: return std::make_unique<Sheet>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist);
+			case 4: return std::make_unique<SkinnedBox>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist);
 			default:
 				assert(false && "Bad drawable type in factory");
 				return {};
@@ -46,12 +48,11 @@ App::App()
 		std::uniform_real_distribution<float> mBdist{ 0.4f, 3.0f };
 		std::uniform_int_distribution<int> mLatDist{ 5, 20 };
 		std::uniform_int_distribution<int> mLongDist{ 10, 40 };
-		std::uniform_int_distribution<int> mTypeDist{ 0, 3 };
+		std::uniform_int_distribution<int> mTypeDist{ 0, 4 };
 	};
 
-	Factory f(mWnd.Gfx());
 	mDrawables.reserve(mNumDrawables);
-	std::generate_n(std::back_inserter(mDrawables), mNumDrawables, f);
+	std::generate_n(std::back_inserter(mDrawables), mNumDrawables, Factory{ mWnd.Gfx() });
 }
 
 App::~App()

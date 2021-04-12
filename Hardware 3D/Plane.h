@@ -16,7 +16,7 @@ public:
 		constexpr float height = 2.0f;
 		const int nVerticesX = divisionsX + 1;
 		const int nVerticesY = divisionsY + 1;
-		std::vector<V> vertices(nVerticesX * nVerticesY);
+		std::vector<V> vertices(static_cast<size_t>(nVerticesX) * nVerticesY);
 
 		const float sideX = 0.5f * width;
 		const float sideY = 0.5f * height;

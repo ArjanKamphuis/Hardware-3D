@@ -99,7 +99,7 @@ void Graphics::OnResize(UINT width, UINT height)
 	depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	depthBufferDesc.Height = height;
 	depthBufferDesc.MipLevels = 1u;
-	depthBufferDesc.SampleDesc = { 1, 0 };
+	depthBufferDesc.SampleDesc = { 1u, 0u };
 	depthBufferDesc.Width = width;
 	ComPtr<ID3D11Texture2D> pDepthStencil;
 	GFX_THROW_INFO(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &pDepthStencil));
