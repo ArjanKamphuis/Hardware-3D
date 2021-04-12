@@ -106,14 +106,12 @@ void App::DoFrame()
 
 void App::DoImGui()
 {
-	static char buffer[1024];
-
 	if (ImGui::Begin("Simulation Speed"))
 	{
 		ImGui::SliderFloat("Speed Factor", &mSpeedFactor, 0.0f, 4.0f);
 		const float frameRate = ImGui::GetIO().Framerate;
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS", 1000.0f / frameRate, frameRate);
-		ImGui::InputText("Butts", buffer, sizeof(buffer));
+		ImGui::Text("Status: %s", mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? "PAUSED" : "RUNNING");
 	}
 
 	ImGui::End();
