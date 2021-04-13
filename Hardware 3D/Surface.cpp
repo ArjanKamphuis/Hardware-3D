@@ -63,7 +63,7 @@ Surface Surface::FromFile(const std::wstring& filename)
 
 void Surface::Clear(Color fillValue) noexcept
 {
-	memset(mBuffer.get(), fillValue.Value, sizeof(Color) * mWidth * mHeight);
+	memset(mBuffer.get(), fillValue, sizeof(Color) * mWidth * mHeight);
 }
 
 void Surface::PutPixel(UINT x, UINT y, Color c) noexcept(!IS_DEBUG)

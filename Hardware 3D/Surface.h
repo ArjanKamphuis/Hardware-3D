@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChiliWin.h"
+#include <DirectXPackedVector.h>
 #include <memory>
 #include <string>
 #include "ChiliException.h"
@@ -8,71 +9,8 @@
 class Surface
 {
 public:
-	class Color
-	{
-	public:
-		constexpr Color() noexcept = default;
-		constexpr Color(Color& other) noexcept
-			: Value(other.Value)
-		{}
-		constexpr Color(UINT value) noexcept
-			: Value(value)
-		{}
-		constexpr Color(UCHAR x, UCHAR r, UCHAR g, UCHAR b) noexcept
-			: Value((x << 24u) | (r << 16u) | (g << 8) | b)
-		{}
-		constexpr Color(Color other, UCHAR x) noexcept
-			: Value((x << 24u) | other.Value)
-		{}
-		Color& operator=(const Color& rhs) noexcept
-		{
-			Value = rhs.Value;
-			return *this;
-		}
-		constexpr UCHAR GetX() const noexcept
-		{
-			return Value >> 24u;
-		}
-		constexpr UCHAR GetA() const noexcept
-		{
-			return GetX();
-		}
-		constexpr UCHAR GetR() const noexcept
-		{
-			return (Value >> 16u) & 0xFFu;
-		}
-		constexpr UCHAR GetG() const noexcept
-		{
-			return (Value >> 8u) & 0xFFu;
-		}
-		constexpr UCHAR GetB() const noexcept
-		{
-			return Value & 0xFFu;
-		}
-		void SetX(UCHAR x) noexcept
-		{
-			Value = (Value & 0xFFFFFFu) | (x << 24u);
-		}
-		void SetA(UCHAR a) noexcept
-		{
-			SetX(a);
-		}
-		void SetR(UCHAR r) noexcept
-		{
-			Value = (Value & 0xFFFFFFu) | (r << 16u);
-		}
-		void SetG(UCHAR g) noexcept
-		{
-			Value = (Value & 0xFFFFFFu) | (g << 8u);
-		}
-		void SetB(UCHAR b) noexcept
-		{
-			Value = (Value & 0xFFFFFFu) | b;
-		}
+	using Color = DirectX::PackedVector::XMCOLOR;
 
-	public:
-		UINT Value = 0;;
-	};
 public:
 	class Exception : public ChiliException
 	{
