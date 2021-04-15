@@ -1,10 +1,6 @@
 #include "App.h"
 
 #include "Box.h"
-#include "Melon.h"
-#include "Pyramid.h"
-#include "Sheet.h"
-#include "SkinnedBox.h"
 
 #include "Surface.h"
 #include "GDIPlusManager.h"
@@ -16,7 +12,7 @@ GDIPlusManager gdipm;
 using namespace DirectX;
 
 App::App()
-    : mWnd(800, 600, L"The Donkey Fart Box")
+    : mWnd(800, 600, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
 	class Factory
 	{
@@ -27,17 +23,7 @@ App::App()
 
 		std::unique_ptr<Drawable> operator()()
 		{
-			switch (mTypeDist(mRng))
-			{
-			case 0:	return std::make_unique<Pyramid>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist);
-			case 1: return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist);
-			case 2:	return std::make_unique<Melon>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mLongDist, mLatDist);
-			case 3: return std::make_unique<Sheet>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist);
-			case 4: return std::make_unique<SkinnedBox>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist);
-			default:
-				assert(false && "Bad drawable type in factory");
-				return {};
-			}
+			return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist);
 		}
 
 	private:
@@ -48,9 +34,6 @@ App::App()
 		std::uniform_real_distribution<float> mOdist{ 0.0f, XM_PI * 0.08f };
 		std::uniform_real_distribution<float> mRdist{ 6.0f, 20.0f };
 		std::uniform_real_distribution<float> mBdist{ 0.4f, 3.0f };
-		std::uniform_int_distribution<int> mLatDist{ 5, 20 };
-		std::uniform_int_distribution<int> mLongDist{ 10, 40 };
-		std::uniform_int_distribution<int> mTypeDist{ 0, 4 };
 	};
 
 	mDrawables.reserve(mNumDrawables);
@@ -95,6 +78,9 @@ void App::DoFrame()
 	mWnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	mWnd.Gfx().SetCamera(mCamera.GetMatrix());
 
+	mLight.Bind(mWnd.Gfx());
+	mLight.Draw(mWnd.Gfx());
+
 	for (auto& d : mDrawables)
 	{
 		d->Update(mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
@@ -118,6 +104,7 @@ void App::DoImGui()
 	}
 
 	mCamera.SpawnControlWindow();
+	mLight.SpawnControlWindow();
 
 	ImGui::End();
 }

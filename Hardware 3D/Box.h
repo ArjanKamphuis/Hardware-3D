@@ -19,6 +19,6 @@ private:
 	float mRadius;
 	AngleParameters mAngles;
 	AngleParameters mDelta;
-	DirectX::XMFLOAT3X3 mTransform;
+	DirectX::XMFLOAT3 mScale;
 };
 

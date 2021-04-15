@@ -15,7 +15,7 @@ Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-	XMStoreFloat3x3(&mTransform, XMMatrixScaling(1.0f, 1.0f, bdist(rng)));
+	mScale = { 1.0f, 1.0f, bdist(rng) };
 }
 
 void Box::Update(float dt) noexcept
@@ -25,8 +25,8 @@ void Box::Update(float dt) noexcept
 
 XMMATRIX Box::GetTransformMatrix() const noexcept
 {
-	return XMLoadFloat3x3(&mTransform) *
-		XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) *	XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
+	return XMMatrixScalingFromVector(XMLoadFloat3(&mScale)) * XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * 
+		XMMatrixTranslation(mRadius, 0.0f, 0.0f) *	XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
 }
 
 void Box::StaticInitialize(const Graphics& gfx)
@@ -34,42 +34,25 @@ void Box::StaticInitialize(const Graphics& gfx)
 	struct Vertex
 	{
 		XMFLOAT3 Position;
-	};
-
-	struct PixelShaderConstants
-	{
-		XMFLOAT4 FaceColors[8];
-	};
-
-	const PixelShaderConstants psData =
-	{
-		{
-			{ 1.0f, 1.0f, 1.0f, 1.0f},
-			{ 1.0f, 0.0f, 0.0f, 1.0f},
-			{ 0.0f, 1.0f, 0.0f, 1.0f},
-			{ 1.0f, 1.0f, 0.0f, 1.0f},
-			{ 0.0f, 0.0f, 1.0f, 1.0f},
-			{ 1.0f, 0.0f, 1.0f, 1.0f},
-			{ 0.0f, 1.0f, 1.0f, 1.0f},
-			{ 0.0f, 0.0f, 0.0f, 1.0f}
-		}
+		XMFLOAT3 Normal;
 	};
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
+		{ "NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
-	const IndexedTriangleList<Vertex> model = Cube::Make<Vertex>();
+	IndexedTriangleList<Vertex> model = Cube::MakeIndependent<Vertex>();
+	model.SetNormalsIndependentFlat();
 
-	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"ColorIndexVS.cso");
+	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
 	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
 	AddStaticBind(std::move(vs));
 
-	AddStaticBind(std::make_unique<PixelShader>(gfx, L"ColorIndexPS.cso"));
+	AddStaticBind(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
-	AddStaticBind(std::make_unique<PixelConstantBuffer<PixelShaderConstants>>(gfx, psData));
 
 	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
 }
