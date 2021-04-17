@@ -23,7 +23,8 @@ App::App()
 
 		std::unique_ptr<Drawable> operator()()
 		{
-			return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist);
+			const XMFLOAT3 material = { mCdist(mRng), mCdist(mRng) , mCdist(mRng) };
+			return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, material);
 		}
 
 	private:
@@ -34,6 +35,7 @@ App::App()
 		std::uniform_real_distribution<float> mOdist{ 0.0f, XM_PI * 0.08f };
 		std::uniform_real_distribution<float> mRdist{ 6.0f, 20.0f };
 		std::uniform_real_distribution<float> mBdist{ 0.4f, 3.0f };
+		std::uniform_real_distribution<float> mCdist{ 0.0f, 1.0f };
 	};
 
 	mDrawables.reserve(mNumDrawables);

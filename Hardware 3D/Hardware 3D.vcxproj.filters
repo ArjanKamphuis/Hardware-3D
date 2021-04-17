@@ -254,9 +254,6 @@
     <ClInclude Include="VertexBuffer.h">
       <Filter>Header Files\Bindable</Filter>
     </ClInclude>
-    <ClInclude Include="DrawableBase.h">
-      <Filter>Header Files\Bindable</Filter>
-    </ClInclude>
     <ClInclude Include="Cube.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
@@ -334,6 +331,9 @@
     </ClInclude>
     <ClInclude Include="PointLight.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawableBase.h">
+      <Filter>Header Files\Drawable</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

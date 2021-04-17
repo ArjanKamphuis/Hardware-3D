@@ -13,7 +13,7 @@ private:
 	};
 
 public:
-	TransformCBuf(const Graphics& gfx, const Drawable& parent);
+	TransformCBuf(const Graphics& gfx, const Drawable& parent, UINT slot = 0u);
 	void Bind(const Graphics& gfx) noexcept override;
 
 private:

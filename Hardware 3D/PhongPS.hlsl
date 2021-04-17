@@ -1,14 +1,19 @@
-cbuffer LigthCBuf
+cbuffer LigthCBuf : register(b0)
 {
 	float3 gLightPosition;
-	float gAttConst;
-	float3 gMaterialColor;
-	float gAttLinear;
 	float3 gAmbientColor;
-	float gAttQuad;
 	float3 gDiffuseColor;
 	float gDiffuseIntensity;
+	float gAttConst;
+	float gAttLinear;
+	float gAttQuad;
 };
+
+cbuffer ObjectBuffer : register(b1)
+{
+	float3 gMaterialColor;
+	float gObjectPad;
+}
 
 float4 main(float3 posW : POSITION, float3 normal : NORMAL) : SV_TARGET
 {

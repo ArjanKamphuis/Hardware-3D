@@ -20,7 +20,6 @@ void PointLight::SpawnControlWindow() noexcept
 		ImGui::SliderFloat("Intensity", &mBufferData.DiffuseIntensity, 0.01f, 2.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 		ImGui::ColorEdit3("Diffuse Color", &mBufferData.DiffuseColor.x);
 		ImGui::ColorEdit3("Ambient Color", &mBufferData.AmbientColor.x);
-		ImGui::ColorEdit3("Material Color", &mBufferData.MaterialColor.x);
 
 		ImGui::Text("Falloff");
 		ImGui::SliderFloat("Constant", &mBufferData.AttConst, 0.05f, 10.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
@@ -37,10 +36,10 @@ void PointLight::Reset() noexcept
 {
 	mBufferData =
 	{
-		{ 0.0f, 0.0f, 0.0f }, 1.0f,
-		{ 0.7f, 0.7f, 0.9f }, 0.045f,
-		{ 0.05f, 0.05f, 0.05f }, 0.0075f,
-		{ 1.0f, 1.0f, 1.0f }, 1.0f
+		{ 0.0f, 0.0f, 0.0f },
+		{ 0.05f, 0.05f, 0.05f },
+		{ 1.0f, 1.0f, 1.0f },
+		1.0f, 1.0f, 0.045f, 0.0075f
 	};
 }
 

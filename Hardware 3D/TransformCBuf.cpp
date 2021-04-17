@@ -4,11 +4,11 @@ using namespace DirectX;
 
 std::unique_ptr<VertexConstantBuffer<TransformCBuf::Transforms>> TransformCBuf::mVCBuffer;
 
-TransformCBuf::TransformCBuf(const Graphics& gfx, const Drawable& parent)
+TransformCBuf::TransformCBuf(const Graphics& gfx, const Drawable& parent, UINT slot)
 	: mParent(parent)
 {
 	if (!mVCBuffer)
-		mVCBuffer = std::make_unique<VertexConstantBuffer<Transforms>>(gfx);
+		mVCBuffer = std::make_unique<VertexConstantBuffer<Transforms>>(gfx, slot);
 }
 
 void TransformCBuf::Bind(const Graphics& gfx) noexcept
