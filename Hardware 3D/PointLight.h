@@ -10,7 +10,13 @@ private:
 	struct PointLightCBuf
 	{
 		DirectX::XMFLOAT3 LightPosition;
-		float Pad;
+		float AttConst;
+		DirectX::XMFLOAT3 MaterialColor;
+		float AttLinear;
+		DirectX::XMFLOAT3 AmbientColor;
+		float AttQuad;
+		DirectX::XMFLOAT3 DiffuseColor;
+		float DiffuseIntensity;
 	};
 
 public:
@@ -21,7 +27,7 @@ public:
 	void Bind(const Graphics& gfx) const noexcept;
 
 private:
-	DirectX::XMFLOAT3 mPosition = {};
+	PointLightCBuf mBufferData;
 	mutable SolidSphere mMesh;
 	mutable PixelConstantBuffer<PointLightCBuf> mBuffer;
 };

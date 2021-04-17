@@ -79,13 +79,14 @@ void App::DoFrame()
 	mWnd.Gfx().SetCamera(mCamera.GetMatrix());
 
 	mLight.Bind(mWnd.Gfx());
-	mLight.Draw(mWnd.Gfx());
 
 	for (auto& d : mDrawables)
 	{
 		d->Update(mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
 		d->Draw(mWnd.Gfx());
 	}
+
+	mLight.Draw(mWnd.Gfx());
 
 	if (mWnd.Gfx().IsImguiEnabled())
 		DoImGui();
