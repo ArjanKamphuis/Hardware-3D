@@ -56,13 +56,5 @@ void SolidSphere::StaticInitialize(const Graphics& gfx)
 	IndexedTriangleList<Vertex> model = Sphere::Make<Vertex>();
 	model.Transform(XMMatrixScaling(mRadius, mRadius, mRadius));
 
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
-
-	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"SolidVS.cso");
-	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
-	AddStaticBind(std::move(vs));
-
-	AddStaticBind(std::make_unique<PixelShader>(gfx, L"SolidPS.cso"));
-	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddRequiredStaticBindings(gfx, L"SolidVS.cso", L"SolidPS.cso", ied, model);
 }

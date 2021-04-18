@@ -53,13 +53,5 @@ void Box::StaticInitialize(const Graphics& gfx)
 	IndexedTriangleList<Vertex> model = Cube::MakeIndependent<Vertex>();
 	model.SetNormalsIndependentFlat();
 
-	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
-	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
-	AddStaticBind(std::move(vs));
-
-	AddStaticBind(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
-	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
-
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
+	AddRequiredStaticBindings(gfx, L"PhongVS.cso", L"PhongPS.cso", ied, model);
 }

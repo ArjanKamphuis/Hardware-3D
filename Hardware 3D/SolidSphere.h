@@ -20,6 +20,6 @@ private:
 private:
 	float mRadius;
 	DirectX::XMFLOAT3 mPosition = {};
-	Material mMaterial;
+	Material mMaterial = {};
 };
 
