@@ -1,8 +1,4 @@
-cbuffer CBuf
-{
-	matrix gWorld;
-	matrix gWVP;
-};
+#include "TransformBuffer.hlsli"
 
 struct VSOut
 {

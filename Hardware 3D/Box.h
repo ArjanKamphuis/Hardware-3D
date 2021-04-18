@@ -12,6 +12,7 @@ public:
 	
 	void Update(float dt) noexcept override;
 	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
+	Material GetMaterial() const noexcept override;
 
 private:
 	void StaticInitialize(const Graphics& gfx) override;

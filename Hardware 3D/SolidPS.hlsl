@@ -1,9 +1,6 @@
-cbuffer CBuf
-{
-	float4 gColor;
-};
+#include "MaterialBuffer.hlsli"
 
 float4 main() : SV_TARGET
 {
-	return gColor;
+	return float4(gMaterialColor, 1.0f);
 }

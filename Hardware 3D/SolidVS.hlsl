@@ -1,8 +1,4 @@
-cbuffer CBuf
-{
-	matrix gWorld;
-	matrix gWVP;
-};
+#include "TransformBuffer.hlsli"
 
 float4 main(float3 pos : POSITION) : SV_POSITION
 {

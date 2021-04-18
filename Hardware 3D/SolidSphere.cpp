@@ -14,6 +14,7 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
+	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
 }
 
 void SolidSphere::Update(float dt) noexcept
@@ -25,9 +26,19 @@ void SolidSphere::SetPosition(const DirectX::XMFLOAT3& position) noexcept
 	mPosition = position;
 }
 
+void SolidSphere::SetMaterialColor(const DirectX::XMFLOAT3& color) noexcept
+{
+	mMaterial.Color = color;
+}
+
 XMMATRIX SolidSphere::GetTransformMatrix() const noexcept
 {
 	return XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
+}
+
+Drawable::Material SolidSphere::GetMaterial() const noexcept
+{
+	return mMaterial;
 }
 
 void SolidSphere::StaticInitialize(const Graphics& gfx)
@@ -36,12 +47,6 @@ void SolidSphere::StaticInitialize(const Graphics& gfx)
 	{
 		XMFLOAT3 Position;
 	};
-
-	struct PixelShaderConstants
-	{
-		XMFLOAT3 Color = { 1.0f, 1.0f, 1.0f };
-		float Pad = 0.0f;
-	} psConstant;
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
@@ -60,5 +65,4 @@ void SolidSphere::StaticInitialize(const Graphics& gfx)
 
 	AddStaticBind(std::make_unique<PixelShader>(gfx, L"SolidPS.cso"));
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddStaticBind(std::make_unique<PixelConstantBuffer<PixelShaderConstants>>(gfx, psConstant));
 }

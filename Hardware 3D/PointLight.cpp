@@ -2,7 +2,7 @@
 #include "imgui/imgui.h"
 
 PointLight::PointLight(const Graphics& gfx, float radius)
-	: mMesh(gfx, radius), mBuffer(gfx)
+	: mMesh(gfx, radius), mBuffer(gfx, 1u)
 {
 	Reset();
 }
@@ -46,6 +46,7 @@ void PointLight::Reset() noexcept
 void PointLight::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
 	mMesh.SetPosition(mBufferData.LightPosition);
+	mMesh.SetMaterialColor(mBufferData.DiffuseColor);
 	mMesh.Draw(gfx);
 }
 

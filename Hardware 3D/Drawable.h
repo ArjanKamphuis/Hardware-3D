@@ -11,6 +11,12 @@ class Drawable
 	friend class DrawableBase;
 
 public:
+	struct Material
+	{
+		alignas(16) DirectX::XMFLOAT3 Color;
+	};
+
+public:
 	Drawable() = default;
 	Drawable(const Drawable&) = delete;
 	Drawable& operator=(const Drawable&) = delete;
@@ -20,6 +26,7 @@ public:
 
 	virtual void Update(float dt) noexcept = 0;
 	virtual DirectX::XMMATRIX GetTransformMatrix() const noexcept = 0;
+	virtual Material GetMaterial() const noexcept = 0;
 
 protected:
 	void AddBind(std::unique_ptr<Bindable> bind) noexcept(!IS_DEBUG);

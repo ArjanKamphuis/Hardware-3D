@@ -1,4 +1,6 @@
-cbuffer LigthCBuf : register(b0)
+#include "MaterialBuffer.hlsli"
+
+cbuffer LigthCBuf : register(b1)
 {
 	float3 gLightPosition;
 	float3 gAmbientColor;
@@ -8,12 +10,6 @@ cbuffer LigthCBuf : register(b0)
 	float gAttLinear;
 	float gAttQuad;
 };
-
-cbuffer ObjectBuffer : register(b1)
-{
-	float3 gMaterialColor;
-	float gObjectPad;
-}
 
 float4 main(float3 posW : POSITION, float3 normal : NORMAL) : SV_TARGET
 {
