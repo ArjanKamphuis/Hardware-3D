@@ -9,8 +9,9 @@
 using namespace DirectX;
 
 Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist, 
-	std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist)
+	std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, const DirectX::XMFLOAT3& color)
 	: mRadius(rdist(rng)), mAngles({ 0.0f, 0.0f, 0.0f, adist(rng), adist(rng), adist(rng) }), mDelta({ ddist(rng), ddist(rng), ddist(rng), odist(rng), odist(rng), odist(rng) })
+	, mColor(color)
 {
 	if (IsStaticInitialized())
 		SetIndexFromStatic();
@@ -18,6 +19,7 @@ Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribut
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
+	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
 }
 
 void Sheet::Update(float dt) noexcept
@@ -28,6 +30,11 @@ void Sheet::Update(float dt) noexcept
 DirectX::XMMATRIX Sheet::GetTransformMatrix() const noexcept
 {
 	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) * XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
+}
+
+Drawable::Material Sheet::GetMaterial() const noexcept
+{
+	return { mColor };
 }
 
 void Sheet::StaticInitialize(const Graphics& gfx)
@@ -51,15 +58,7 @@ void Sheet::StaticInitialize(const Graphics& gfx)
 	model.Vertices[2].TexCoord = { 0.0f, 1.0f };
 	model.Vertices[3].TexCoord = { 1.0f, 1.0f };
 
-	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"TextureVS.cso");
-	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
-	AddStaticBind(std::move(vs));
-
-	AddStaticBind(std::make_unique<PixelShader>(gfx, L"TexturePS.cso"));
-	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
-
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
+	AddRequiredStaticBindings(gfx, L"TextureVS.cso", L"TexturePS.cso", ied, model);
 
 	AddStaticBind(std::make_unique<Texture>(gfx, Surface::FromFile(L"Images/kappa50.png")));
 	AddStaticBind(std::make_unique<Sampler>(gfx));

@@ -1,7 +1,4 @@
-cbuffer Cbuf
-{
-	matrix gTransform;
-};
+#include "TransformBuffer.hlsli"
 
 struct VSOut
 {
@@ -12,7 +9,7 @@ struct VSOut
 VSOut main(float3 pos : POSITION, float2 texC : TEXCOORD)
 {
 	VSOut vout;
-	vout.PosH = mul(float4(pos, 1.0f), gTransform);
+	vout.PosH = mul(float4(pos, 1.0f), gWVP);
 	vout.TexC = texC;
 	return vout;
 }
