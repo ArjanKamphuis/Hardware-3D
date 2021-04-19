@@ -14,6 +14,9 @@ public:
 	struct Material
 	{
 		alignas(16) DirectX::XMFLOAT3 Color;
+		float SpecularIntensity = 0.6f;
+		float SpecularPower = 30.0f;
+		float Padding[2] = {};
 	};
 
 public:

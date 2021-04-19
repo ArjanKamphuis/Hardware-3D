@@ -6,8 +6,12 @@ using namespace DirectX;
 
 DirectX::XMMATRIX Camera::GetMatrix() const noexcept
 {
-	const XMVECTOR position = XMVector3Transform(XMVectorSet(0.0f, 0.0f, -mRadius, 0.0f), XMMatrixRotationRollPitchYaw(mPhi, -mTheta, 0.0f));
-	return XMMatrixLookAtLH(position, XMVectorZero(), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * XMMatrixRotationRollPitchYaw(mPitch, -mYaw, mRoll);
+	return XMMatrixLookAtLH(GetPosition(), XMVectorZero(), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * XMMatrixRotationRollPitchYaw(mPitch, -mYaw, mRoll);
+}
+
+DirectX::XMVECTOR Camera::GetPosition() const noexcept
+{
+	return XMVector3Transform(XMVectorSet(0.0f, 0.0f, -mRadius, 0.0f), XMMatrixRotationRollPitchYaw(mPhi, -mTheta, 0.0f));
 }
 
 void Camera::SpawnControlWindow() noexcept

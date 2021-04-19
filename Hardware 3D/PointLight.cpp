@@ -1,6 +1,8 @@
 #include "PointLight.h"
 #include "imgui/imgui.h"
 
+using namespace DirectX;
+
 PointLight::PointLight(const Graphics& gfx, float radius)
 	: mMesh(gfx, radius), mBuffer(gfx, 1u)
 {
@@ -37,6 +39,7 @@ void PointLight::Reset() noexcept
 	mBufferData =
 	{
 		{ 0.0f, 0.0f, 0.0f },
+		{ 0.0f, 0.0f, 0.0f },
 		{ 0.05f, 0.05f, 0.05f },
 		{ 1.0f, 1.0f, 1.0f },
 		1.0f, 1.0f, 0.045f, 0.0075f
@@ -54,4 +57,9 @@ void PointLight::Bind(const Graphics& gfx) const noexcept
 {
 	mBuffer.Update(gfx, mBufferData);
 	mBuffer.Bind(gfx);
+}
+
+void PointLight::SetCameraPosition(const XMVECTOR& cam) noexcept
+{
+	XMStoreFloat3(&mBufferData.CameraPosition, cam);
 }

@@ -1,7 +1,6 @@
 #include "App.h"
 
 #include "Box.h"
-#include "Sheet.h"
 
 #include "Surface.h"
 #include "GDIPlusManager.h"
@@ -25,8 +24,7 @@ App::App()
 		std::unique_ptr<Drawable> operator()()
 		{
 			const XMFLOAT3 material = { mCdist(mRng), mCdist(mRng) , mCdist(mRng) };
-			return std::make_unique<Sheet>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, material);
-			/*return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, material);*/
+			return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, material);
 		}
 
 	private:
@@ -82,6 +80,7 @@ void App::DoFrame()
 	mWnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
 	mWnd.Gfx().SetCamera(mCamera.GetMatrix());
 
+	mLight.SetCameraPosition(mCamera.GetPosition());
 	mLight.Bind(mWnd.Gfx());
 
 	for (auto& d : mDrawables)
