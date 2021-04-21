@@ -30,13 +30,6 @@ void SkinnedBox::StaticInitialize(const Graphics& gfx)
 		XMFLOAT2 TexCoord;
 	};
 
-	struct PSMaterialConstant
-	{
-		float SpecularIntensity = 0.6f;
-		float SpecularPower = 30.0f;
-		float Padding[2] = {};
-	};
-
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
@@ -48,7 +41,7 @@ void SkinnedBox::StaticInitialize(const Graphics& gfx)
 	model.SetNormalsIndependentFlat();
 
 	AddRequiredStaticBindings(gfx, L"TexturedPhongVS.cso", L"TexturedPhongPS.cso", ied, model);
-	AddStaticBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, PSMaterialConstant{}, 0u));
+	AddStaticBind(std::make_unique<MaterialCBuf>(gfx, *this));
 
 	AddStaticBind(std::make_unique<Texture>(gfx, Surface::FromFile(L"Images/kappa50.png")));
 	AddStaticBind(std::make_unique<Sampler>(gfx));

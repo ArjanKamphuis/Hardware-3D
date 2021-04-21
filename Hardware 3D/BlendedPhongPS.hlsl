@@ -1,8 +1,4 @@
-cbuffer ObjectCBuf : register(b0)
-{
-	float gSpecularIntensity;
-	float gSpecularPower;
-};
+#include "MaterialBuffer.hlsli"
 
 cbuffer LigthCBuf : register(b1)
 {
