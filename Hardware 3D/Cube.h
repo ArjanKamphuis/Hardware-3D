@@ -117,4 +117,37 @@ public:
 			}
 		};
 	}
+	
+	template<class V>
+	static IndexedTriangleList<V> MakeIndependentTextured()
+	{
+		IndexedTriangleList<V> itl = MakeIndependent<V>();
+
+		itl.Vertices[0].TexCoord = { 0.0f, 0.0f };
+		itl.Vertices[1].TexCoord = { 1.0f, 0.0f };
+		itl.Vertices[2].TexCoord = { 0.0f, 1.0f };
+		itl.Vertices[3].TexCoord = { 1.0f, 1.0f };
+		itl.Vertices[4].TexCoord = { 0.0f, 0.0f };
+		itl.Vertices[5].TexCoord = { 1.0f, 0.0f };
+		itl.Vertices[6].TexCoord = { 0.0f, 1.0f };
+		itl.Vertices[7].TexCoord = { 1.0f, 1.0f };
+		itl.Vertices[8].TexCoord = { 0.0f, 0.0f };
+		itl.Vertices[9].TexCoord = { 1.0f, 0.0f };
+		itl.Vertices[10].TexCoord = { 0.0f, 1.0f };
+		itl.Vertices[11].TexCoord = { 1.0f, 1.0f };
+		itl.Vertices[12].TexCoord = { 0.0f, 0.0f };
+		itl.Vertices[13].TexCoord = { 1.0f, 0.0f };
+		itl.Vertices[14].TexCoord = { 0.0f, 1.0f };
+		itl.Vertices[15].TexCoord = { 1.0f, 1.0f };
+		itl.Vertices[16].TexCoord = { 0.0f, 0.0f };
+		itl.Vertices[17].TexCoord = { 1.0f, 0.0f };
+		itl.Vertices[18].TexCoord = { 0.0f, 1.0f };
+		itl.Vertices[19].TexCoord = { 1.0f, 1.0f };
+		itl.Vertices[20].TexCoord = { 0.0f, 0.0f };
+		itl.Vertices[21].TexCoord = { 1.0f, 0.0f };
+		itl.Vertices[22].TexCoord = { 0.0f, 1.0f };
+		itl.Vertices[23].TexCoord = { 1.0f, 1.0f };
+
+		return itl;
+	}
 };

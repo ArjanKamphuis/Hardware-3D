@@ -26,19 +26,30 @@ void SkinnedBox::StaticInitialize(const Graphics& gfx)
 	struct Vertex
 	{
 		XMFLOAT3 Position;
+		XMFLOAT3 Normal;
 		XMFLOAT2 TexCoord;
+	};
+
+	struct PSMaterialConstant
+	{
+		float SpecularIntensity = 0.6f;
+		float SpecularPower = 30.0f;
+		float Padding[2] = {};
 	};
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0u, 24u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
-	IndexedTriangleList<Vertex> model = Cube::MakeSkinned<Vertex>();
+	IndexedTriangleList<Vertex> model = Cube::MakeIndependentTextured<Vertex>();
+	model.SetNormalsIndependentFlat();
 
-	AddRequiredStaticBindings(gfx, L"TextureVS.cso", L"TexturePS.cso", ied, model);
+	AddRequiredStaticBindings(gfx, L"TexturedPhongVS.cso", L"TexturedPhongPS.cso", ied, model);
+	AddStaticBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, PSMaterialConstant{}, 0u));
 
-	AddStaticBind(std::make_unique<Texture>(gfx, Surface::FromFile(L"Images/cube.png")));
+	AddStaticBind(std::make_unique<Texture>(gfx, Surface::FromFile(L"Images/kappa50.png")));
 	AddStaticBind(std::make_unique<Sampler>(gfx));
 }

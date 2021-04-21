@@ -38,6 +38,13 @@ Pyramid::Pyramid(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distr
 
 void Pyramid::StaticInitialize(const Graphics& gfx)
 {
+	struct PSMaterialConstant
+	{
+		float SpecularIntensity = 0.6f;
+		float SpecularPower = 30.0f;
+		float Padding[2] = {};
+	};
+
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
 		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
@@ -51,12 +58,5 @@ void Pyramid::StaticInitialize(const Graphics& gfx)
 
 	AddStaticBind(std::make_unique<PixelShader>(gfx, L"BlendedPhongPS.cso"));
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-
-	struct PSMaterialConstant
-	{
-		float SpecularIntensity = 0.6f;
-		float SpecularPower = 30.0f;
-		float Padding[2] = {};
-	};
 	AddStaticBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, PSMaterialConstant{}, 0u));
 }
