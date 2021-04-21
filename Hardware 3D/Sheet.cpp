@@ -8,10 +8,9 @@
 
 using namespace DirectX;
 
-Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist, 
+Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, const DirectX::XMFLOAT3& color)
-	: mRadius(rdist(rng)), mAngles({ 0.0f, 0.0f, 0.0f, adist(rng), adist(rng), adist(rng) }), mDelta({ ddist(rng), ddist(rng), ddist(rng), odist(rng), odist(rng), odist(rng) })
-	, mColor(color)
+	: TestObject(gfx, rng, adist, ddist, odist, rdist), mColor(color)
 {
 	if (IsStaticInitialized())
 		SetIndexFromStatic();
@@ -20,16 +19,6 @@ Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribut
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
 	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
-}
-
-void Sheet::Update(float dt) noexcept
-{
-	mAngles.Update(mDelta, dt);
-}
-
-DirectX::XMMATRIX Sheet::GetTransformMatrix() const noexcept
-{
-	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) * XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
 }
 
 Drawable::Material Sheet::GetMaterial() const noexcept

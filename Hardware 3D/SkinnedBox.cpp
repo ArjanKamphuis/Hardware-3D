@@ -11,7 +11,7 @@ using namespace DirectX;
 
 SkinnedBox::SkinnedBox(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist
 	, std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist)
-	: mRadius(rdist(rng)), mAngles({ 0.0f, 0.0f, 0.0f, adist(rng), adist(rng), adist(rng) }), mDelta({ ddist(rng), ddist(rng), ddist(rng), odist(rng), odist(rng), odist(rng) })
+	: TestObject(gfx, rng, adist, ddist, odist, rdist)
 {
 	if (IsStaticInitialized())
 		SetIndexFromStatic();
@@ -19,16 +19,6 @@ SkinnedBox::SkinnedBox(const Graphics& gfx, std::mt19937& rng, std::uniform_real
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-}
-
-void SkinnedBox::Update(float dt) noexcept
-{
-	mAngles.Update(mDelta, dt);
-}
-
-DirectX::XMMATRIX SkinnedBox::GetTransformMatrix() const noexcept
-{
-	return XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * XMMatrixTranslation(mRadius, 0.0f, 0.0f) * XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
 }
 
 void SkinnedBox::StaticInitialize(const Graphics& gfx)
@@ -47,15 +37,7 @@ void SkinnedBox::StaticInitialize(const Graphics& gfx)
 
 	IndexedTriangleList<Vertex> model = Cube::MakeSkinned<Vertex>();
 
-	std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, L"TextureVS.cso");
-	AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
-	AddStaticBind(std::move(vs));
-
-	AddStaticBind(std::make_unique<PixelShader>(gfx, L"TexturePS.cso"));
-	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
-
-	AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
+	AddRequiredStaticBindings(gfx, L"TextureVS.cso", L"TexturePS.cso", ied, model);
 
 	AddStaticBind(std::make_unique<Texture>(gfx, Surface::FromFile(L"Images/cube.png")));
 	AddStaticBind(std::make_unique<Sampler>(gfx));

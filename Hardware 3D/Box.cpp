@@ -6,10 +6,8 @@
 using namespace DirectX;
 
 Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist
-	, std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, std::uniform_real_distribution<float>& bdist
-	, const DirectX::XMFLOAT3& color)
-	: mRadius(rdist(rng)), mAngles({ 0.0f, 0.0f, 0.0f, adist(rng), adist(rng), adist(rng) }), mDelta({ ddist(rng), ddist(rng), ddist(rng), odist(rng), odist(rng), odist(rng)})
-	, mColor(color), mScale(1.0f, 1.0f, bdist(rng))
+	, std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, std::uniform_real_distribution<float>& bdist, const DirectX::XMFLOAT3& color)
+	: TestObject(gfx, rng, adist, ddist, odist, rdist), mScale(1.0f, 1.0f, bdist(rng)), mColor(color)
 {
 	if (IsStaticInitialized())
 		SetIndexFromStatic();
@@ -20,15 +18,9 @@ Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<
 	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
 }
 
-void Box::Update(float dt) noexcept
-{
-	mAngles.Update(mDelta, dt);
-}
-
 XMMATRIX Box::GetTransformMatrix() const noexcept
 {
-	return XMMatrixScalingFromVector(XMLoadFloat3(&mScale)) * XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) * 
-		XMMatrixTranslation(mRadius, 0.0f, 0.0f) *	XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
+	return XMMatrixScalingFromVector(XMLoadFloat3(&mScale)) * TestObject::GetTransformMatrix();
 }
 
 Drawable::Material Box::GetMaterial() const noexcept

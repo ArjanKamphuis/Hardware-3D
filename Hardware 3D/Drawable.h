@@ -13,10 +13,10 @@ class Drawable
 public:
 	struct Material
 	{
-		alignas(16) DirectX::XMFLOAT3 Color;
+		DirectX::XMFLOAT3 Color;
 		float SpecularIntensity = 0.6f;
 		float SpecularPower = 30.0f;
-		float Padding[2] = {};
+		float Padding[3] = {};
 	};
 
 public:
@@ -29,7 +29,7 @@ public:
 
 	virtual void Update(float dt) noexcept = 0;
 	virtual DirectX::XMMATRIX GetTransformMatrix() const noexcept = 0;
-	virtual Material GetMaterial() const noexcept = 0;
+	virtual Material GetMaterial() const noexcept;
 
 protected:
 	void AddBind(std::unique_ptr<Bindable> bind) noexcept(!IS_DEBUG);
