@@ -18,12 +18,12 @@ public:
 		std::vector<V> vertices;
 		vertices.emplace_back();
 		vertices.back().Position = { 0.0f, 0.0f, -1.0f };
-		const unsigned short iCenterNear = static_cast<unsigned short>(vertices.size() - 1);
+		const USHORT iCenterNear = static_cast<USHORT>(vertices.size() - 1);
 
 		// far center
 		vertices.emplace_back();
 		vertices.back().Position = { 0.0f, 0.0f, 1.0f };
-		const unsigned short iCenterFar = static_cast<unsigned short>(vertices.size() - 1);
+		const USHORT iCenterFar = static_cast<USHORT>(vertices.size() - 1);
 
 		// base vertices
 		for (int iLong = 0; iLong < longDiv; iLong++)
@@ -39,11 +39,11 @@ public:
 		}
 
 		// side indices
-		std::vector<unsigned short> indices;
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		std::vector<USHORT> indices;
+		for (USHORT iLong = 0; iLong < longDiv; iLong++)
 		{
-			const unsigned short i = iLong * 2u;
-			const unsigned short mod = longDiv * 2u;
+			const USHORT i = iLong * 2u;
+			const USHORT mod = longDiv * 2u;
 			indices.push_back(i + 2);
 			indices.push_back((i + 2) % mod + 2);
 			indices.push_back(i + 3);
@@ -53,10 +53,10 @@ public:
 		}
 
 		// base indices
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		for (USHORT iLong = 0; iLong < longDiv; iLong++)
 		{
-			const unsigned short i = iLong * 2u;
-			const unsigned short mod = longDiv * 2u;
+			const USHORT i = iLong * 2u;
+			const USHORT mod = longDiv * 2u;
 			indices.push_back(i + 2);
 			indices.push_back(iCenterNear);
 			indices.push_back((i + 2) % mod + 2);
@@ -78,16 +78,16 @@ public:
 		const float longitudeAngle = DirectX::XM_2PI / longDiv;
 
 		std::vector<V> vertices;
-		std::vector<unsigned short> indices;
+		std::vector<USHORT> indices;
 
 		// near center
-		const unsigned short iCenterNear = static_cast<unsigned short>(vertices.size());
+		const USHORT iCenterNear = static_cast<USHORT>(vertices.size());
 		vertices.emplace_back();
 		vertices.back().Position = { 0.0f, 0.0f, -1.0f };
 		vertices.back().Normal = { 0.0f, 0.0f, -1.0f };
 
 		// near base
-		const unsigned short iBaseNear = static_cast<unsigned short>(vertices.size());
+		const USHORT iBaseNear = static_cast<USHORT>(vertices.size());
 		for (int iLong = 0; iLong < longDiv; iLong++)
 		{
 			vertices.emplace_back();
@@ -97,13 +97,13 @@ public:
 		}
 
 		// far center
-		const unsigned short iCenterFar = static_cast<unsigned short>(vertices.size());
+		const USHORT iCenterFar = static_cast<USHORT>(vertices.size());
 		vertices.emplace_back();
 		vertices.back().Position = { 0.0f, 0.0f, 1.0f };
 		vertices.back().Normal = { 0.0f, 0.0f, 1.0f };
 
 		// far base
-		const unsigned short iBaseFar = static_cast<unsigned short>(vertices.size());
+		const USHORT iBaseFar = static_cast<USHORT>(vertices.size());
 		for (int iLong = 0; iLong < longDiv; iLong++)
 		{
 			vertices.emplace_back();
@@ -113,7 +113,7 @@ public:
 		}
 
 		// fusilage
-		const unsigned short iFusilage = static_cast<unsigned short>(vertices.size());
+		const USHORT iFusilage = static_cast<USHORT>(vertices.size());
 		for (int iLong = 0; iLong < longDiv; iLong++)
 		{
 			// near base
@@ -129,30 +129,30 @@ public:
 		}
 
 		// near base indices
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		for (USHORT iLong = 0; iLong < longDiv; iLong++)
 		{
-			const unsigned short i = iLong;
-			const unsigned short mod = longDiv;
+			const USHORT i = iLong;
+			const USHORT mod = longDiv;
 			indices.push_back(i + iBaseNear);
 			indices.push_back(iCenterNear);
 			indices.push_back((i + 1) % mod + iBaseNear);
 		}
 
 		// far base indices
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		for (USHORT iLong = 0; iLong < longDiv; iLong++)
 		{
-			const unsigned short i = iLong;
-			const unsigned short mod = longDiv;
+			const USHORT i = iLong;
+			const USHORT mod = longDiv;
 			indices.push_back(iCenterFar);
 			indices.push_back(i + iBaseFar);
 			indices.push_back((i + 1) % mod + iBaseFar);
 		}
 
 		// fusilage indices
-		for (unsigned short iLong = 0; iLong < longDiv; iLong++)
+		for (USHORT iLong = 0; iLong < longDiv; iLong++)
 		{
-			const unsigned short i = iLong * 2u;
-			const unsigned short mod = longDiv * 2u;
+			const USHORT i = iLong * 2u;
+			const USHORT mod = longDiv * 2u;
 			indices.push_back(i + iFusilage);
 			indices.push_back((i + 2) % mod + iFusilage);
 			indices.push_back(i + 1 + iFusilage);

@@ -33,7 +33,7 @@ void Can::StaticInitialize(const Graphics& gfx)
 		{ "NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
-	struct PSMAterialConstant
+	struct PSMaterialConstant
 	{
 		XMFLOAT3A Colors[6] =
 		{
@@ -55,5 +55,5 @@ void Can::StaticInitialize(const Graphics& gfx)
 	AddStaticBind(std::make_unique<PixelShader>(gfx, L"IndexedPhongPS.cso"));
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
-	AddStaticBind(std::make_unique<PixelConstantBuffer<PSMAterialConstant>>(gfx, PSMAterialConstant{}, 0u));
+	AddStaticBind(std::make_unique<PixelConstantBuffer<PSMaterialConstant>>(gfx, PSMaterialConstant{}, 0u));
 }

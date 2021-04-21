@@ -2,6 +2,7 @@
 
 #include "Box.h"
 #include "Can.h"
+#include "Pyramid.h"
 
 #include "Surface.h"
 #include "GDIPlusManager.h"
@@ -31,6 +32,8 @@ App::App()
 				return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, material);
 			case 1:
 				return std::make_unique<Can>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, mTdist);
+			case 2:
+				return std::make_unique<Pyramid>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mTdist);
 			default:
 				assert(false && "Impossible drawable option in factory");
 				return {};
@@ -40,7 +43,7 @@ App::App()
 	private:
 		Graphics& mGfx;
 		std::mt19937 mRng{ std::random_device{}() };
-		std::uniform_int_distribution<int> mSdist{ 0, 1 };
+		std::uniform_int_distribution<int> mSdist{ 0, 2 };
 		std::uniform_real_distribution<float> mAdist{ 0.0f, XM_2PI };
 		std::uniform_real_distribution<float> mDdist{ 0.0f, XM_PI };
 		std::uniform_real_distribution<float> mOdist{ 0.0f, XM_PI * 0.08f };
