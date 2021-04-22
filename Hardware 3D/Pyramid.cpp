@@ -51,5 +51,5 @@ void Pyramid::StaticInitialize(const Graphics& gfx)
 
 	AddStaticBind(std::make_unique<PixelShader>(gfx, L"BlendedPhongPS.cso"));
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddStaticBind(std::make_unique<MaterialCBuf>(gfx, *this));
+	AddStaticBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, Material{}));
 }

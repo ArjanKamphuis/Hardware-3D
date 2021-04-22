@@ -41,7 +41,7 @@ void SkinnedBox::StaticInitialize(const Graphics& gfx)
 	model.SetNormalsIndependentFlat();
 
 	AddRequiredStaticBindings(gfx, L"TexturedPhongVS.cso", L"TexturedPhongPS.cso", ied, model);
-	AddStaticBind(std::make_unique<MaterialCBuf>(gfx, *this));
+	AddStaticBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, Material{}));
 
 	AddStaticBind(std::make_unique<Texture>(gfx, Surface::FromFile(L"Images/kappa50.png")));
 	AddStaticBind(std::make_unique<Sampler>(gfx));

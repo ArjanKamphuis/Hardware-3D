@@ -9,10 +9,9 @@ public:
 
 	void Update(float dt) noexcept override;
 	void SetPosition(const DirectX::XMFLOAT3& position) noexcept;
-	void SetMaterialColor(const DirectX::XMFLOAT3& color) noexcept;
+	void SetMaterial(const Graphics& gfx, const Material& material) noexcept;
 
 	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
-	Material GetMaterial() const noexcept override;
 
 private:
 	void StaticInitialize(const Graphics& gfx) override;

@@ -24,11 +24,6 @@ XMMATRIX Box::GetTransformMatrix() const noexcept
 	return XMMatrixScalingFromVector(XMLoadFloat3(&mScale)) * TestObject::GetTransformMatrix();
 }
 
-Drawable::Material Box::GetMaterial() const noexcept
-{
-	return mMaterial;
-}
-
 void Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
 {
 	bool dirty = false;

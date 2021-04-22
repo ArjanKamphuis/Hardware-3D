@@ -8,5 +8,4 @@
 #include "VertexShader.h"
 
 #include "ConstantBuffers.h"
-#include "MaterialCBuf.h"
 #include "TransformCBuf.h"

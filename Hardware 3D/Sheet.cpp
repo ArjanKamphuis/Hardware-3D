@@ -10,7 +10,7 @@ using namespace DirectX;
 
 Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist,
 	std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, const DirectX::XMFLOAT3& color)
-	: TestObject(gfx, rng, adist, ddist, odist, rdist), mColor(color)
+	: TestObject(gfx, rng, adist, ddist, odist, rdist), mMaterial({ color })
 {
 	if (IsStaticInitialized())
 		SetIndexFromStatic();
@@ -18,12 +18,7 @@ Sheet::Sheet(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribut
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
-}
-
-Drawable::Material Sheet::GetMaterial() const noexcept
-{
-	return { mColor };
+	AddBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, mMaterial));
 }
 
 void Sheet::StaticInitialize(const Graphics& gfx)

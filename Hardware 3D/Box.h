@@ -9,7 +9,6 @@ public:
 		, std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, std::uniform_real_distribution<float>& bdist, const DirectX::XMFLOAT3& color);
 	
 	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
-	Material GetMaterial() const noexcept override;
 
 	void SpawnControlWindow(const Graphics& gfx, int id) noexcept;
 

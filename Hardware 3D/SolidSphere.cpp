@@ -14,7 +14,7 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
+	AddBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, mMaterial));
 }
 
 void SolidSphere::Update(float dt) noexcept
@@ -26,19 +26,18 @@ void SolidSphere::SetPosition(const DirectX::XMFLOAT3& position) noexcept
 	mPosition = position;
 }
 
-void SolidSphere::SetMaterialColor(const DirectX::XMFLOAT3& color) noexcept
+void SolidSphere::SetMaterial(const Graphics& gfx, const Drawable::Material& material) noexcept
 {
-	mMaterial.Color = color;
+	mMaterial = material;
+
+	auto pMaterialBuf = QueryBindable<PixelConstantBuffer<Material>>();
+	assert(pMaterialBuf != nullptr);
+	pMaterialBuf->Update(gfx, mMaterial);
 }
 
 XMMATRIX SolidSphere::GetTransformMatrix() const noexcept
 {
 	return XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
-}
-
-Drawable::Material SolidSphere::GetMaterial() const noexcept
-{
-	return mMaterial;
 }
 
 void SolidSphere::StaticInitialize(const Graphics& gfx)
