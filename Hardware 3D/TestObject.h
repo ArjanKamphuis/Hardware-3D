@@ -40,7 +40,7 @@ public:
 			DirectX::XMMatrixRotationRollPitchYaw(mAngles.Theta, mAngles.Phi, mAngles.Chi);
 	}
 
-private:
+protected:
 	float mRadius;
 	AngleParameters mAngles;
 	AngleParameters mDeltaAngles;

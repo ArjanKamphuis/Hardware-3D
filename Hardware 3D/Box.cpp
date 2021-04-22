@@ -35,6 +35,16 @@ bool Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
 		const bool sid = ImGui::SliderFloat("Specular Intensity", &mMaterial.SpecularIntensity, 0.05f, 4.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 		const bool spd = ImGui::SliderFloat("Specular Power", &mMaterial.SpecularPower, 1.0f, 200.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
 		dirty = cd || sid || spd;
+
+		ImGui::Text("Position");
+		ImGui::SliderFloat("R", &mRadius, 0.0f, 80.0f, "%.1f");
+		ImGui::SliderAngle("Theta", &mAngles.Theta, -180.0f, 180.0f);
+		ImGui::SliderAngle("Phi", &mAngles.Phi, -89.0f, 89.0f);
+
+		ImGui::Text("Orientation");
+		ImGui::SliderAngle("Roll", &mAngles.Roll, -180.0f, 180.0f);
+		ImGui::SliderAngle("Pitch", &mAngles.Pitch, -180.0f, 180.0f);
+		ImGui::SliderAngle("Yaw", &mAngles.Yaw, -180.0f, 180.0f);
 	}
 	ImGui::End();
 
