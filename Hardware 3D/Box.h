@@ -10,7 +10,7 @@ public:
 	
 	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
 
-	void SpawnControlWindow(const Graphics& gfx, int id) noexcept;
+	bool SpawnControlWindow(const Graphics& gfx, int id) noexcept;
 
 private:
 	void StaticInitialize(const Graphics& gfx) override;

@@ -24,10 +24,12 @@ XMMATRIX Box::GetTransformMatrix() const noexcept
 	return XMMatrixScalingFromVector(XMLoadFloat3(&mScale)) * TestObject::GetTransformMatrix();
 }
 
-void Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
+bool Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
 {
 	bool dirty = false;
-	if (ImGui::Begin(("Box " + std::to_string(id)).c_str()))
+	bool open = true;
+
+	if (ImGui::Begin(("Box " + std::to_string(id)).c_str(), &open))
 	{
 		const bool cd = ImGui::ColorEdit3("Material Color", &mMaterial.Color.x);
 		const bool sid = ImGui::SliderFloat("Specular Intensity", &mMaterial.SpecularIntensity, 0.05f, 4.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
@@ -38,6 +40,8 @@ void Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
 
 	if (dirty)
 		SyncMaterial(gfx);
+
+	return open;
 }
 
 void Box::StaticInitialize(const Graphics& gfx)
