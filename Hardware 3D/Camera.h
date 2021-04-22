@@ -11,6 +11,9 @@ public:
 	void SpawnControlWindow() noexcept;
 	void Reset() noexcept;
 
+	void ZoomIn() noexcept;
+	void ZoomOut() noexcept;
+
 private:
 	float mRadius = 20.0f;
 	float mTheta = 0.0f;
@@ -18,5 +21,9 @@ private:
 	float mPitch = 0.0f;
 	float mYaw = 0.0f;
 	float mRoll = 0.0f;
+
+	static constexpr float mZoomSpeed = 1.0f;
+	static constexpr float mMinRadius = 0.1f;
+	static constexpr float mMaxRadius = 80.0f;
 };
 

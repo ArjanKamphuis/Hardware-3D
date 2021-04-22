@@ -1,5 +1,6 @@
 #include "Camera.h"
 
+#include <algorithm>
 #include "imgui/imgui.h"
 
 using namespace DirectX;
@@ -19,7 +20,7 @@ void Camera::SpawnControlWindow() noexcept
 	if (ImGui::Begin("Camera"))
 	{
 		ImGui::Text("Position");
-		ImGui::SliderFloat("R", &mRadius, 0.1f, 80.0f, "%.1f");
+		ImGui::SliderFloat("R", &mRadius, mMinRadius, mMaxRadius, "%.1f");
 		ImGui::SliderAngle("Theta", &mTheta, -180.0f, 180.0f);
 		ImGui::SliderAngle("Phi", &mPhi, -89.0f, 89.0f);
 
@@ -38,4 +39,14 @@ void Camera::Reset() noexcept
 {
 	mRadius = 20.0f;
 	mTheta = mPhi = mPitch = mYaw = mRoll = 0.0f;
+}
+
+void Camera::ZoomIn() noexcept
+{
+	mRadius = std::max(mRadius - mZoomSpeed, mMinRadius);
+}
+
+void Camera::ZoomOut() noexcept
+{
+	mRadius = std::min(mRadius + mZoomSpeed, mMaxRadius);
 }

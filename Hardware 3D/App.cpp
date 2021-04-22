@@ -93,6 +93,19 @@ void App::HandleInput()
 			break;
 		}
 	}
+
+	while (const auto e = mWnd.Mouse.Read())
+	{
+		switch (e->GetType())
+		{
+		case Mouse::Event::Type::WheelDown:
+			mCamera.ZoomOut();
+			break;
+		case Mouse::Event::Type::WheelUp:
+			mCamera.ZoomIn();
+			break;
+		}
+	}
 }
 
 void App::DoFrame()
