@@ -1,5 +1,6 @@
 #pragma once
 
+#include <set>
 #include "Camera.h"
 #include "ChiliTimer.h"
 #include "ImguiManager.h"
@@ -17,7 +18,11 @@ public:
 private:
 	void HandleInput();
 	void DoFrame();
-	void DoImGui();
+	void DoImGui() noexcept;
+
+	void SpawnSimulationWindow() noexcept;
+	void SpawnBoxWindowManagerWindow() noexcept;
+	void SpawnBoxWindows() noexcept;
 
 private:
 	ImguiManager mImgui;
@@ -30,5 +35,8 @@ private:
 	std::vector<std::unique_ptr<class Drawable>> mDrawables;
 	std::vector<class Box*> mBoxes;
 	float mSpeedFactor = 1.0f;
+
+	std::optional<int> mComboBoxIndex;
+	std::set<int> mBoxControlIds;
 };
 
