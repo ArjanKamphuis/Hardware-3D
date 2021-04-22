@@ -11,11 +11,14 @@ public:
 	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
 	Material GetMaterial() const noexcept override;
 
+	void SpawnControlWindow(const Graphics& gfx, int id) noexcept;
+
 private:
 	void StaticInitialize(const Graphics& gfx) override;
+	void SyncMaterial(const Graphics& gfx) noexcept(!IS_DEBUG);
 
 private:
 	DirectX::XMFLOAT3 mScale;
-	DirectX::XMFLOAT3 mColor;
+	Material mMaterial;
 };
 

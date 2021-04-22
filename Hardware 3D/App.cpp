@@ -58,6 +58,10 @@ App::App()
 
 	mDrawables.reserve(mNumDrawables);
 	std::generate_n(std::back_inserter(mDrawables), mNumDrawables, Factory{ mWnd.Gfx() });
+
+	for (const std::unique_ptr<Drawable>& drawable : mDrawables)
+		if (Box* box = dynamic_cast<Box*>(drawable.get()))
+			mBoxes.push_back(box);
 }
 
 App::~App()
@@ -94,25 +98,26 @@ void App::HandleInput()
 void App::DoFrame()
 {
 	const float dt = mTimer.Mark() * mSpeedFactor;
+	Graphics& gfx = mWnd.Gfx();
 
-	mWnd.Gfx().BeginFrame(0.07f, 0.0f, 0.12f);
-	mWnd.Gfx().SetCamera(mCamera.GetMatrix());
+	gfx.BeginFrame(0.07f, 0.0f, 0.12f);
+	gfx.SetCamera(mCamera.GetMatrix());
 
 	mLight.SetCameraPosition(mCamera.GetPosition());
-	mLight.Bind(mWnd.Gfx());
+	mLight.Bind(gfx);
 
 	for (auto& d : mDrawables)
 	{
 		d->Update(mWnd.Keyboard.KeyIsPressed(VK_SPACE) ? 0.0f : dt);
-		d->Draw(mWnd.Gfx());
+		d->Draw(gfx);
 	}
 
-	mLight.Draw(mWnd.Gfx());
+	mLight.Draw(gfx);
 
-	if (mWnd.Gfx().IsImguiEnabled())
+	if (gfx.IsImguiEnabled())
 		DoImGui();
 	
-	mWnd.Gfx().EndFrame();
+	gfx.EndFrame();
 }
 
 void App::DoImGui()
@@ -127,6 +132,7 @@ void App::DoImGui()
 
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
+	mBoxes.front()->SpawnControlWindow(mWnd.Gfx(), 69);
 
 	ImGui::End();
 }

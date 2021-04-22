@@ -13,7 +13,7 @@ namespace Gdiplus
 #include <sstream>
 
 Surface::Surface(UINT width, UINT height) noexcept
-	: mBuffer(std::make_unique<Color[]>(width * height)), mWidth(width), mHeight(height)
+	: mBuffer(std::make_unique<Color[]>(static_cast<size_t>(width) * height)), mWidth(width), mHeight(height)
 {
 }
 

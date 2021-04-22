@@ -32,6 +32,14 @@ public:
 	virtual Material GetMaterial() const noexcept;
 
 protected:
+	template<class T>
+	T* QueryBindable() noexcept
+	{
+		for (auto& pBind : mBinds)
+			if (auto pt = dynamic_cast<T*>(pBind.get()))
+				return pt;
+		return nullptr;
+	}
 	void AddBind(std::unique_ptr<Bindable> bind) noexcept(!IS_DEBUG);
 	void AddIndexBuffer(std::unique_ptr<IndexBuffer> buffer) noexcept(!IS_DEBUG);
 

@@ -2,12 +2,13 @@
 
 #include "BindableBase.h"
 #include "Cube.h"
+#include "imgui/imgui.h"
 
 using namespace DirectX;
 
 Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist
 	, std::uniform_real_distribution<float>& odist, std::uniform_real_distribution<float>& rdist, std::uniform_real_distribution<float>& bdist, const DirectX::XMFLOAT3& color)
-	: TestObject(gfx, rng, adist, ddist, odist, rdist), mScale(1.0f, 1.0f, bdist(rng)), mColor(color)
+	: TestObject(gfx, rng, adist, ddist, odist, rdist), mScale(1.0f, 1.0f, bdist(rng)), mMaterial({ color, 0.6f, 30.0f })
 {
 	if (IsStaticInitialized())
 		SetIndexFromStatic();
@@ -15,7 +16,7 @@ Box::Box(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<
 		StaticInitialize(gfx);
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-	AddBind(std::make_unique<MaterialCBuf>(gfx, *this));
+	AddBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, mMaterial));
 }
 
 XMMATRIX Box::GetTransformMatrix() const noexcept
@@ -25,7 +26,22 @@ XMMATRIX Box::GetTransformMatrix() const noexcept
 
 Drawable::Material Box::GetMaterial() const noexcept
 {
-	return { mColor };
+	return mMaterial;
+}
+
+void Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
+{
+	bool dirty = false;
+	if (ImGui::Begin(("Box " + std::to_string(id)).c_str()))
+	{
+		dirty = dirty || ImGui::ColorEdit3("Material Color", &mMaterial.Color.x);
+		dirty = dirty || ImGui::SliderFloat("Specular Intensity", &mMaterial.SpecularIntensity, 0.05f, 4.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+		dirty = dirty || ImGui::SliderFloat("Specular Power", &mMaterial.SpecularPower, 1.0f, 200.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+	}
+	ImGui::End();
+
+	if (dirty)
+		SyncMaterial(gfx);
 }
 
 void Box::StaticInitialize(const Graphics& gfx)
@@ -46,4 +62,11 @@ void Box::StaticInitialize(const Graphics& gfx)
 	model.SetNormalsIndependentFlat();
 
 	AddRequiredStaticBindings(gfx, L"PhongVS.cso", L"PhongPS.cso", ied, model);
+}
+
+void Box::SyncMaterial(const Graphics& gfx) noexcept(!IS_DEBUG)
+{
+	auto pMaterialBuf = QueryBindable<PixelConstantBuffer<Material>>();
+	assert(pMaterialBuf != nullptr);
+	pMaterialBuf->Update(gfx, mMaterial);
 }
