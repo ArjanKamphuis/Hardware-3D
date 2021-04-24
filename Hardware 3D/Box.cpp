@@ -39,7 +39,7 @@ bool Box::SpawnControlWindow(const Graphics& gfx, int id) noexcept
 		ImGui::Text("Position");
 		ImGui::SliderFloat("R", &mRadius, 0.0f, 80.0f, "%.1f");
 		ImGui::SliderAngle("Theta", &mAngles.Theta, -180.0f, 180.0f);
-		ImGui::SliderAngle("Phi", &mAngles.Phi, -89.0f, 89.0f);
+		ImGui::SliderAngle("Phi", &mAngles.Phi, -180.0f, 180.0f);
 
 		ImGui::Text("Orientation");
 		ImGui::SliderAngle("Roll", &mAngles.Roll, -180.0f, 180.0f);

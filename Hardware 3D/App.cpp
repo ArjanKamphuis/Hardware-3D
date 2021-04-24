@@ -10,6 +10,10 @@
 
 #include "imgui/imgui.h"
 
+#include <assimp\Importer.hpp>
+#include <assimp\postprocess.h>
+#include <assimp\scene.h>
+
 GDIPlusManager gdipm;
 
 using namespace DirectX;
@@ -17,6 +21,9 @@ using namespace DirectX;
 App::App()
     : mWnd(800, 600, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
+	Assimp::Importer imp;
+	auto model = imp.ReadFile("Models/suzanne.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+
 	class Factory
 	{
 	public:

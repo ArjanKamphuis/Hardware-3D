@@ -367,3 +367,6 @@ FodyWeavers.xsd
 
 # imgui config
 /Hardware 3D/imgui.ini
+
+# not ignore obj model
+!/Hardware 3D/Models/*.obj
