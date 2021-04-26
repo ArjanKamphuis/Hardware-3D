@@ -32,8 +32,8 @@ void AssTest::StaticInitialize(const Graphics& gfx)
 	using ElementType = hw3dexp::VertexLayout::ElementType;
 
 	hw3dexp::VertexBuffer vbuf(std::move(VertexLayout{}
-		.Append<ElementType::Position3D>()
-		.Append<ElementType::Normal>()
+		.Append(ElementType::Position3D)
+		.Append(ElementType::Normal)
 	));
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =

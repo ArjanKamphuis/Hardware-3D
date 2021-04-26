@@ -9,7 +9,51 @@ namespace hw3dexp
 	class VertexLayout
 	{
 	public:
-		enum class ElementType { Position2D, Position3D, Texture2D, Normal, Float3Color, Float4Color, BGRAColor };
+		enum class ElementType { Position2D, Position3D, Texture2D, Normal, Float3Color, Float4Color, BGRAColor, Count };
+
+		template<ElementType> struct Map;
+		template<> struct Map<ElementType::Position2D>
+		{
+			using SysType = DirectX::XMFLOAT2;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+			static constexpr const char* semantic = "POSITION";
+		};
+		template<> struct Map<ElementType::Position3D>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "POSITION";
+		};
+		template<> struct Map<ElementType::Texture2D>
+		{
+			using SysType = DirectX::XMFLOAT2;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32_FLOAT;
+			static constexpr const char* semantic = "TEXCOORD";
+		};
+		template<> struct Map<ElementType::Normal>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "NORMAL";
+		};
+		template<> struct Map<ElementType::Float3Color>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* semantic = "COLOR";
+		};
+		template<> struct Map<ElementType::Float4Color>
+		{
+			using SysType = DirectX::XMFLOAT4;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			static constexpr const char* semantic = "COLOR";
+		};
+		template<> struct Map<ElementType::BGRAColor>
+		{
+			using SysType = DirectX::PackedVector::XMCOLOR;
+			static constexpr DXGI_FORMAT dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+			static constexpr const char* semantic = "COLOR";
+		};
 
 		class Element
 		{
@@ -39,13 +83,13 @@ namespace hw3dexp
 			{
 				switch (type)
 				{
-				case ElementType::Position2D: return sizeof(DirectX::XMFLOAT2);
-				case ElementType::Position3D: return sizeof(DirectX::XMFLOAT3);
-				case ElementType::Texture2D: return sizeof(DirectX::XMFLOAT2);
-				case ElementType::Normal: return sizeof(DirectX::XMFLOAT3);
-				case ElementType::Float3Color: return sizeof(DirectX::XMFLOAT3);
-				case ElementType::Float4Color: return sizeof(DirectX::XMFLOAT4);
-				case ElementType::BGRAColor: return sizeof(DirectX::PackedVector::XMCOLOR);
+				case ElementType::Position2D: return sizeof(Map<ElementType::Position2D>::SysType);
+				case ElementType::Position3D: return sizeof(Map<ElementType::Position3D>::SysType);
+				case ElementType::Texture2D: return sizeof(Map<ElementType::Texture2D>::SysType);
+				case ElementType::Normal: return sizeof(Map<ElementType::Normal>::SysType);
+				case ElementType::Float3Color: return sizeof(Map<ElementType::Float3Color>::SysType);
+				case ElementType::Float4Color: return sizeof(Map<ElementType::Float4Color>::SysType);
+				case ElementType::BGRAColor: return sizeof(Map<ElementType::BGRAColor>::SysType);
 				default:
 					assert("Invalid element type" && false);
 					return 0u;
@@ -73,10 +117,9 @@ namespace hw3dexp
 			return mElements[i];
 		}
 
-		template<ElementType Type>
-		VertexLayout& Append() noexcept(!IS_DEBUG)
+		VertexLayout& Append(ElementType type) noexcept(!IS_DEBUG)
 		{
-			mElements.emplace_back(Type, Size());
+			mElements.emplace_back(type, Size());
 			return *this;
 		}
 
@@ -101,28 +144,8 @@ namespace hw3dexp
 		template<VertexLayout::ElementType Type>
 		auto& Attr() noexcept(!IS_DEBUG)
 		{
-			const auto& element = mLayout.Resolve<Type>();
-			auto pAttribute = mData + element.GetOffset();
-
-			if constexpr (Type == VertexLayout::ElementType::Position2D)
-				return *reinterpret_cast<DirectX::XMFLOAT2*>(pAttribute);
-			else if constexpr (Type == VertexLayout::ElementType::Position3D)
-				return *reinterpret_cast<DirectX::XMFLOAT3*>(pAttribute);
-			else if constexpr (Type == VertexLayout::ElementType::Texture2D)
-				return *reinterpret_cast<DirectX::XMFLOAT2*>(pAttribute);
-			else if constexpr (Type == VertexLayout::ElementType::Normal)
-				return *reinterpret_cast<DirectX::XMFLOAT3*>(pAttribute);
-			else if constexpr (Type == VertexLayout::ElementType::Float3Color)
-				return *reinterpret_cast<DirectX::XMFLOAT3*>(pAttribute);
-			else if constexpr (Type == VertexLayout::ElementType::Float4Color)
-				return *reinterpret_cast<DirectX::XMFLOAT4*>(pAttribute);
-			else if constexpr (Type == VertexLayout::ElementType::BGRAColor)
-				return *reinterpret_cast<DirectX::PackedVector::XMCOLOR*>(pAttribute);
-			else
-			{
-				assert("Bad element type" && false);
-				return *reinterpret_cast<char*>(pAttribute);
-			}
+			auto pAttribute = mData + mLayout.Resolve<Type>().GetOffset();
+			return *reinterpret_cast<typename VertexLayout::Map<Type>::SysType*>(pAttribute);
 		}
 
 		template<typename T>
@@ -133,26 +156,27 @@ namespace hw3dexp
 
 			switch (element.GetType())
 			{
-			case VertexLayout::ElementType::Position2D:
-				SetAttribute<DirectX::XMFLOAT2>(pAttribute, std::forward<T>(value));
+				using ElementType = VertexLayout::ElementType;
+			case ElementType::Position2D:
+				SetAttribute<ElementType::Position2D>(pAttribute, std::forward<T>(value));
 				break;
-			case VertexLayout::ElementType::Position3D:
-				SetAttribute<DirectX::XMFLOAT3>(pAttribute, std::forward<T>(value));
+			case ElementType::Position3D:
+				SetAttribute<ElementType::Position3D>(pAttribute, std::forward<T>(value));
 				break;
-			case VertexLayout::ElementType::Texture2D:
-				SetAttribute<DirectX::XMFLOAT2>(pAttribute, std::forward<T>(value));
+			case ElementType::Texture2D:
+				SetAttribute<ElementType::Texture2D>(pAttribute, std::forward<T>(value));
 				break;
-			case VertexLayout::ElementType::Normal:
-				SetAttribute<DirectX::XMFLOAT3>(pAttribute, std::forward<T>(value));
+			case ElementType::Normal:
+				SetAttribute<ElementType::Normal>(pAttribute, std::forward<T>(value));
 				break;
-			case VertexLayout::ElementType::Float3Color:
-				SetAttribute<DirectX::XMFLOAT3>(pAttribute, std::forward<T>(value));
+			case ElementType::Float3Color:
+				SetAttribute<ElementType::Float3Color>(pAttribute, std::forward<T>(value));
 				break;
-			case VertexLayout::ElementType::Float4Color:
-				SetAttribute<DirectX::XMFLOAT4>(pAttribute, std::forward<T>(value));
+			case ElementType::Float4Color:
+				SetAttribute<ElementType::Float4Color>(pAttribute, std::forward<T>(value));
 				break;
-			case VertexLayout::ElementType::BGRAColor:
-				SetAttribute<DirectX::PackedVector::XMCOLOR>(pAttribute, std::forward<T>(value));
+			case ElementType::BGRAColor:
+				SetAttribute<ElementType::BGRAColor>(pAttribute, std::forward<T>(value));
 				break;
 			default:
 				assert("Bad element Type" && false);
@@ -175,10 +199,12 @@ namespace hw3dexp
 			SetAttributeByIndex(i + 1, std::forward<Rest>(rest)...);
 		}
 
-		template<typename Dest, typename Src>
-		void SetAttribute(char* pAttribute, Src&& value) noexcept(!IS_DEBUG)
+		template<VertexLayout::ElementType DestLayoutType, typename SrcType>
+		void SetAttribute(char* pAttribute, SrcType&& value) noexcept(!IS_DEBUG)
 		{
-			if constexpr (std::is_assignable<Dest, Src>::value)
+			using Dest = typename VertexLayout::Map<DestLayoutType>::SysType;
+
+			if constexpr (std::is_assignable<Dest, SrcType>::value)
 				*reinterpret_cast<Dest*>(pAttribute) = value;
 			else
 				assert("Parameter attribute type mismatch" && false);
