@@ -1,5 +1,6 @@
 #include "App.h"
 
+#include "AssTest.h"
 #include "Box.h"
 #include "Can.h"
 #include "Pyramid.h"
@@ -10,10 +11,6 @@
 
 #include "imgui/imgui.h"
 
-#include <assimp\Importer.hpp>
-#include <assimp\postprocess.h>
-#include <assimp\scene.h>
-
 GDIPlusManager gdipm;
 
 using namespace DirectX;
@@ -21,9 +18,6 @@ using namespace DirectX;
 App::App()
     : mWnd(800, 600, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	Assimp::Importer imp;
-	auto model = imp.ReadFile("Models/suzanne.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
-
 	class Factory
 	{
 	public:
@@ -33,10 +27,11 @@ App::App()
 
 		std::unique_ptr<Drawable> operator()()
 		{
+			const XMFLOAT3 material = { mCdist(mRng), mCdist(mRng) , mCdist(mRng) };
+			
 			switch (mSdist(mRng))
 			{
 			case 0:
-				const XMFLOAT3 material = { mCdist(mRng), mCdist(mRng) , mCdist(mRng) };
 				return std::make_unique<Box>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, material);
 			case 1:
 				return std::make_unique<Can>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mBdist, mTdist);
@@ -44,6 +39,8 @@ App::App()
 				return std::make_unique<Pyramid>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mTdist);
 			case 3:
 				return std::make_unique<SkinnedBox>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist);
+			case 4:
+				return std::make_unique<AssTest>(mGfx, mRng, mAdist, mDdist, mOdist, mRdist, mScaledist, material);
 			default:
 				assert(false && "Impossible drawable option in factory");
 				return {};
@@ -53,13 +50,14 @@ App::App()
 	private:
 		Graphics& mGfx;
 		std::mt19937 mRng{ std::random_device{}() };
-		std::uniform_int_distribution<int> mSdist{ 0, 3 };
+		std::uniform_int_distribution<int> mSdist{ 0, 4 };
 		std::uniform_real_distribution<float> mAdist{ 0.0f, XM_2PI };
 		std::uniform_real_distribution<float> mDdist{ 0.0f, XM_PI };
 		std::uniform_real_distribution<float> mOdist{ 0.0f, XM_PI * 0.08f };
 		std::uniform_real_distribution<float> mRdist{ 6.0f, 20.0f };
 		std::uniform_real_distribution<float> mBdist{ 0.4f, 3.0f };
 		std::uniform_real_distribution<float> mCdist{ 0.0f, 1.0f };
+		std::uniform_real_distribution<float> mScaledist{ 0.5f, 2.0f };
 		std::uniform_int_distribution<int> mTdist{ 3, 30 };
 	};
 
