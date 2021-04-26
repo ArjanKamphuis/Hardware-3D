@@ -5,7 +5,6 @@
 #include "Can.h"
 #include "Pyramid.h"
 #include "SkinnedBox.h"
-#include "Vertex.h"
 
 #include "Surface.h"
 #include "GDIPlusManager.h"
@@ -16,35 +15,9 @@ GDIPlusManager gdipm;
 
 using namespace DirectX;
 
-void f()
-{
-	using ElementType = VertexLayout::ElementType;
-
-	VertexBufferExp vb(std::move(VertexLayout{}
-		.Append<ElementType::Position3D>()
-		.Append<ElementType::Normal>()
-		.Append<ElementType::Texture2D>()
-	));
-
-	vb.EmplaceBack(XMFLOAT3{ 1.0f, 1.0f, 5.0f }, XMFLOAT3{ 2.0f, 1.0f, 4.0f }, XMFLOAT2{ 6.0f, 9.0f });
-	vb.EmplaceBack(XMFLOAT3{ 6.0f, 9.0f, 6.0f }, XMFLOAT3{ 9.0f, 6.0f, 9.0f }, XMFLOAT2{ 4.2f, 0.0f });
-
-	auto& pos = vb[0].Attr<ElementType::Position3D>();
-	auto& nor = vb[0].Attr<ElementType::Normal>();
-	auto& tex = vb[1].Attr<ElementType::Texture2D>();
-	
-	vb.Back().Attr<ElementType::Position3D>().z = 420.0f;
-	pos = vb.Back().Attr<ElementType::Position3D>();
-
-	const auto& cvb = vb;
-	pos = cvb[1].Attr<ElementType::Position3D>();
-}
-
 App::App()
     : mWnd(800, 600, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	f();
-
 	class Factory
 	{
 	public:

@@ -4,7 +4,7 @@
 #include <assimp\postprocess.h>
 #include <assimp\scene.h>
 
-#include "IndexedTriangleList.h"
+#include "Vertex.h"
 
 using namespace DirectX;
 
@@ -28,11 +28,13 @@ XMMATRIX AssTest::GetTransformMatrix() const noexcept
 
 void AssTest::StaticInitialize(const Graphics& gfx)
 {
-	struct Vertex
-	{
-		XMFLOAT3 Position;
-		XMFLOAT3 Normal;
-	};
+	using hw3dexp::VertexLayout;
+	using ElementType = hw3dexp::VertexLayout::ElementType;
+
+	hw3dexp::VertexBuffer vbuf(std::move(VertexLayout{}
+		.Append<ElementType::Position3D>()
+		.Append<ElementType::Normal>()
+	));
 
 	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
 	{
@@ -44,20 +46,19 @@ void AssTest::StaticInitialize(const Graphics& gfx)
 	const auto pModel = imp.ReadFile("Models/suzanne.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 	const auto pMesh = pModel->mMeshes[0];
 
-	IndexedTriangleList<Vertex> model;
-	model.Vertices.reserve(static_cast<size_t>(pMesh->mNumVertices));
-	model.Indices.reserve(static_cast<size_t>(pMesh->mNumFaces) * 3);
-
 	for (UINT i = 0; i < pMesh->mNumVertices; i++)
-		model.Vertices.push_back({ *reinterpret_cast<XMFLOAT3*>(&pMesh->mVertices[i]), *reinterpret_cast<XMFLOAT3*>(&pMesh->mNormals[i]) });
+		vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(&pMesh->mVertices[i]), *reinterpret_cast<XMFLOAT3*>(&pMesh->mNormals[i]));
 
+	std::vector<USHORT> indices;
+	indices.reserve(static_cast<size_t>(pMesh->mNumFaces) * 3);
 	for (UINT i = 0; i < pMesh->mNumFaces; i++)
 	{
 		const auto& face = pMesh->mFaces[i];
 		assert(face.mNumIndices == 3);
 		for (int j = 0; j < 3; j++)
-			model.Indices.push_back(face.mIndices[j]);
+			indices.push_back(face.mIndices[j]);
 	}
 
-	AddRequiredStaticBindings(gfx, L"PhongVS.cso", L"PhongPS.cso", ied, model);
+	struct Model { hw3dexp::VertexBuffer Vertices; std::vector<USHORT> Indices; };
+	AddRequiredStaticBindings(gfx, L"PhongVS.cso", L"PhongPS.cso", ied, Model{ vbuf, indices });
 }
