@@ -36,12 +36,6 @@ void AssTest::StaticInitialize(const Graphics& gfx)
 		.Append(ElementType::Normal)
 	));
 
-	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
-	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
-		{ "NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 12u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
-	};
-
 	Assimp::Importer imp;
 	const auto pModel = imp.ReadFile("Models/suzanne.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 	const auto pMesh = pModel->mMeshes[0];
@@ -59,6 +53,5 @@ void AssTest::StaticInitialize(const Graphics& gfx)
 			indices.push_back(face.mIndices[j]);
 	}
 
-	struct Model { hw3dexp::VertexBuffer Vertices; std::vector<USHORT> Indices; };
-	AddRequiredStaticBindings(gfx, L"PhongVS.cso", L"PhongPS.cso", ied, Model{ vbuf, indices });
+	AddRequiredStaticBindings(gfx, L"PhongVS.cso", L"PhongPS.cso", vbuf.GetLayout().GetD3DLayout(), vbuf, indices);
 }

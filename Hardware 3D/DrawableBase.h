@@ -45,8 +45,14 @@ private:
 
 protected:
 	template<class Model>
-	void AddRequiredStaticBindings(const Graphics& gfx, const std::wstring& vsName, const std::wstring& psName, const std::vector<D3D11_INPUT_ELEMENT_DESC>& ied, const Model& model
-		, D3D11_PRIMITIVE_TOPOLOGY type = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	void AddRequiredStaticBindings(const Graphics& gfx, const std::wstring& vsName, const std::wstring& psName, const std::vector<D3D11_INPUT_ELEMENT_DESC>& ied,
+		const Model& model,	D3D11_PRIMITIVE_TOPOLOGY type = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
+	{
+		AddRequiredStaticBindings(gfx, vsName, psName, ied, model.Vertices, model.Indices, type);
+	}
+	template<class V, class I>
+	void AddRequiredStaticBindings(const Graphics& gfx, const std::wstring& vsName, const std::wstring& psName, const std::vector<D3D11_INPUT_ELEMENT_DESC>& ied,
+		const V& vertices, const I& indices, D3D11_PRIMITIVE_TOPOLOGY type = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	{
 		std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, vsName);
 		AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
@@ -54,9 +60,9 @@ protected:
 
 		AddStaticBind(std::make_unique<PixelShader>(gfx, psName));
 		AddStaticBind(std::make_unique<Topology>(gfx, type));
-		AddStaticBind(std::make_unique<VertexBuffer>(gfx, model.Vertices));
+		AddStaticBind(std::make_unique<VertexBuffer>(gfx, vertices));
 
-		AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, model.Indices));
+		AddStaticIndexBuffer(std::make_unique<IndexBuffer>(gfx, indices));
 	}
 
 private:
