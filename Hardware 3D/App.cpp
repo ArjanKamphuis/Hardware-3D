@@ -5,7 +5,7 @@
 #include "Can.h"
 #include "Pyramid.h"
 #include "SkinnedBox.h"
-#include "VertexLayout.h"
+#include "Vertex.h"
 
 #include "Surface.h"
 #include "GDIPlusManager.h"
@@ -35,6 +35,9 @@ void f()
 	
 	vb.Back().Attr<ElementType::Position3D>().z = 420.0f;
 	pos = vb.Back().Attr<ElementType::Position3D>();
+
+	const auto& cvb = vb;
+	pos = cvb[1].Attr<ElementType::Position3D>();
 }
 
 App::App()

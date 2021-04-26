@@ -158,13 +158,14 @@ public:
 		}
 	}
 
-private:
+protected:
 	Vertex(char* pData, const VertexLayout& layout) noexcept(!IS_DEBUG)
 		: mData(pData), mLayout(layout)
 	{
 		assert(pData != nullptr);
 	}
 
+private:
 	template<typename First, typename ...Rest>
 	void SetAttributeByIndex(size_t i, First&& first, Rest&&... rest) noexcept(!IS_DEBUG)
 	{
@@ -184,6 +185,23 @@ private:
 private:
 	char* mData = nullptr;
 	const VertexLayout& mLayout;
+};
+
+class ConstVertex
+{
+public:
+	ConstVertex(const Vertex& v) noexcept(!IS_DEBUG)
+		: mVertex(v)
+	{}
+
+	template<VertexLayout::ElementType Type>
+	const auto& Attr() const noexcept(!IS_DEBUG)
+	{
+		return const_cast<Vertex&>(mVertex).Attr<Type>();
+	}
+
+private:
+	Vertex mVertex;
 };
 
 class VertexBufferExp
@@ -225,6 +243,19 @@ public:
 	{
 		assert(i < Size());
 		return Vertex{ mBuffer.data() + mLayout.Size() * i, mLayout };
+	}
+
+	ConstVertex Back() const noexcept(!IS_DEBUG)
+	{
+		return const_cast<VertexBufferExp*>(this)->Back();
+	}
+	ConstVertex Front() const noexcept(!IS_DEBUG)
+	{
+		return const_cast<VertexBufferExp*>(this)->Front();
+	}
+	ConstVertex operator[](size_t i) const noexcept(!IS_DEBUG)
+	{
+		return const_cast<VertexBufferExp&>(*this)[i];
 	}
 
 private:
