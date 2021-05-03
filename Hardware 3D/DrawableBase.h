@@ -54,9 +54,9 @@ protected:
 	void AddRequiredStaticBindings(const Graphics& gfx, const std::wstring& vsName, const std::wstring& psName, const std::vector<D3D11_INPUT_ELEMENT_DESC>& ied,
 		const V& vertices, const I& indices, D3D11_PRIMITIVE_TOPOLOGY type = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST)
 	{
-		std::unique_ptr<VertexShader> vs = std::make_unique<VertexShader>(gfx, vsName);
-		AddStaticBind(std::make_unique<InputLayout>(gfx, ied, vs->GetByteCode()));
-		AddStaticBind(std::move(vs));
+		std::unique_ptr<VertexShader> pVS = std::make_unique<VertexShader>(gfx, vsName);
+		AddStaticBind(std::make_unique<InputLayout>(gfx, ied, pVS->GetByteCode()));
+		AddStaticBind(std::move(pVS));
 
 		AddStaticBind(std::make_unique<PixelShader>(gfx, psName));
 		AddStaticBind(std::make_unique<Topology>(gfx, type));

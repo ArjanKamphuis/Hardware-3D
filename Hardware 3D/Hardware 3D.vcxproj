@@ -221,6 +221,7 @@
   <ItemGroup>
     <ClInclude Include="AssTest.h" />
     <ClInclude Include="Can.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="TestObject.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="Bindable.h" />

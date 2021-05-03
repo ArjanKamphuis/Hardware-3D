@@ -158,7 +158,7 @@ namespace hw3dexp
 			std::vector<D3D11_INPUT_ELEMENT_DESC> ied;
 			ied.reserve(GetElementCount());
 			for (const auto& e : mElements)
-				ied.emplace_back(e.GetDesc());
+				ied.push_back(e.GetDesc());
 			return ied;
 		}
 

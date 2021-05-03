@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "ChiliTimer.h"
 #include "ImguiManager.h"
+#include "Model.h"
 #include "PointLight.h"
 #include "Window.h"
 
@@ -20,10 +21,6 @@ private:
 	void DoFrame();
 	void DoImGui() noexcept;
 
-	void SpawnSimulationWindow() noexcept;
-	void SpawnBoxWindowManagerWindow() noexcept;
-	void SpawnBoxWindows() noexcept;
-
 private:
 	ImguiManager mImgui;
 	Window mWnd;
@@ -31,12 +28,6 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	static constexpr size_t mNumDrawables = 180;
-	std::vector<std::unique_ptr<class Drawable>> mDrawables;
-	std::vector<class Box*> mBoxes;
-	float mSpeedFactor = 1.0f;
-
-	std::optional<int> mComboBoxIndex;
-	std::set<int> mBoxControlIds;
+	Model mNanoBot{ mWnd.Gfx(), "Models/nanosuit.obj" };
 };
 

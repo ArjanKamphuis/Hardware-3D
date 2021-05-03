@@ -11,7 +11,7 @@ public:
 	void SetPosition(const DirectX::XMFLOAT3& position) noexcept;
 	void SetMaterial(const Graphics& gfx, const Material& material) noexcept;
 
-	DirectX::XMMATRIX GetTransformMatrix() const noexcept override;
+	DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept override;
 
 private:
 	void StaticInitialize(const Graphics& gfx) override;

@@ -28,7 +28,7 @@ public:
 	void Draw(const Graphics & gfx) const noexcept(!IS_DEBUG);
 
 	virtual void Update(float dt) noexcept = 0;
-	virtual DirectX::XMMATRIX GetTransformMatrix() const noexcept = 0;
+	virtual DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept = 0;
 
 protected:
 	template<class T>

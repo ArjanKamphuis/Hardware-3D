@@ -33,7 +33,7 @@ public:
 		mAngles.Chi = DirectX::XMScalarModAngle(mAngles.Chi + mDeltaAngles.Chi * dt);
 	}
 
-	DirectX::XMMATRIX GetTransformMatrix() const noexcept override
+	DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept override
 	{
 		return DirectX::XMMatrixRotationRollPitchYaw(mAngles.Pitch, mAngles.Yaw, mAngles.Roll) *
 			DirectX::XMMatrixTranslation(mRadius, 0.0f, 0.0f) *
