@@ -73,7 +73,8 @@ void App::DoFrame()
 
 	mLight.SetCameraPosition(mCamera.GetPosition());
 	mLight.Bind(gfx);
-	mNanoBot.Draw(gfx);
+
+	mNanoBot.Draw(gfx, XMMatrixRotationRollPitchYaw(mModelParams.Pitch, mModelParams.Yaw, mModelParams.Roll) * XMMatrixTranslationFromVector(XMLoadFloat3(&mModelParams.Position)));
 	mLight.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
@@ -86,4 +87,25 @@ void App::DoImGui() noexcept
 {
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
+	ShowModelWindow();
+}
+
+void App::ShowModelWindow() noexcept
+{
+	if (ImGui::Begin("Model"))
+	{
+		ImGui::Text("Orientation");
+		ImGui::SliderAngle("Roll", &mModelParams.Roll, -180.0f, 180.0f);
+		ImGui::SliderAngle("Pitch", &mModelParams.Pitch, -180.0f, 180.0f);
+		ImGui::SliderAngle("Yaw", &mModelParams.Yaw, -180.0f, 180.0f);
+
+		ImGui::Text("Position");
+		ImGui::SliderFloat("X", &mModelParams.Position.x, -20.0f, 20.0f);
+		ImGui::SliderFloat("Y", &mModelParams.Position.y, -20.0f, 20.0f);
+		ImGui::SliderFloat("Z", &mModelParams.Position.z, -20.0f, 20.0f);
+
+		if (ImGui::Button("Reset"))
+			mModelParams = {};
+	}
+	ImGui::End();
 }

@@ -99,6 +99,12 @@ public:
 
 		mRoot = ParseNode(*pScene->mRootNode);
 	}
+	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX transform) const
+	{
+		mRoot->Draw(gfx, transform);
+	}
+
+private:
 	static std::unique_ptr<Mesh> ParseMesh(const Graphics& gfx, const aiMesh& mesh)
 	{
 		using hw3dexp::VertexLayout;
@@ -150,10 +156,6 @@ public:
 			pNode->AddChild(ParseNode(*node.mChildren[i]));
 
 		return pNode;
-	}
-	void XM_CALLCONV Draw(const Graphics& gfx) const
-	{
-		mRoot->Draw(gfx, DirectX::XMMatrixIdentity());
 	}
 
 private:

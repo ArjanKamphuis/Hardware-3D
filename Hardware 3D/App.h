@@ -19,7 +19,9 @@ public:
 private:
 	void HandleInput();
 	void DoFrame();
+
 	void DoImGui() noexcept;
+	void ShowModelWindow() noexcept;
 
 private:
 	ImguiManager mImgui;
@@ -29,5 +31,13 @@ private:
 	PointLight mLight;
 
 	Model mNanoBot{ mWnd.Gfx(), "Models/nanosuit.obj" };
+	
+	struct
+	{
+		float Roll = 0.0f;
+		float Pitch = 0.0f;
+		float Yaw = 0.0f;
+		DirectX::XMFLOAT3 Position = {};
+	} mModelParams = {};
 };
 
