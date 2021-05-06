@@ -5,7 +5,9 @@
 #include "GraphicsThrowMacros.h"
 #include "IndexBuffer.h"
 
-void Drawable::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
+using namespace Bind;
+
+void Drawable::Draw(const Graphics& gfx) const noxnd
 {
 	for (auto& b : mBinds)
 		b->Bind(gfx);
@@ -14,13 +16,13 @@ void Drawable::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 	gfx.DrawIndexed(mIndexBuffer->GetSize());
 }
 
-void Drawable::AddBind(std::unique_ptr<Bindable> bind) noexcept(!IS_DEBUG)
+void Drawable::AddBind(std::unique_ptr<Bindable> bind) noxnd
 {
 	assert("*Must* use AddIndexBuffer to bind index buffer" && typeid(*bind) != typeid(IndexBuffer));
 	mBinds.push_back(std::move(bind));
 }
 
-void Drawable::AddIndexBuffer(std::unique_ptr<IndexBuffer> buffer) noexcept(!IS_DEBUG)
+void Drawable::AddIndexBuffer(std::unique_ptr<IndexBuffer> buffer) noxnd
 {
 	assert("Attempting to add index buffer a second time" && mIndexBuffer == nullptr);
 	mIndexBuffer = buffer.get();

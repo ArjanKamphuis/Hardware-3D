@@ -6,6 +6,7 @@
 
 #include "Vertex.h"
 
+using namespace Bind;
 using namespace DirectX;
 
 AssTest::AssTest(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distribution<float>& adist, std::uniform_real_distribution<float>& ddist,
@@ -28,10 +29,10 @@ XMMATRIX AssTest::GetTransformMatrix() const noexcept
 
 void AssTest::StaticInitialize(const Graphics& gfx)
 {
-	using hw3dexp::VertexLayout;
-	using ElementType = hw3dexp::VertexLayout::ElementType;
+	using Dvtx::VertexLayout;
+	using ElementType = Dvtx::VertexLayout::ElementType;
 
-	hw3dexp::VertexBuffer vbuf(std::move(VertexLayout{}
+	Dvtx::VertexBuffer vbuf(std::move(VertexLayout{}
 		.Append(ElementType::Position3D)
 		.Append(ElementType::Normal)
 	));

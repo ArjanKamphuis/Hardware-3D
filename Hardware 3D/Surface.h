@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include "ChiliException.h"
+#include "ConditionalNoexcept.h"
 
 class Surface
 {
@@ -36,8 +37,8 @@ public:
 	static Surface FromFile(const std::wstring& filename);
 
 	void Clear(Color fillValue) noexcept;
-	void PutPixel(UINT x, UINT y, Color c) noexcept(!IS_DEBUG);
-	Color GetPixel(UINT x, UINT y) const noexcept(!IS_DEBUG);
+	void PutPixel(UINT x, UINT y, Color c) noxnd;
+	Color GetPixel(UINT x, UINT y) const noxnd;
 
 	UINT GetWidth() const noexcept;
 	UINT GetHeight() const noexcept;
@@ -47,7 +48,7 @@ public:
 	const Color* GetBufferPtrConst() const noexcept;
 
 	void Save(const std::wstring& filename) const;
-	void Copy(const Surface& src) noexcept(!IS_DEBUG);
+	void Copy(const Surface& src) noxnd;
 
 private:
 	Surface(UINT width, UINT height, std::unique_ptr<Color[]> pBuffer) noexcept;

@@ -2,20 +2,23 @@
 
 #include "GraphicsThrowMacros.h"
 
-VertexShader::VertexShader(const Graphics& gfx, const std::wstring& path)
+namespace Bind
 {
-	INFOMAN(gfx);
+	VertexShader::VertexShader(const Graphics& gfx, const std::wstring& path)
+	{
+		INFOMAN(gfx);
 
-	GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &mByteCode));
-	GFX_THROW_INFO(GetDevice(gfx)->CreateVertexShader(mByteCode->GetBufferPointer(), mByteCode->GetBufferSize(), nullptr, &mShader));
-}
+		GFX_THROW_INFO(D3DReadFileToBlob(path.c_str(), &mByteCode));
+		GFX_THROW_INFO(GetDevice(gfx)->CreateVertexShader(mByteCode->GetBufferPointer(), mByteCode->GetBufferSize(), nullptr, &mShader));
+	}
 
-void VertexShader::Bind(const Graphics& gfx) noexcept
-{
-	GetDeviceContext(gfx)->VSSetShader(mShader.Get(), nullptr, 0u);
-}
+	void VertexShader::Bind(const Graphics& gfx) noexcept
+	{
+		GetDeviceContext(gfx)->VSSetShader(mShader.Get(), nullptr, 0u);
+	}
 
-ID3DBlob* VertexShader::GetByteCode() const noexcept
-{
-	return mByteCode.Get();
+	ID3DBlob* VertexShader::GetByteCode() const noexcept
+	{
+		return mByteCode.Get();
+	}
 }

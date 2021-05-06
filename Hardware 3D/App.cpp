@@ -1,17 +1,6 @@
 #include "App.h"
 
-#include "AssTest.h"
-#include "Box.h"
-#include "Can.h"
-#include "Pyramid.h"
-#include "SkinnedBox.h"
-
-#include "Surface.h"
-#include "GDIPlusManager.h"
-
 #include "imgui/imgui.h"
-
-GDIPlusManager gdipm;
 
 using namespace DirectX;
 

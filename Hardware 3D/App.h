@@ -4,7 +4,7 @@
 #include "Camera.h"
 #include "ChiliTimer.h"
 #include "ImguiManager.h"
-#include "Model.h"
+#include "Mesh.h"
 #include "PointLight.h"
 #include "Window.h"
 
