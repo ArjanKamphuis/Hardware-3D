@@ -22,7 +22,7 @@ AssTest::AssTest(const Graphics& gfx, std::mt19937& rng, std::uniform_real_distr
 	AddBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, mMaterial));
 }
 
-XMMATRIX AssTest::GetTransformMatrix() const noexcept
+XMMATRIX XM_CALLCONV AssTest::GetTransformMatrix() const noexcept
 {
 	return XMMatrixScaling(mScale, mScale, mScale) * TestObject::GetTransformMatrix();
 }

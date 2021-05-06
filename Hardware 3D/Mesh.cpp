@@ -26,7 +26,7 @@ void Mesh::Update(float dt) noexcept
 {
 }
 
-void XM_CALLCONV Mesh::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noxnd
+void XM_CALLCONV Mesh::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 {
 	XMStoreFloat4x4(&mTransform, accumulatedTransform);
 	Drawable::Draw(gfx);
@@ -42,13 +42,13 @@ void Mesh::StaticInitialize(const Graphics& gfx)
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 }
 
-Node::Node(std::vector<Mesh*> meshPtrs, CXMMATRIX transform) noxnd
+Node::Node(std::vector<Mesh*> meshPtrs, CXMMATRIX transform) noexcept(!IS_DEBUG)
 	: mMeshPtrs(std::move(meshPtrs))
 {
 	XMStoreFloat4x4(&mTransform, transform);
 }
 
-void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noxnd
+void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 {
 	const XMMATRIX built = XMLoadFloat4x4(&mTransform) * accumulatedTransform;
 
@@ -58,7 +58,7 @@ void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform)
 		pc->Draw(gfx, built);
 }
 
-void Node::AddChild(std::unique_ptr<Node> pChild) noxnd
+void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
 {
 	assert(pChild);
 	mChildPtrs.emplace_back(std::move(pChild));

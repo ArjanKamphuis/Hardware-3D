@@ -6,7 +6,7 @@ namespace Dvtx
 		: mType(type), mOffset(offset)
 	{}
 
-	size_t VertexLayout::Element::GetOffsetAfter() const noxnd
+	size_t VertexLayout::Element::GetOffsetAfter() const noexcept(!IS_DEBUG)
 	{
 		return mOffset + Size();
 	}
@@ -16,7 +16,7 @@ namespace Dvtx
 		return mOffset;
 	}
 
-	size_t VertexLayout::Element::Size() const noxnd
+	size_t VertexLayout::Element::Size() const noexcept(!IS_DEBUG)
 	{
 		return SizeOf(mType);
 	}
@@ -26,7 +26,7 @@ namespace Dvtx
 		return mType;
 	}
 
-	D3D11_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const noxnd
+	D3D11_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const noexcept(!IS_DEBUG)
 	{
 		switch (mType)
 		{
@@ -43,7 +43,7 @@ namespace Dvtx
 		}
 	}
 
-	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noxnd
+	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noexcept(!IS_DEBUG)
 	{
 		switch (type)
 		{
@@ -60,18 +60,18 @@ namespace Dvtx
 		}
 	}
 
-	const VertexLayout::Element& VertexLayout::ResolveByIndex(size_t i) const noxnd
+	const VertexLayout::Element& VertexLayout::ResolveByIndex(size_t i) const noexcept(!IS_DEBUG)
 	{
 		return mElements[i];
 	}
 
-	VertexLayout& VertexLayout::Append(ElementType type) noxnd
+	VertexLayout& VertexLayout::Append(ElementType type) noexcept(!IS_DEBUG)
 	{
 		mElements.emplace_back(type, Size());
 		return *this;
 	}
 
-	size_t VertexLayout::Size() const noxnd
+	size_t VertexLayout::Size() const noexcept(!IS_DEBUG)
 	{
 		return mElements.empty() ? 0u : mElements.back().GetOffsetAfter();
 	}
@@ -81,7 +81,7 @@ namespace Dvtx
 		return mElements.size();
 	}
 
-	std::vector<D3D11_INPUT_ELEMENT_DESC> VertexLayout::GetD3DLayout() const noxnd
+	std::vector<D3D11_INPUT_ELEMENT_DESC> VertexLayout::GetD3DLayout() const noexcept(!IS_DEBUG)
 	{
 		std::vector<D3D11_INPUT_ELEMENT_DESC> ied;
 		ied.reserve(GetElementCount());
@@ -90,21 +90,21 @@ namespace Dvtx
 		return ied;
 	}
 
-	Vertex::Vertex(char* pData, const VertexLayout& layout) noxnd
+	Vertex::Vertex(char* pData, const VertexLayout& layout) noexcept(!IS_DEBUG)
 		: mData(pData), mLayout(layout)
 	{
 		assert(pData != nullptr);
 	}
 
-	ConstVertex::ConstVertex(const Vertex& v) noxnd
+	ConstVertex::ConstVertex(const Vertex& v) noexcept(!IS_DEBUG)
 		: mVertex(v)
 	{}
 
-	VertexBuffer::VertexBuffer(VertexLayout layout) noxnd
+	VertexBuffer::VertexBuffer(VertexLayout layout) noexcept(!IS_DEBUG)
 		: mLayout(std::move(layout))
 	{}
 
-	const char* VertexBuffer::GetData() const noxnd
+	const char* VertexBuffer::GetData() const noexcept(!IS_DEBUG)
 	{
 		return mBuffer.data();
 	}
@@ -114,45 +114,45 @@ namespace Dvtx
 		return mLayout;
 	}
 
-	size_t VertexBuffer::Size() const noxnd
+	size_t VertexBuffer::Size() const noexcept(!IS_DEBUG)
 	{
 		return mBuffer.size() / mLayout.Size();
 	}
 
-	size_t VertexBuffer::SizeBytes() const noxnd
+	size_t VertexBuffer::SizeBytes() const noexcept(!IS_DEBUG)
 	{
 		return mBuffer.size();
 	}
 
-	Vertex VertexBuffer::Back() noxnd
+	Vertex VertexBuffer::Back() noexcept(!IS_DEBUG)
 	{
 		assert(mBuffer.size() != 0u);
 		return Vertex{ mBuffer.data() + mBuffer.size() - mLayout.Size(), mLayout };
 	}
 
-	Vertex VertexBuffer::Front() noxnd
+	Vertex VertexBuffer::Front() noexcept(!IS_DEBUG)
 	{
 		assert(mBuffer.size() != 0u);
 		return Vertex{ mBuffer.data(), mLayout };
 	}
 
-	Vertex VertexBuffer::operator[](size_t i) noxnd
+	Vertex VertexBuffer::operator[](size_t i) noexcept(!IS_DEBUG)
 	{
 		assert(i < Size());
 		return Vertex{ mBuffer.data() + mLayout.Size() * i, mLayout };
 	}
 
-	ConstVertex VertexBuffer::Back() const noxnd
+	ConstVertex VertexBuffer::Back() const noexcept(!IS_DEBUG)
 	{
 		return const_cast<VertexBuffer*>(this)->Back();
 	}
 
-	ConstVertex VertexBuffer::Front() const noxnd
+	ConstVertex VertexBuffer::Front() const noexcept(!IS_DEBUG)
 	{
 		return const_cast<VertexBuffer*>(this)->Front();
 	}
 
-	ConstVertex VertexBuffer::operator[](size_t i) const noxnd
+	ConstVertex VertexBuffer::operator[](size_t i) const noexcept(!IS_DEBUG)
 	{
 		return const_cast<VertexBuffer&>(*this)[i];
 	}

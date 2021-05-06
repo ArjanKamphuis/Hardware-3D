@@ -1,7 +1,6 @@
 #pragma once
 
 #include "BindableCommon.h"
-#include "ConditionalNoexcept.h"
 #include "Drawable.h"
 
 template<class T>
@@ -12,18 +11,18 @@ protected:
 	{
 		return !mStaticBinds.empty();
 	}
-	static void AddStaticBind(std::unique_ptr<Bind::Bindable> bind) noxnd
+	static void AddStaticBind(std::unique_ptr<Bind::Bindable> bind) noexcept(!IS_DEBUG)
 	{
 		assert("*Must* use AddStaticIndexBuffer to bind index buffer" && typeid(*bind) != typeid(Bind::IndexBuffer));
 		mStaticBinds.push_back(std::move(bind));
 	}
-	void AddStaticIndexBuffer(std::unique_ptr<Bind::IndexBuffer> buffer) noxnd
+	void AddStaticIndexBuffer(std::unique_ptr<Bind::IndexBuffer> buffer) noexcept(!IS_DEBUG)
 	{
 		assert("Attempting to add index buffer a second time" && mIndexBuffer == nullptr);
 		mIndexBuffer = buffer.get();
 		mStaticBinds.push_back(std::move(buffer));
 	}
-	void SetIndexFromStatic() noxnd
+	void SetIndexFromStatic() noexcept(!IS_DEBUG)
 	{
 		assert("Attempting to add index buffer a second time" && mIndexBuffer == nullptr);
 		for (const auto& b : mStaticBinds)

@@ -2,7 +2,6 @@
 
 #include <DirectXMath.h>
 #include <vector>
-#include "ConditionalNoexcept.h"
 
 template<class V>
 class IndexedTriangleList
@@ -25,7 +24,7 @@ public:
 		}
 	}
 
-	void SetNormalsIndependentFlat() noxnd
+	void SetNormalsIndependentFlat() noexcept(!IS_DEBUG)
 	{
 		using namespace DirectX;
 		assert(Indices.size() % 3 == 0 && Indices.size() > 0);

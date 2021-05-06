@@ -13,7 +13,7 @@ class Mesh : public DrawableBase<Mesh>
 public:
 	Mesh(const Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>> bindPtrs);
 	void Update(float dt) noexcept override;
-	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noxnd;
+	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept override;
 
 private:
@@ -28,11 +28,11 @@ class Node
 	friend class Model;
 
 public:
-	Node(std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noxnd;
-	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noxnd;
+	Node(std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
+	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 
 private:
-	void AddChild(std::unique_ptr<Node> pChild) noxnd;
+	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
 
 private:
 	std::vector<std::unique_ptr<Node>> mChildPtrs;

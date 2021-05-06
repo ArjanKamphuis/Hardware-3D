@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ConditionalNoexcept.h"
 #include "ConstantBuffers.h"
 #include "Graphics.h"
 #include "SolidSphere.h"
@@ -24,7 +23,7 @@ public:
 	PointLight(const Graphics& gfx, float radius = 0.5f);
 	void SpawnControlWindow() noexcept;
 	void Reset() noexcept;
-	void Draw(const Graphics& gfx) const noxnd;
+	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
 	void Bind(const Graphics& gfx) const noexcept;
 	void SetCameraPosition(const DirectX::XMVECTOR& cam) noexcept;
 

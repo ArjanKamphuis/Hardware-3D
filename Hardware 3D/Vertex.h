@@ -59,17 +59,17 @@ namespace Dvtx
 		public:
 			Element(ElementType type, size_t offset);
 
-			size_t GetOffsetAfter() const noxnd;
+			size_t GetOffsetAfter() const noexcept(!IS_DEBUG);
 			size_t GetOffset() const;
-			size_t Size() const noxnd;
+			size_t Size() const noexcept(!IS_DEBUG);
 			ElementType GetType() const noexcept;
-			D3D11_INPUT_ELEMENT_DESC GetDesc() const noxnd;
+			D3D11_INPUT_ELEMENT_DESC GetDesc() const noexcept(!IS_DEBUG);
 
-			static constexpr size_t SizeOf(ElementType type) noxnd;
+			static constexpr size_t SizeOf(ElementType type) noexcept(!IS_DEBUG);
 
 		private:
 			template<ElementType Type>
-			static constexpr D3D11_INPUT_ELEMENT_DESC GenerateDesc(size_t offset) noxnd
+			static constexpr D3D11_INPUT_ELEMENT_DESC GenerateDesc(size_t offset) noexcept(!IS_DEBUG)
 			{
 				return { Map<Type>::Semantic, 0u, Map<Type>::DXGIFormat, 0u, static_cast<UINT>(offset), D3D11_INPUT_PER_VERTEX_DATA, 0u };
 			}
@@ -81,7 +81,7 @@ namespace Dvtx
 
 	public:
 		template<ElementType Type>
-		const Element& Resolve() const noxnd
+		const Element& Resolve() const noexcept(!IS_DEBUG)
 		{
 			for (const Element& e : mElements)
 				if (e.GetType() == Type)
@@ -90,13 +90,13 @@ namespace Dvtx
 			return mElements.front();
 		}
 
-		const Element& ResolveByIndex(size_t i) const noxnd;
+		const Element& ResolveByIndex(size_t i) const noexcept(!IS_DEBUG);
 
-		VertexLayout& Append(ElementType type) noxnd;
+		VertexLayout& Append(ElementType type) noexcept(!IS_DEBUG);
 
-		size_t Size() const noxnd;
+		size_t Size() const noexcept(!IS_DEBUG);
 		size_t GetElementCount() const noexcept;
-		std::vector<D3D11_INPUT_ELEMENT_DESC> GetD3DLayout() const noxnd;
+		std::vector<D3D11_INPUT_ELEMENT_DESC> GetD3DLayout() const noexcept(!IS_DEBUG);
 
 	private:
 		std::vector<Element> mElements;
@@ -108,14 +108,14 @@ namespace Dvtx
 
 	public:
 		template<VertexLayout::ElementType Type>
-		auto& Attr() noxnd
+		auto& Attr() noexcept(!IS_DEBUG)
 		{
 			auto pAttribute = mData + mLayout.Resolve<Type>().GetOffset();
 			return *reinterpret_cast<typename VertexLayout::Map<Type>::SysType*>(pAttribute);
 		}
 
 		template<typename T>
-		void SetAttributeByIndex(size_t i, T&& value) noxnd
+		void SetAttributeByIndex(size_t i, T&& value) noexcept(!IS_DEBUG)
 		{
 			const auto& element = mLayout.ResolveByIndex(i);
 			auto pAttribute = mData + element.GetOffset();
@@ -151,18 +151,18 @@ namespace Dvtx
 		}
 
 	protected:
-		Vertex(char* pData, const VertexLayout& layout) noxnd;
+		Vertex(char* pData, const VertexLayout& layout) noexcept(!IS_DEBUG);
 
 	private:
 		template<typename First, typename ...Rest>
-		void SetAttributeByIndex(size_t i, First&& first, Rest&&... rest) noxnd
+		void SetAttributeByIndex(size_t i, First&& first, Rest&&... rest) noexcept(!IS_DEBUG)
 		{
 			SetAttributeByIndex(i, std::forward<First>(first));
 			SetAttributeByIndex(i + 1, std::forward<Rest>(rest)...);
 		}
 
 		template<VertexLayout::ElementType DestLayoutType, typename SrcType>
-		void SetAttribute(char* pAttribute, SrcType&& value) noxnd
+		void SetAttribute(char* pAttribute, SrcType&& value) noexcept(!IS_DEBUG)
 		{
 			using Dest = typename VertexLayout::Map<DestLayoutType>::SysType;
 
@@ -180,10 +180,10 @@ namespace Dvtx
 	class ConstVertex
 	{
 	public:
-		ConstVertex(const Vertex& v) noxnd;
+		ConstVertex(const Vertex& v) noexcept(!IS_DEBUG);
 
 		template<VertexLayout::ElementType Type>
-		const auto& Attr() const noxnd
+		const auto& Attr() const noexcept(!IS_DEBUG)
 		{
 			return const_cast<Vertex&>(mVertex).Attr<Type>();
 		}
@@ -195,29 +195,29 @@ namespace Dvtx
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer(VertexLayout layout) noxnd;
+		VertexBuffer(VertexLayout layout) noexcept(!IS_DEBUG);
 
-		const char* GetData() const noxnd;
+		const char* GetData() const noexcept(!IS_DEBUG);
 		const VertexLayout& GetLayout() const noexcept;
-		size_t Size() const noxnd;
-		size_t SizeBytes() const noxnd;
+		size_t Size() const noexcept(!IS_DEBUG);
+		size_t SizeBytes() const noexcept(!IS_DEBUG);
 
 		template<typename ...Params>
-		void EmplaceBack(Params&&... params) noxnd
+		void EmplaceBack(Params&&... params) noexcept(!IS_DEBUG)
 		{
 			assert(sizeof...(params) == mLayout.GetElementCount() && "Param count doesn't match number of vertexd elements");
 			mBuffer.resize(mBuffer.size() + mLayout.Size());
 			Back().SetAttributeByIndex(0u, std::forward<Params>(params)...);
 		}
 
-		Vertex Back() noxnd;
-		Vertex Front() noxnd;
+		Vertex Back() noexcept(!IS_DEBUG);
+		Vertex Front() noexcept(!IS_DEBUG);
 
-		Vertex operator[](size_t i) noxnd;
+		Vertex operator[](size_t i) noexcept(!IS_DEBUG);
 
-		ConstVertex Back() const noxnd;
-		ConstVertex Front() const noxnd;
-		ConstVertex operator[](size_t i) const noxnd;
+		ConstVertex Back() const noexcept(!IS_DEBUG);
+		ConstVertex Front() const noexcept(!IS_DEBUG);
+		ConstVertex operator[](size_t i) const noexcept(!IS_DEBUG);
 
 	private:
 		std::vector<char> mBuffer;

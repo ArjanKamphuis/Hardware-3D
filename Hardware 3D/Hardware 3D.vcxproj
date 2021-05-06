@@ -217,7 +217,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AssTest.h" />
-    <ClInclude Include="ConditionalNoexcept.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="TestObject.h" />
     <ClInclude Include="App.h" />

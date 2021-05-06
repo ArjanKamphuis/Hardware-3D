@@ -89,7 +89,7 @@ void Graphics::EndFrame()
 	}
 }
 
-void Graphics::DrawIndexed(UINT count) const noxnd
+void Graphics::DrawIndexed(UINT count) const noexcept(!IS_DEBUG)
 {
 	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(count, 0u, 0u));
 }

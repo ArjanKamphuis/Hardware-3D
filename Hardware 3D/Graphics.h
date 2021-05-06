@@ -8,7 +8,6 @@
 #include <random>
 #include <wrl.h>
 #include "ChiliException.h"
-#include "ConditionalNoexcept.h"
 #include "DxgiInfoManager.h"
 
 namespace Bind
@@ -79,7 +78,7 @@ public:
 	void BeginFrame(float r = 0.0f, float g = 0.0f, float b = 0.0f);
 	void EndFrame();
 
-	void DrawIndexed(UINT count) const noxnd;
+	void DrawIndexed(UINT count) const noexcept(!IS_DEBUG);
 
 	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
 	DirectX::XMMATRIX GetProjection() const noexcept;
