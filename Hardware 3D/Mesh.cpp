@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include "imgui/imgui.h"
+
 using namespace Bind;
 using namespace DirectX;
 
@@ -42,8 +44,8 @@ void Mesh::StaticInitialize(const Graphics& gfx)
 	AddStaticBind(std::make_unique<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 }
 
-Node::Node(std::vector<Mesh*> meshPtrs, CXMMATRIX transform) noexcept(!IS_DEBUG)
-	: mMeshPtrs(std::move(meshPtrs))
+Node::Node(const std::string& name, std::vector<Mesh*> meshPtrs, CXMMATRIX transform) noexcept(!IS_DEBUG)
+	: mName(name), mMeshPtrs(std::move(meshPtrs))
 {
 	XMStoreFloat4x4(&mTransform, transform);
 }
@@ -56,6 +58,16 @@ void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform)
 		pm->Draw(gfx, built);
 	for (const auto& pc : mChildPtrs)
 		pc->Draw(gfx, built);
+}
+
+void Node::RenderTree() const noexcept
+{
+	if (ImGui::TreeNode(mName.c_str()))
+	{
+		for (const auto& pChild : mChildPtrs)
+			pChild->RenderTree();
+		ImGui::TreePop();
+	}
 }
 
 void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
@@ -75,9 +87,35 @@ Model::Model(const Graphics& gfx, std::string filename)
 	mRoot = ParseNode(*pScene->mRootNode);
 }
 
-void XM_CALLCONV Model::Draw(const Graphics& gfx, FXMMATRIX transform) const
+void XM_CALLCONV Model::Draw(const Graphics& gfx) const
 {
-	mRoot->Draw(gfx, transform);
+	mRoot->Draw(gfx, XMMatrixRotationRollPitchYaw(mTransformParams.Roll, mTransformParams.Pitch, mTransformParams.Yaw) * XMMatrixTranslationFromVector(XMLoadFloat3(&mTransformParams.Position)));
+}
+
+void Model::ShowWindow(const char* windowName) noexcept
+{
+	windowName = windowName ? windowName : "Model";
+	if (ImGui::Begin(windowName))
+	{
+		ImGui::Columns(2);
+		mRoot->RenderTree();
+
+		ImGui::NextColumn();
+
+		ImGui::Text("Orientation");
+		ImGui::SliderAngle("Roll", &mTransformParams.Roll, -180.0f, 180.0f);
+		ImGui::SliderAngle("Pitch", &mTransformParams.Pitch, -180.0f, 180.0f);
+		ImGui::SliderAngle("Yaw", &mTransformParams.Yaw, -180.0f, 180.0f);
+
+		ImGui::Text("Position");
+		ImGui::SliderFloat("X", &mTransformParams.Position.x, -20.0f, 20.0f);
+		ImGui::SliderFloat("Y", &mTransformParams.Position.y, -20.0f, 20.0f);
+		ImGui::SliderFloat("Z", &mTransformParams.Position.z, -20.0f, 20.0f);
+
+		if (ImGui::Button("Reset"))
+			mTransformParams = {};
+	}
+	ImGui::End();
 }
 
 std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh)
@@ -119,7 +157,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh)
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }
 
-std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
+std::unique_ptr<Node> Model::ParseNode(const aiNode& node) noexcept
 {
 	const XMMATRIX transform = XMMatrixTranspose(XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node.mTransformation)));
 
@@ -127,7 +165,7 @@ std::unique_ptr<Node> Model::ParseNode(const aiNode& node)
 	for (UINT i = 0; i < node.mNumMeshes; i++)
 		curMeshPtrs.push_back(mMeshPtrs.at(node.mMeshes[i]).get());
 
-	std::unique_ptr<Node> pNode = std::make_unique<Node>(std::move(curMeshPtrs), transform);
+	std::unique_ptr<Node> pNode = std::make_unique<Node>(node.mName.C_Str(), std::move(curMeshPtrs), transform);
 	for (UINT i = 0; i < node.mNumChildren; i++)
 		pNode->AddChild(ParseNode(*node.mChildren[i]));
 
