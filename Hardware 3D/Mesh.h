@@ -30,7 +30,7 @@ class Node
 public:
 	Node(const std::string& name, std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
 	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
-	void RenderTree() const noexcept;
+	void ShowTree() const noexcept;
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
@@ -46,6 +46,7 @@ class Model
 {
 public:
 	Model(const Graphics& gfx, std::string filename);
+	~Model() noexcept;
 	void XM_CALLCONV Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
 	void ShowWindow(const char* windowName = nullptr) noexcept;
 
@@ -56,12 +57,5 @@ private:
 private:
 	std::unique_ptr<Node> mRoot;
 	std::vector<std::unique_ptr<Mesh>> mMeshPtrs;
-
-	struct
-	{
-		float Roll = 0.0f;
-		float Pitch = 0.0f;
-		float Yaw = 0.0f;
-		DirectX::XMFLOAT3 Position = {};
-	} mTransformParams = {};
+	std::unique_ptr<class ModelWindow> mWindow;
 };

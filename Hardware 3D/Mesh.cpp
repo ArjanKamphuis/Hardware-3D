@@ -60,12 +60,12 @@ void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform)
 		pc->Draw(gfx, built);
 }
 
-void Node::RenderTree() const noexcept
+void Node::ShowTree() const noexcept
 {
 	if (ImGui::TreeNode(mName.c_str()))
 	{
 		for (const auto& pChild : mChildPtrs)
-			pChild->RenderTree();
+			pChild->ShowTree();
 		ImGui::TreePop();
 	}
 }
@@ -76,7 +76,51 @@ void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
 	mChildPtrs.emplace_back(std::move(pChild));
 }
 
+class ModelWindow
+{
+public:
+	void Show(const char* windowName, const Node& root) noexcept
+	{
+		windowName = windowName ? windowName : "Model";
+		if (ImGui::Begin(windowName))
+		{
+			ImGui::Columns(2);
+			root.ShowTree();
+
+			ImGui::NextColumn();
+
+			ImGui::Text("Orientation");
+			ImGui::SliderAngle("Roll", &mTransformParams.Roll, -180.0f, 180.0f);
+			ImGui::SliderAngle("Pitch", &mTransformParams.Pitch, -180.0f, 180.0f);
+			ImGui::SliderAngle("Yaw", &mTransformParams.Yaw, -180.0f, 180.0f);
+
+			ImGui::Text("Position");
+			ImGui::SliderFloat("X", &mTransformParams.Position.x, -20.0f, 20.0f);
+			ImGui::SliderFloat("Y", &mTransformParams.Position.y, -20.0f, 20.0f);
+			ImGui::SliderFloat("Z", &mTransformParams.Position.z, -20.0f, 20.0f);
+
+			if (ImGui::Button("Reset"))
+				mTransformParams = {};
+		}
+		ImGui::End();
+	}
+	XMMATRIX XM_CALLCONV GetTransform() const noexcept
+	{
+		return XMMatrixRotationRollPitchYaw(mTransformParams.Roll, mTransformParams.Pitch, mTransformParams.Yaw) * XMMatrixTranslationFromVector(XMLoadFloat3(&mTransformParams.Position));
+	}
+
+private:
+	struct
+	{
+		float Roll = 0.0f;
+		float Pitch = 0.0f;
+		float Yaw = 0.0f;
+		DirectX::XMFLOAT3 Position = {};
+	} mTransformParams = {};
+};
+
 Model::Model(const Graphics& gfx, std::string filename)
+	: mWindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer imp;
 	const auto pScene = imp.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
@@ -87,35 +131,18 @@ Model::Model(const Graphics& gfx, std::string filename)
 	mRoot = ParseNode(*pScene->mRootNode);
 }
 
+Model::~Model() noexcept
+{
+}
+
 void XM_CALLCONV Model::Draw(const Graphics& gfx) const
 {
-	mRoot->Draw(gfx, XMMatrixRotationRollPitchYaw(mTransformParams.Roll, mTransformParams.Pitch, mTransformParams.Yaw) * XMMatrixTranslationFromVector(XMLoadFloat3(&mTransformParams.Position)));
+	mRoot->Draw(gfx, mWindow->GetTransform());
 }
 
 void Model::ShowWindow(const char* windowName) noexcept
 {
-	windowName = windowName ? windowName : "Model";
-	if (ImGui::Begin(windowName))
-	{
-		ImGui::Columns(2);
-		mRoot->RenderTree();
-
-		ImGui::NextColumn();
-
-		ImGui::Text("Orientation");
-		ImGui::SliderAngle("Roll", &mTransformParams.Roll, -180.0f, 180.0f);
-		ImGui::SliderAngle("Pitch", &mTransformParams.Pitch, -180.0f, 180.0f);
-		ImGui::SliderAngle("Yaw", &mTransformParams.Yaw, -180.0f, 180.0f);
-
-		ImGui::Text("Position");
-		ImGui::SliderFloat("X", &mTransformParams.Position.x, -20.0f, 20.0f);
-		ImGui::SliderFloat("Y", &mTransformParams.Position.y, -20.0f, 20.0f);
-		ImGui::SliderFloat("Z", &mTransformParams.Position.z, -20.0f, 20.0f);
-
-		if (ImGui::Button("Reset"))
-			mTransformParams = {};
-	}
-	ImGui::End();
+	mWindow->Show(windowName, *mRoot);
 }
 
 std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh)
