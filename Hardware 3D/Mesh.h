@@ -4,6 +4,7 @@
 #include <assimp\postprocess.h>
 #include <assimp\scene.h>
 
+#include <optional>
 #include "BindableCommon.h"
 #include "DrawableBase.h"
 #include "Vertex.h"
@@ -30,7 +31,7 @@ class Node
 public:
 	Node(const std::string& name, std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
 	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
-	void ShowTree() const noexcept;
+	void ShowTree(int& nodeIndex, std::optional<int>& selectedIndex) const noexcept;
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);

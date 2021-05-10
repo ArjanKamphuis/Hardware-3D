@@ -60,12 +60,18 @@ void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform)
 		pc->Draw(gfx, built);
 }
 
-void Node::ShowTree() const noexcept
+void Node::ShowTree(int& nodeIndex, std::optional<int>& selectedIndex) const noexcept
 {
-	if (ImGui::TreeNode(mName.c_str()))
+	const int currentNodeIndex = nodeIndex++;
+	const auto nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
+		| (currentNodeIndex == selectedIndex.value_or(-1) ? ImGuiTreeNodeFlags_Selected : 0)
+		| (mChildPtrs.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
+
+	if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(currentNodeIndex)), nodeFlags, mName.c_str()))
 	{
+		selectedIndex = ImGui::IsItemClicked() ? currentNodeIndex : selectedIndex;
 		for (const auto& pChild : mChildPtrs)
-			pChild->ShowTree();
+			pChild->ShowTree(nodeIndex, selectedIndex);
 		ImGui::TreePop();
 	}
 }
@@ -82,10 +88,12 @@ public:
 	void Show(const char* windowName, const Node& root) noexcept
 	{
 		windowName = windowName ? windowName : "Model";
+		int nodeIndexTracker = 0;
+
 		if (ImGui::Begin(windowName))
 		{
 			ImGui::Columns(2);
-			root.ShowTree();
+			root.ShowTree(nodeIndexTracker, mSelectedIndex);
 
 			ImGui::NextColumn();
 
@@ -110,6 +118,8 @@ public:
 	}
 
 private:
+	std::optional<int> mSelectedIndex;
+
 	struct
 	{
 		float Roll = 0.0f;
