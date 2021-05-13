@@ -29,6 +29,6 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mNanoBot{ mWnd.Gfx(), "Models/nanosuit.obj" };
+	Model mNanoBot{ mWnd.Gfx(), "Models/boxy.gltf" };
 };
 

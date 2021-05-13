@@ -158,7 +158,9 @@ Model::Model(const Graphics& gfx, std::string filename)
 	: mWindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer imp;
-	const auto pScene = imp.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+	const auto pScene = imp.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals);
+	if (pScene == nullptr)
+		throw Exception(__LINE__, __FILEW__, imp.GetErrorString());
 
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
 		mMeshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));

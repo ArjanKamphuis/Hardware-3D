@@ -49,6 +49,21 @@ private:
 class Model
 {
 public:
+	class Exception : public ChiliException
+	{
+	public:
+		Exception(int line, const wchar_t* file, const std::string& info) noexcept;
+		const wchar_t* GetType() const noexcept override;
+		std::wstring GetErrorInfo() const noexcept;
+
+	protected:
+		void GenerateMessage() const noexcept override;
+
+	private:
+		const std::wstring mInfo;
+	};
+
+public:
 	Model(const Graphics& gfx, std::string filename);
 	~Model() noexcept;
 	void XM_CALLCONV Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
