@@ -79,6 +79,8 @@ private:
 	void AdjustAndCenterWindow();
 	void HideCursor();
 	void ShowCursor();
+	void EnableImguiMouse();
+	void DisableImguiMouse();
 
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
