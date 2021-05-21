@@ -189,18 +189,15 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         Keyboard.ClearState();
         break;
     case WM_ACTIVATE:
-        OutputDebugString(L"Activate\n");
         if (!mCursorEnabled)
         {
             if (wParam == WA_ACTIVE)
             {
-                OutputDebugString(L"Activate => Confine\n");
                 ConfineCursor();
                 HideCursor();
             }
             else if (wParam == WA_INACTIVE)
             {
-                OutputDebugString(L"Activate => Free\n");
                 FreeCursor();
                 ShowCursor();
             }
@@ -269,7 +266,6 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
             SetForegroundWindow(mhWnd);
             if (!mCursorEnabled)
             {
-                OutputDebugString(L"LClick => Recapture\n");
                 ConfineCursor();
                 HideCursor();
             }
