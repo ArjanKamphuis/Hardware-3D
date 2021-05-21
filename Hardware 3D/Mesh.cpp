@@ -79,15 +79,16 @@ void Node::ShowTree(int& nodeIndex, std::optional<int>& selectedIndex, Node*& pS
 	const auto nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
 		| (currentNodeIndex == selectedIndex.value_or(-1) ? ImGuiTreeNodeFlags_Selected : 0)
 		| (mChildPtrs.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
+	const bool expanded = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(currentNodeIndex)), nodeFlags, mName.c_str());
 
-	if (ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(currentNodeIndex)), nodeFlags, mName.c_str()))
+	if (ImGui::IsItemClicked())
 	{
-		if (ImGui::IsItemClicked())
-		{
-			selectedIndex = currentNodeIndex;
-			pSelectedNode = const_cast<Node*>(this);
-		}
+		selectedIndex = currentNodeIndex;
+		pSelectedNode = const_cast<Node*>(this);
+	}
 
+	if (expanded)
+	{
 		for (const auto& pChild : mChildPtrs)
 			pChild->ShowTree(nodeIndex, selectedIndex, pSelectedNode);
 		ImGui::TreePop();
