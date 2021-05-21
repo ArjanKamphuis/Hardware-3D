@@ -54,7 +54,7 @@ bool Mouse::IsEmpty() const noexcept
 
 bool Mouse::IsInWindow() const noexcept
 {
-    return false;
+    return mIsInWindow;
 }
 
 int Mouse::GetPosX() const noexcept
