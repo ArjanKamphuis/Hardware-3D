@@ -59,7 +59,7 @@ void PointLight::Bind(const Graphics& gfx) const noexcept
 	mBuffer.Bind(gfx);
 }
 
-void PointLight::SetCameraPosition(const XMVECTOR& cam) noexcept
+void XM_CALLCONV PointLight::SetCameraPosition(FXMVECTOR cam) noexcept
 {
 	XMStoreFloat3(&mBufferData.CameraPosition, cam);
 }

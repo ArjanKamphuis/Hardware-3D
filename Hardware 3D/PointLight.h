@@ -25,7 +25,7 @@ public:
 	void Reset() noexcept;
 	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
 	void Bind(const Graphics& gfx) const noexcept;
-	void SetCameraPosition(const DirectX::XMVECTOR& cam) noexcept;
+	void XM_CALLCONV SetCameraPosition(DirectX::FXMVECTOR cam) noexcept;
 
 private:
 	PointLightCBuf mBufferData;

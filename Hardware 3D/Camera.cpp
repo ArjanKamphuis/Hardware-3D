@@ -5,12 +5,12 @@
 
 using namespace DirectX;
 
-DirectX::XMMATRIX Camera::GetMatrix() const noexcept
+DirectX::XMMATRIX XM_CALLCONV Camera::GetMatrix() const noexcept
 {
 	return XMMatrixLookAtLH(GetPosition(), XMVectorZero(), XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f)) * XMMatrixRotationRollPitchYaw(mPitch, -mYaw, mRoll);
 }
 
-DirectX::XMVECTOR Camera::GetPosition() const noexcept
+DirectX::XMVECTOR XM_CALLCONV Camera::GetPosition() const noexcept
 {
 	return XMVector3Transform(XMVectorSet(0.0f, 0.0f, -mRadius, 0.0f), XMMatrixRotationRollPitchYaw(mPhi, -mTheta, 0.0f));
 }

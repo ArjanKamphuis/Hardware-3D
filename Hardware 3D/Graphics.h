@@ -80,10 +80,10 @@ public:
 
 	void DrawIndexed(UINT count) const noexcept(!IS_DEBUG);
 
-	void SetProjection(DirectX::FXMMATRIX proj) noexcept;
-	DirectX::XMMATRIX GetProjection() const noexcept;
-	void SetCamera(DirectX::FXMMATRIX camera) noexcept;
-	DirectX::XMMATRIX GetCamera() const noexcept;
+	void XM_CALLCONV SetProjection(DirectX::FXMMATRIX proj) noexcept;
+	DirectX::XMMATRIX XM_CALLCONV GetProjection() const noexcept;
+	void XM_CALLCONV SetCamera(DirectX::FXMMATRIX camera) noexcept;
+	DirectX::XMMATRIX XM_CALLCONV GetCamera() const noexcept;
 
 	void OnResize(UINT width, UINT height);
 

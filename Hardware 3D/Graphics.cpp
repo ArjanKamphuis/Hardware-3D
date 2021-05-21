@@ -94,22 +94,22 @@ void Graphics::DrawIndexed(UINT count) const noexcept(!IS_DEBUG)
 	GFX_THROW_INFO_ONLY(mDeviceContext->DrawIndexed(count, 0u, 0u));
 }
 
-void Graphics::SetProjection(DirectX::FXMMATRIX proj) noexcept
+void XM_CALLCONV Graphics::SetProjection(DirectX::FXMMATRIX proj) noexcept
 {
 	mProjection = proj;
 }
 
-DirectX::XMMATRIX Graphics::GetProjection() const noexcept
+DirectX::XMMATRIX XM_CALLCONV Graphics::GetProjection() const noexcept
 {
 	return mProjection;
 }
 
-void Graphics::SetCamera(DirectX::FXMMATRIX camera) noexcept
+void XM_CALLCONV Graphics::SetCamera(DirectX::FXMMATRIX camera) noexcept
 {
 	mCamera = camera;
 }
 
-DirectX::XMMATRIX Graphics::GetCamera() const noexcept
+DirectX::XMMATRIX XM_CALLCONV Graphics::GetCamera() const noexcept
 {
 	return mCamera;
 }

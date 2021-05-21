@@ -5,8 +5,8 @@
 class Camera
 {
 public:
-	DirectX::XMMATRIX GetMatrix() const noexcept;
-	DirectX::XMVECTOR GetPosition() const noexcept;
+	DirectX::XMMATRIX XM_CALLCONV GetMatrix() const noexcept;
+	DirectX::XMVECTOR XM_CALLCONV GetPosition() const noexcept;
 
 	void SpawnControlWindow() noexcept;
 	void Reset() noexcept;
