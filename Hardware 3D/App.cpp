@@ -7,6 +7,7 @@ using namespace DirectX;
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
+	mWnd.DisableCursor();
 }
 
 App::~App()

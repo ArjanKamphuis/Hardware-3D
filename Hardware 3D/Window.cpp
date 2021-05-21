@@ -60,6 +60,18 @@ void Window::SetTitle(const std::wstring& title)
         throw CHWND_LAST_EXCEPT();
 }
 
+void Window::EnableCursor()
+{
+    mCursorEnabled = true;
+    ShowCursor();
+}
+
+void Window::DisableCursor()
+{
+    mCursorEnabled = false;
+    HideCursor();
+}
+
 std::optional<int> Window::ProcessMessages() noexcept
 {
     MSG msg;
@@ -102,6 +114,16 @@ void Window::AdjustAndCenterWindow()
         throw CHWND_LAST_EXCEPT();
     if (SetWindowPos(mhWnd, nullptr, (mi.rcMonitor.right - clientWidth) / 2, (mi.rcMonitor.bottom - clientHeight) / 2, clientWidth, clientHeight, 0) == FALSE)
         throw CHWND_LAST_EXCEPT();
+}
+
+void Window::HideCursor()
+{
+    while (::ShowCursor(FALSE) >= 0);
+}
+
+void Window::ShowCursor()
+{
+    while (::ShowCursor(TRUE) < 0);
 }
 
 LRESULT CALLBACK Window::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
@@ -161,6 +183,17 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
     case WM_MOUSEMOVE:
         {
+            if (!mCursorEnabled)
+            {
+                if (!Mouse.IsInWindow())
+                {
+                    SetCapture(mhWnd);
+                    Mouse.OnMouseEnter();
+                    HideCursor();
+                }
+                break;
+            }
+
             if (imio.WantCaptureMouse)
                 break;
 

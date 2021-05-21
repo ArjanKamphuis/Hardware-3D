@@ -68,12 +68,17 @@ public:
 	~Window();
 
 	void SetTitle(const std::wstring& title);
+	void EnableCursor();
+	void DisableCursor();
+
 	static std::optional<int> ProcessMessages() noexcept;
 
 	Graphics& Gfx() const;
 
 private:
 	void AdjustAndCenterWindow();
+	void HideCursor();
+	void ShowCursor();
 
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
@@ -84,6 +89,7 @@ public:
 	Mouse Mouse;
 
 private:
+	bool mCursorEnabled = false;
 	int mWidth;
 	int mHeight;
 	HWND mhWnd;
