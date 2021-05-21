@@ -102,7 +102,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
-    <ClCompile Include="AssTest.cpp" />
     <ClCompile Include="Bindable.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChiliException.cpp" />
@@ -145,9 +144,7 @@
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AssTest.h" />
     <ClInclude Include="Mesh.h" />
-    <ClInclude Include="TestObject.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="Bindable.h" />
     <ClInclude Include="BindableCommon.h" />
@@ -155,9 +152,7 @@
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliTimer.h" />
     <ClInclude Include="ChiliWin.h" />
-    <ClInclude Include="Cone.h" />
     <ClInclude Include="ConstantBuffers.h" />
-    <ClInclude Include="Cube.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="DrawableBase.h" />
     <ClInclude Include="dxerr.h" />
@@ -182,8 +177,6 @@
     <ClInclude Include="SolidSphere.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="PixelShader.h" />
-    <ClInclude Include="Plane.h" />
-    <ClInclude Include="Cylinder.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Sphere.h" />
