@@ -5,7 +5,7 @@
 using namespace DirectX;
 
 App::App()
-    : mWnd(800, 600, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
+    : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
 }
 

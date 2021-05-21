@@ -1,6 +1,5 @@
 #pragma once
 
-#include <set>
 #include "Camera.h"
 #include "ChiliTimer.h"
 #include "ImguiManager.h"
@@ -29,6 +28,6 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mNanoBot{ mWnd.Gfx(), "Models/boxy.gltf" };
+	Model mNanoBot{ mWnd.Gfx(), "Models/nano.gltf" };
 };
 
