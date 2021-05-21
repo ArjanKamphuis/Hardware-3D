@@ -188,6 +188,24 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
     case WM_KILLFOCUS:
         Keyboard.ClearState();
         break;
+    case WM_ACTIVATE:
+        OutputDebugString(L"Activate\n");
+        if (!mCursorEnabled)
+        {
+            if (wParam == WA_ACTIVE)
+            {
+                OutputDebugString(L"Activate => Confine\n");
+                ConfineCursor();
+                HideCursor();
+            }
+            else if (wParam == WA_INACTIVE)
+            {
+                OutputDebugString(L"Activate => Free\n");
+                FreeCursor();
+                ShowCursor();
+            }
+        }
+        break;
 
     case WM_KEYDOWN:
     case WM_SYSKEYDOWN:
@@ -248,12 +266,19 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
         }
     case WM_LBUTTONDOWN:
         {
+            SetForegroundWindow(mhWnd);
+            if (!mCursorEnabled)
+            {
+                OutputDebugString(L"LClick => Recapture\n");
+                ConfineCursor();
+                HideCursor();
+            }
+
             if (imio.WantCaptureMouse)
                 break;
 
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnLeftPressed(pt.x, pt.y);
-            SetForegroundWindow(mhWnd);
             break;
         }
     case WM_LBUTTONUP:
