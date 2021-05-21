@@ -60,18 +60,20 @@ void Window::SetTitle(const std::wstring& title)
         throw CHWND_LAST_EXCEPT();
 }
 
-void Window::EnableCursor()
+void Window::EnableCursor() noexcept
 {
     mCursorEnabled = true;
     ShowCursor();
     EnableImguiMouse();
+    FreeCursor();
 }
 
-void Window::DisableCursor()
+void Window::DisableCursor() noexcept
 {
     mCursorEnabled = false;
     HideCursor();
     DisableImguiMouse();
+    ConfineCursor();
 }
 
 std::optional<int> Window::ProcessMessages() noexcept
@@ -118,22 +120,35 @@ void Window::AdjustAndCenterWindow()
         throw CHWND_LAST_EXCEPT();
 }
 
-void Window::HideCursor()
+void Window::ConfineCursor() noexcept
+{
+    RECT rect;
+    GetClientRect(mhWnd, &rect);
+    MapWindowPoints(mhWnd, nullptr, reinterpret_cast<POINT*>(&rect), 2u);
+    ClipCursor(&rect);
+}
+
+void Window::FreeCursor() noexcept
+{
+    ClipCursor(nullptr);
+}
+
+void Window::HideCursor() noexcept
 {
     while (::ShowCursor(FALSE) >= 0);
 }
 
-void Window::ShowCursor()
+void Window::ShowCursor() noexcept
 {
     while (::ShowCursor(TRUE) < 0);
 }
 
-void Window::EnableImguiMouse()
+void Window::EnableImguiMouse() noexcept
 {
     ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
 }
 
-void Window::DisableImguiMouse()
+void Window::DisableImguiMouse() noexcept
 {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
 }

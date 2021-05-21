@@ -68,8 +68,8 @@ public:
 	~Window();
 
 	void SetTitle(const std::wstring& title);
-	void EnableCursor();
-	void DisableCursor();
+	void EnableCursor() noexcept;
+	void DisableCursor() noexcept;
 
 	static std::optional<int> ProcessMessages() noexcept;
 
@@ -77,10 +77,12 @@ public:
 
 private:
 	void AdjustAndCenterWindow();
-	void HideCursor();
-	void ShowCursor();
-	void EnableImguiMouse();
-	void DisableImguiMouse();
+	void ConfineCursor() noexcept;
+	void FreeCursor() noexcept;
+	void HideCursor() noexcept;
+	void ShowCursor() noexcept;
+	void EnableImguiMouse() noexcept;
+	void DisableImguiMouse() noexcept;
 
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
