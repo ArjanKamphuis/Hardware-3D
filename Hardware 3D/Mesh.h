@@ -42,7 +42,7 @@ private:
 	std::string mName;
 	std::vector<std::unique_ptr<Node>> mChildPtrs;
 	std::vector<Mesh*> mMeshPtrs;
-	DirectX::XMFLOAT4X4 mBaseTransform;
+	DirectX::XMFLOAT4X4 mTransform;
 	DirectX::XMFLOAT4X4 mAppliedTransform;
 };
 

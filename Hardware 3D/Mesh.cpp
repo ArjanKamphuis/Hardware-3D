@@ -48,13 +48,13 @@ void Mesh::StaticInitialize(const Graphics& gfx)
 Node::Node(const std::string& name, std::vector<Mesh*> meshPtrs, CXMMATRIX transform) noexcept(!IS_DEBUG)
 	: mName(name), mMeshPtrs(std::move(meshPtrs))
 {
-	XMStoreFloat4x4(&mBaseTransform, transform);
+	XMStoreFloat4x4(&mTransform, transform);
 	XMStoreFloat4x4(&mAppliedTransform, XMMatrixIdentity());
 }
 
 void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 {
-	const XMMATRIX built = XMLoadFloat4x4(&mBaseTransform) * XMLoadFloat4x4(&mAppliedTransform) * accumulatedTransform;
+	const XMMATRIX built = XMLoadFloat4x4(&mAppliedTransform) * XMLoadFloat4x4(&mTransform) * accumulatedTransform;
 
 	for (const Mesh* const pm : mMeshPtrs)
 		pm->Draw(gfx, built);
