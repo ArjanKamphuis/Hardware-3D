@@ -45,6 +45,12 @@ Window::Window(int width, int height, const wchar_t* name)
     ImGui_ImplWin32_Init(mhWnd);
     mGfx = std::make_unique<Graphics>(mhWnd);
 
+    RAWINPUTDEVICE rid = {};
+    rid.usUsage = 0x02;
+    rid.usUsagePage = 0x01;
+    if (RegisterRawInputDevices(&rid, 1, sizeof(rid)) == FALSE)
+        throw CHWND_LAST_EXCEPT();
+
     ShowWindow(mhWnd, SW_SHOWDEFAULT);
 }
 
@@ -321,6 +327,23 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
             const POINTS pt = MAKEPOINTS(lParam);
             Mouse.OnWheelDelta(pt.x, pt.y, GET_WHEEL_DELTA_WPARAM(wParam));
+            break;
+        }
+
+    case WM_INPUT:
+        {
+            UINT size = 0;
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == -1)
+                break;
+
+            mRawBuffer.resize(size);
+            if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, mRawBuffer.data(), &size, sizeof(RAWINPUTHEADER)) != size)
+                break;
+
+            const RAWINPUT& ri = reinterpret_cast<const RAWINPUT&>(*mRawBuffer.data());
+            if (ri.header.dwType == RIM_TYPEMOUSE && (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0))
+                Mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
+
             break;
         }
 

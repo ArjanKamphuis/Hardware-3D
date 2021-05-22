@@ -78,4 +78,18 @@ void App::DoImGui() noexcept
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
 	mNanoBot.ShowWindow();
+	ShowRawInputWindow();
+}
+
+void App::ShowRawInputWindow()
+{
+	while (const auto d = mWnd.Mouse.ReadRawDelta())
+	{
+		mX += d->X;
+		mY += d->Y;
+	}
+
+	if (ImGui::Begin("Raw Input"))
+		ImGui::Text("Tally: (%d,%d)", mX, mY);
+	ImGui::End();
 }

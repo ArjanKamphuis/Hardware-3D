@@ -8,6 +8,12 @@ class Mouse
 	friend class Window;
 
 public:
+	struct RawDelta
+	{
+		int X = 0;
+		int Y = 0;
+	};
+
 	class Event
 	{
 	public:
@@ -46,6 +52,7 @@ public:
 	std::pair<int, int> GetPos() const noexcept;
 
 	std::optional<Mouse::Event> Read() noexcept;
+	std::optional<RawDelta> ReadRawDelta() noexcept;
 	void Flush() noexcept;
 
 private:
@@ -57,13 +64,16 @@ private:
 	void OnWheelUp(int x, int y) noexcept;
 	void OnWheelDown(int x, int y) noexcept;
 	void OnWheelDelta(int x, int y, short delta) noexcept;
+	void OnRawDelta(int dx, int dy) noexcept;
 	void OnMouseEnter() noexcept;
 	void OnMouseLeave() noexcept;
 	void TrimBuffer() noexcept;
+	void TrimRawInputBuffer() noexcept;
 
 private:
 	static constexpr unsigned int mBufferSize = 16u;
 	std::queue<Event> mBuffer;
+	std::queue<RawDelta> mRawDeltaBuffer;
 
 	int mX = 0;
 	int mY = 0;

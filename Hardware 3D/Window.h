@@ -93,10 +93,11 @@ public:
 	Mouse Mouse;
 
 private:
-	bool mCursorEnabled = false;
+	bool mCursorEnabled = true;
 	int mWidth;
 	int mHeight;
 	HWND mhWnd;
 
 	std::unique_ptr<Graphics> mGfx;
+	std::vector<BYTE> mRawBuffer;
 };

@@ -83,6 +83,16 @@ std::optional<Mouse::Event> Mouse::Read() noexcept
     return {};
 }
 
+std::optional<Mouse::RawDelta> Mouse::ReadRawDelta() noexcept
+{
+    if (mRawDeltaBuffer.empty())
+        return std::nullopt;
+
+    const RawDelta d = mRawDeltaBuffer.front();
+    mRawDeltaBuffer.pop();
+    return d;
+}
+
 void Mouse::Flush() noexcept
 {
     mBuffer = std::queue<Event>();
@@ -153,6 +163,12 @@ void Mouse::OnWheelDelta(int x, int y, short delta) noexcept
     }
 }
 
+void Mouse::OnRawDelta(int dx, int dy) noexcept
+{
+    mRawDeltaBuffer.push({ dx, dy });
+    TrimRawInputBuffer();
+}
+
 void Mouse::OnMouseEnter() noexcept
 {
     mIsInWindow = true;
@@ -171,4 +187,10 @@ void Mouse::TrimBuffer() noexcept
 {
     while (mBuffer.size() > mBufferSize)
         mBuffer.pop();
+}
+
+void Mouse::TrimRawInputBuffer() noexcept
+{
+    while (mRawDeltaBuffer.size() > mBufferSize)
+        mRawDeltaBuffer.pop();
 }
