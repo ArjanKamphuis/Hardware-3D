@@ -7,7 +7,6 @@ using namespace DirectX;
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	mWnd.DisableCursor();
 }
 
 App::~App()
@@ -36,6 +35,18 @@ void App::HandleInput()
 		{
 		case VK_ESCAPE:
 			PostQuitMessage(0);
+			break;
+		case VK_INSERT:
+			if (mCursorEnabled)
+			{
+				mWnd.DisableCursor();
+				mCursorEnabled = false;
+			}
+			else
+			{
+				mWnd.EnableCursor();
+				mCursorEnabled = true;
+			}
 			break;
 		}
 	}
@@ -90,6 +101,9 @@ void App::ShowRawInputWindow()
 	}
 
 	if (ImGui::Begin("Raw Input"))
+	{
 		ImGui::Text("Tally: (%d,%d)", mX, mY);
+		ImGui::Text("Cursor: %s", mCursorEnabled ? "Enabled" : "Disabled");
+	}
 	ImGui::End();
 }

@@ -23,6 +23,7 @@ private:
 	void ShowRawInputWindow();
 
 private:
+	bool mCursorEnabled = true;
 	int mX = 0;
 	int mY = 0;
 	ImguiManager mImgui;
