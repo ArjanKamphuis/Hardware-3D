@@ -55,6 +55,10 @@ public:
 	std::optional<RawDelta> ReadRawDelta() noexcept;
 	void Flush() noexcept;
 
+	void EnableRaw() noexcept;
+	void DisableRaw() noexcept;
+	bool RawEnabled() const noexcept;
+
 private:
 	void OnMouseMove(int x, int y) noexcept;
 	void OnLeftPressed(int x, int y) noexcept;
@@ -81,4 +85,5 @@ private:
 	bool mLeftIsPressed = false;
 	bool mRightIsPressed = false;
 	bool mIsInWindow = false;
+	bool mRawEnabled = false;
 };

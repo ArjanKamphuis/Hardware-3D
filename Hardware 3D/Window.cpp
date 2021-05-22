@@ -82,6 +82,11 @@ void Window::DisableCursor() noexcept
     ConfineCursor();
 }
 
+bool Window::CursorEnabled() const noexcept
+{
+    return mCursorEnabled;
+}
+
 std::optional<int> Window::ProcessMessages() noexcept
 {
     MSG msg;
@@ -332,6 +337,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noe
 
     case WM_INPUT:
         {
+            if (!Mouse.RawEnabled())
+                break;
+
             UINT size = 0;
             if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) == -1)
                 break;
