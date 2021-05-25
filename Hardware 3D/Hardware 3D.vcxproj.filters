@@ -43,6 +43,9 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{272e09cd-c6ea-4cd9-833d-5e3bf29baddb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Geometry">
+      <UniqueIdentifier>{a58bda53-5108-456e-80e3-44eab756bee3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -167,6 +170,12 @@
     </ClCompile>
     <ClCompile Include="ModelExceptions.cpp">
       <Filter>Source Files\ExceptionDefinitions</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexedTriangleList.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Sphere.cpp">
+      <Filter>Source Files\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

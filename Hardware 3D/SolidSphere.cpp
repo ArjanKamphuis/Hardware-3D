@@ -9,17 +9,7 @@ using namespace DirectX;
 SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	: mRadius(radius)
 {
-	struct Vertex
-	{
-		XMFLOAT3 Position;
-	};
-
-	const std::vector<D3D11_INPUT_ELEMENT_DESC> ied =
-	{
-		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
-	};
-
-	IndexedTriangleList<Vertex> model = Sphere::Make<Vertex>();
+	IndexedTriangleList model = Sphere::Make();
 	model.Transform(XMMatrixScaling(mRadius, mRadius, mRadius));
 
 	AddBind(std::make_shared<PixelShader>(gfx, L"SolidPS.cso"));
@@ -28,7 +18,7 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	AddBind(std::make_shared<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
 	std::shared_ptr<VertexShader> pVS = std::make_shared<VertexShader>(gfx, L"SolidVS.cso");
-	AddBind(std::make_shared<InputLayout>(gfx, ied, pVS->GetByteCode()));
+	AddBind(std::make_shared<InputLayout>(gfx, model.Vertices.GetLayout().GetD3DLayout(), pVS->GetByteCode()));
 	AddBind(std::move(pVS));
 
 	AddBind(std::make_unique<TransformCBuf>(gfx, *this));

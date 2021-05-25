@@ -1,30 +1,16 @@
 #pragma once
 
-#include <DirectXMath.h>
-#include <vector>
+#include "Vertex.h"
 
-template<class V>
 class IndexedTriangleList
 {
 public:
 	IndexedTriangleList() = default;
-	IndexedTriangleList(std::vector<V> vertices, std::vector<unsigned short> indices)
-		: Vertices(std::move(vertices)), Indices(std::move(indices))
-	{
-		assert(Vertices.size() > 2);
-		assert(Indices.size() % 3 == 0);
-	}
+	IndexedTriangleList(Dvtx::VertexBuffer vertices, std::vector<unsigned short> indices);
 
-	void Transform(DirectX::FXMMATRIX transform)
-	{
-		for (V& v : Vertices)
-		{
-			const DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&v.Position);
-			DirectX::XMStoreFloat3(&v.Position, DirectX::XMVector3Transform(position, transform));
-		}
-	}
+	void XM_CALLCONV Transform(DirectX::FXMMATRIX transform);
 
-	void SetNormalsIndependentFlat() noexcept(!IS_DEBUG)
+	/*void SetNormalsIndependentFlat() noexcept(!IS_DEBUG)
 	{
 		using namespace DirectX;
 		assert(Indices.size() % 3 == 0 && Indices.size() > 0);
@@ -45,9 +31,9 @@ public:
 			XMStoreFloat3(&v1.Normal, n);
 			XMStoreFloat3(&v2.Normal, n);
 		}
-	}
+	}*/
 
 public:
-	std::vector<V> Vertices;
+	Dvtx::VertexBuffer Vertices;
 	std::vector<unsigned short> Indices;
 };
