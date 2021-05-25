@@ -9,3 +9,6 @@
 
 #include "ConstantBuffers.h"
 #include "TransformCBuf.h"
+
+#include "Sampler.h"
+#include "Texture.h"

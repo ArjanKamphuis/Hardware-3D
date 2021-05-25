@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include "imgui/imgui.h"
+#include "Surface.h"
 
 using namespace Bind;
 using namespace DirectX;
@@ -167,7 +168,7 @@ Model::Model(const Graphics& gfx, std::string filename)
 		throw Exception(__LINE__, __FILEW__, imp.GetErrorString());
 
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
-		mMeshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i]));
+		mMeshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials));
 
 	int nextId = 0;
 	mRoot = ParseNode(nextId, *pScene->mRootNode);
@@ -189,7 +190,7 @@ void Model::ShowWindow(const char* windowName) noexcept
 	mWindow->Show(windowName, *mRoot);
 }
 
-std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh)
+std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
 {
 	using Dvtx::VertexLayout;
 	using ElementType = VertexLayout::ElementType;
@@ -224,6 +225,16 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh)
 
 	bindablePtrs.push_back(std::move(pVS));
 	bindablePtrs.push_back(std::move(pVbuf));
+
+	if (mesh.mMaterialIndex >= 0)
+	{
+		auto& material = *pMaterials[mesh.mMaterialIndex];
+		aiString texFileName;
+		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
+		const std::string filename{ texFileName.C_Str() };
+		bindablePtrs.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(L"Models/nano_textured/" + std::wstring(filename.begin(), filename.end()))));
+		bindablePtrs.push_back(std::make_unique<Sampler>(gfx));
+	}
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }

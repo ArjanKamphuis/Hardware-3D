@@ -1,8 +1,7 @@
 #include "App.h"
 
-#include "imgui/imgui.h"
-
-using namespace DirectX;
+#include "GDIPlusManager.h"
+GDIPlusManager gdipm;
 
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())

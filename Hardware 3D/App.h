@@ -28,6 +28,6 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mNanoBot{ mWnd.Gfx(), "Models/nano_hierarchy.gltf" };
+	Model mNanoBot{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
 };
 
