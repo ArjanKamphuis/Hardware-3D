@@ -67,17 +67,6 @@ void XM_CALLCONV Node::SetAppliedTransform(DirectX::FXMMATRIX transform) noexcep
 	XMStoreFloat4x4(&mAppliedTransform, transform);
 }
 
-int Node::GetId() const noexcept
-{
-	return mId;
-}
-
-void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
-{
-	assert(pChild);
-	mChildPtrs.emplace_back(std::move(pChild));
-}
-
 void Node::ShowTree(Node*& pSelectedNode) const noexcept
 {
 	const int id = GetId();
@@ -97,6 +86,17 @@ void Node::ShowTree(Node*& pSelectedNode) const noexcept
 			pChild->ShowTree(pSelectedNode);
 		ImGui::TreePop();
 	}
+}
+
+int Node::GetId() const noexcept
+{
+	return mId;
+}
+
+void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
+{
+	assert(pChild);
+	mChildPtrs.emplace_back(std::move(pChild));
 }
 
 class ModelWindow

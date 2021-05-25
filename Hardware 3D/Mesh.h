@@ -27,17 +27,16 @@ private:
 class Node
 {
 	friend class Model;
-	friend class ModelWindow;
 
 public:
 	Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
 	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	void XM_CALLCONV SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
+	void ShowTree(Node*& pSelectedNode) const noexcept;
 	int GetId() const noexcept;
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
-	void ShowTree(Node*& pSelectedNode) const noexcept;
 
 private:
 	int mId;
