@@ -12,7 +12,8 @@ Camera::Camera() noexcept
 
 DirectX::XMMATRIX XM_CALLCONV Camera::GetMatrix() const noexcept
 {
-	return XMMatrixTranslation(-mPosition.x, -mPosition.y, -mPosition.z) * XMMatrixRotationRollPitchYaw(-mPitch, -mYaw, 0.0f);
+	const XMMATRIX transform = XMMatrixRotationRollPitchYaw(mPitch, mYaw, 0.0f);
+	return XMMatrixLookToLH(GetPosition(), XMVector3Transform(mForward, transform), XMVector3Transform(mUp, transform));
 }
 
 DirectX::XMVECTOR XM_CALLCONV Camera::GetPosition() const noexcept
@@ -59,10 +60,10 @@ void XM_CALLCONV Camera::Translate(DirectX::FXMVECTOR translation) noexcept
 
 void Camera::ZoomIn() noexcept
 {
-	Translate({ 0.0f, 0.0f, 1.0f });
+	Translate(mForward);
 }
 
 void Camera::ZoomOut() noexcept
 {
-	Translate({ 0.0f, 0.0f, -1.0f });
+	Translate(XMVectorNegate(mForward));
 }

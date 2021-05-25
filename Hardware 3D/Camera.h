@@ -29,5 +29,8 @@ private:
 	static constexpr float mMaxRadius = 80.0f;
 	static constexpr float mTravelSpeed = 12.0f;
 	static constexpr float mRotationSpeed = 0.004f;
+
+	static constexpr DirectX::XMVECTOR mUp = { 0.0f, 1.0f, 0.0f, 0.0f };
+	static constexpr DirectX::XMVECTOR mForward = { 0.0f, 0.0f, 1.0f, 0.0f };
 };
 
