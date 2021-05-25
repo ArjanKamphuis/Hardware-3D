@@ -27,5 +27,5 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 	const float rdotl = dot(normalize(reflect(-vToL, normal)), normalize(gCameraPosition - posW));
 	const float3 specular = att * (gDiffuseColor * gDiffuseIntensity) * gSpecularIntensity * pow(max(rdotl, 0.0f), gSpecularPower);
 
-	return float4(saturate(diffuse + specular + gAmbientColor), 1.0f) * gTexture.Sample(gSampler, texC);
+	return float4(saturate((diffuse + gAmbientColor) * gTexture.Sample(gSampler, texC).rgb + specular), 1.0f);
 }
