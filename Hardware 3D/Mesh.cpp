@@ -78,24 +78,23 @@ void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
 	mChildPtrs.emplace_back(std::move(pChild));
 }
 
-void Node::ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept
+void Node::ShowTree(Node*& pSelectedNode) const noexcept
 {
 	const int id = GetId();
+	const int selectedId = pSelectedNode == nullptr ? -1 : pSelectedNode->GetId();
+
 	const auto nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
-		| (id == selectedIndex.value_or(-1) ? ImGuiTreeNodeFlags_Selected : 0)
+		| (id == selectedId ? ImGuiTreeNodeFlags_Selected : 0)
 		| (mChildPtrs.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
 	const bool expanded = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(id)), nodeFlags, mName.c_str());
 
 	if (ImGui::IsItemClicked())
-	{
-		selectedIndex = id;
 		pSelectedNode = const_cast<Node*>(this);
-	}
 
 	if (expanded)
 	{
 		for (const auto& pChild : mChildPtrs)
-			pChild->ShowTree(selectedIndex, pSelectedNode);
+			pChild->ShowTree(pSelectedNode);
 		ImGui::TreePop();
 	}
 }
@@ -119,13 +118,13 @@ public:
 		if (ImGui::Begin(windowName))
 		{
 			ImGui::Columns(2);
-			root.ShowTree(mSelectedIndex, mSelectedNode);
+			root.ShowTree(mSelectedNode);
 
 			ImGui::NextColumn();
 
 			if (mSelectedNode != nullptr)
 			{
-				TransformParameters& transform = mTransforms[*mSelectedIndex];
+				TransformParameters& transform = mTransforms[mSelectedNode->GetId()];
 
 				ImGui::Text("Orientation");
 				ImGui::SliderAngle("Roll", &transform.Roll, -180.0f, 180.0f);
@@ -145,7 +144,8 @@ public:
 	}
 	XMMATRIX XM_CALLCONV GetTransform() const noexcept
 	{
-		const TransformParameters& transform = mTransforms.at(*mSelectedIndex);
+		assert(mSelectedNode != nullptr);
+		const TransformParameters& transform = mTransforms.at(mSelectedNode->GetId());
 		return XMMatrixRotationRollPitchYaw(transform.Roll, transform.Pitch, transform.Yaw) * XMMatrixTranslationFromVector(XMLoadFloat3(&transform.Position));
 	}
 	Node* GetSelectedNode() const noexcept
@@ -154,7 +154,6 @@ public:
 	}
 
 private:
-	std::optional<int> mSelectedIndex;
 	Node* mSelectedNode = nullptr;
 	std::unordered_map<int, TransformParameters> mTransforms;
 };

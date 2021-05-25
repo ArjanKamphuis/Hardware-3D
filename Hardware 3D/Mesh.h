@@ -37,7 +37,7 @@ public:
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
-	void ShowTree(std::optional<int>& selectedIndex, Node*& pSelectedNode) const noexcept;
+	void ShowTree(Node*& pSelectedNode) const noexcept;
 
 private:
 	int mId;
