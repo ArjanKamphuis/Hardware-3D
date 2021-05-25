@@ -199,10 +199,15 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		VertexLayout{}
 		.Append(ElementType::Position3D)
 		.Append(ElementType::Normal)
+		.Append(ElementType::Texture2D)
 	));
 
 	for (UINT i = 0; i < mesh.mNumVertices; i++)
-		vbuf.EmplaceBack(*reinterpret_cast<XMFLOAT3*>(&mesh.mVertices[i]), *reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]));
+		vbuf.EmplaceBack(
+			*reinterpret_cast<XMFLOAT3*>(&mesh.mVertices[i]),
+			*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]),
+			*reinterpret_cast<XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+		);
 
 	std::vector<USHORT> indices;
 	indices.reserve(static_cast<size_t>(mesh.mNumFaces * 3u));
