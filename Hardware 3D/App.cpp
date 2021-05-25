@@ -18,18 +18,19 @@ int App::Go()
 	std::optional<int> exitcode;
 	while (!(exitcode = Window::ProcessMessages()))
 	{
-		HandleInput();
-		DoFrame();
+		const float dt = mTimer.Mark();
+		HandleInput(dt);
+		DoFrame(dt);
 	}
 	return *exitcode;
 }
 
-void App::HandleInput()
+void App::HandleInput(float dt)
 {
 	while (const auto e = mWnd.Keyboard.ReadKey())
 	{
 		if (!e->IsPress())
-			return;
+			continue;
 
 		switch (e->GetCode())
 		{
@@ -63,9 +64,31 @@ void App::HandleInput()
 			break;
 		}
 	}
+
+	if (!mWnd.CursorEnabled())
+	{
+		if (mWnd.Keyboard.KeyIsPressed('W'))
+			mCamera.Translate({ 0.0f, 0.0f, dt });
+		if (mWnd.Keyboard.KeyIsPressed('A'))
+			mCamera.Translate({ -dt, 0.0f, 0.0f });
+		if (mWnd.Keyboard.KeyIsPressed('S'))
+			mCamera.Translate({ 0.0f, 0.0f, -dt });
+		if (mWnd.Keyboard.KeyIsPressed('D'))
+			mCamera.Translate({ dt, 0.0f, 0.0f });
+		if (mWnd.Keyboard.KeyIsPressed('E'))
+			mCamera.Translate({ 0.0f, dt, 0.0f });
+		if (mWnd.Keyboard.KeyIsPressed('Q'))
+			mCamera.Translate({ 0.0f, -dt, 0.0f });
+	}
+
+	while (const auto delta = mWnd.Mouse.ReadRawDelta())
+	{
+		if (!mWnd.CursorEnabled())
+			mCamera.Rotate(static_cast<float>(delta->X), static_cast<float>(delta->Y));
+	}
 }
 
-void App::DoFrame()
+void App::DoFrame(float dt)
 {
 	Graphics& gfx = mWnd.Gfx();
 
@@ -89,21 +112,4 @@ void App::DoImGui() noexcept
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
 	mNanoBot.ShowWindow();
-	ShowRawInputWindow();
-}
-
-void App::ShowRawInputWindow()
-{
-	while (const auto d = mWnd.Mouse.ReadRawDelta())
-	{
-		mX += d->X;
-		mY += d->Y;
-	}
-
-	if (ImGui::Begin("Raw Input"))
-	{
-		ImGui::Text("Tally: (%d,%d)", mX, mY);
-		ImGui::Text("Cursor: %s", mWnd.CursorEnabled() ? "Enabled" : "Disabled");
-	}
-	ImGui::End();
 }

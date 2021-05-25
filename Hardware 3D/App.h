@@ -16,15 +16,12 @@ public:
 	int Go();
 
 private:
-	void HandleInput();
-	void DoFrame();
+	void HandleInput(float dt);
+	void DoFrame(float dt);
 
 	void DoImGui() noexcept;
-	void ShowRawInputWindow();
 
 private:
-	int mX = 0;
-	int mY = 0;
 	ImguiManager mImgui;
 	Window mWnd;
 	ChiliTimer mTimer;
