@@ -220,26 +220,44 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	}
 
 	std::vector<std::unique_ptr<Bindable>> bindablePtrs;
+
+	bool hasSpecularMap = false;
+	if (mesh.mMaterialIndex >= 0)
+	{
+		auto& material = *pMaterials[mesh.mMaterialIndex];
+		const wchar_t base[] = L"Models/nano_textured/";
+		aiString texFileName;
+
+		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
+		std::string filename{ texFileName.C_Str() };
+		bindablePtrs.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(base + std::wstring(filename.begin(), filename.end()))));
+
+		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
+		{
+			filename = texFileName.C_Str();
+			bindablePtrs.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(base + std::wstring(filename.begin(), filename.end())), 1u));
+			hasSpecularMap = true;
+		}
+
+		bindablePtrs.push_back(std::make_unique<Sampler>(gfx));
+	}
+
 	std::unique_ptr<VertexBuffer> pVbuf = std::make_unique<VertexBuffer>(gfx, vbuf);
 	std::unique_ptr<VertexShader> pVS = std::make_unique<VertexShader>(gfx, L"PhongVS.cso");
 
 	bindablePtrs.push_back(std::make_unique<InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pVS->GetByteCode()));
 	bindablePtrs.push_back(std::make_unique<IndexBuffer>(gfx, indices));
-	bindablePtrs.push_back(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
-	bindablePtrs.push_back(std::make_unique<PixelConstantBuffer<Drawable::Material>>(gfx, Drawable::Material{}));
+
+	if (hasSpecularMap)
+		bindablePtrs.push_back(std::make_unique<PixelShader>(gfx, L"PhongPSSpecMap.cso"));
+	else
+	{
+		bindablePtrs.push_back(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
+		bindablePtrs.push_back(std::make_unique<PixelConstantBuffer<Drawable::Material>>(gfx, Drawable::Material{}));
+	}
 
 	bindablePtrs.push_back(std::move(pVS));
 	bindablePtrs.push_back(std::move(pVbuf));
-
-	if (mesh.mMaterialIndex >= 0)
-	{
-		auto& material = *pMaterials[mesh.mMaterialIndex];
-		aiString texFileName;
-		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
-		const std::string filename{ texFileName.C_Str() };
-		bindablePtrs.push_back(std::make_unique<Texture>(gfx, Surface::FromFile(L"Models/nano_textured/" + std::wstring(filename.begin(), filename.end()))));
-		bindablePtrs.push_back(std::make_unique<Sampler>(gfx));
-	}
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }

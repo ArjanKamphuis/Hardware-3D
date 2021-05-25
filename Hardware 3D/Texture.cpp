@@ -5,7 +5,8 @@
 
 namespace Bind
 {
-	Texture::Texture(const Graphics& gfx, const Surface& s)
+	Texture::Texture(const Graphics& gfx, const Surface& s, UINT slot)
+		: mSlot(slot)
 	{
 		INFOMAN(gfx);
 
@@ -32,6 +33,6 @@ namespace Bind
 
 	void Texture::Bind(const Graphics& gfx) noexcept
 	{
-		GetDeviceContext(gfx)->PSSetShaderResources(0u, 1u, mTextureView.GetAddressOf());
+		GetDeviceContext(gfx)->PSSetShaderResources(mSlot, 1u, mTextureView.GetAddressOf());
 	}
 }

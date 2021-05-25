@@ -9,10 +9,11 @@ namespace Bind
 	class Texture : public Bindable
 	{
 	public:
-		Texture(const Graphics& gfx, const Surface& s);
+		Texture(const Graphics& gfx, const Surface& s, UINT slot = 0);
 		void Bind(const Graphics& gfx) noexcept override;
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTextureView;
+		UINT mSlot;
 	};
 }

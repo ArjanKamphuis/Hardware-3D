@@ -332,6 +332,9 @@
     <FxCompile Include="PhongVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PhongPSSpecMap.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MaterialBuffer.hlsli">

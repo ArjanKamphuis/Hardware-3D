@@ -17,8 +17,8 @@ public:
 	struct Material
 	{
 		DirectX::XMFLOAT3 Color = { 1.0f, 1.0f, 1.0f };
-		float SpecularIntensity = 0.6f;
-		float SpecularPower = 30.0f;
+		float SpecularIntensity = 0.8f;
+		float SpecularPower = 40.0f;
 		float Padding[3] = {};
 	};
 
