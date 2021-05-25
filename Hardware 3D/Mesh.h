@@ -6,19 +6,15 @@
 
 #include <optional>
 #include "BindableCommon.h"
-#include "DrawableBase.h"
+#include "Drawable.h"
 #include "Vertex.h"
 
-class Mesh : public DrawableBase<Mesh>
+class Mesh : public Drawable
 {
 public:
-	Mesh(const Graphics& gfx, std::vector<std::unique_ptr<Bind::Bindable>> bindPtrs);
-	void Update(float dt) noexcept override;
+	Mesh(const Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs);
 	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept override;
-
-private:
-	void StaticInitialize(const Graphics& gfx) override;
 
 private:
 	mutable DirectX::XMFLOAT4X4 mTransform = {};

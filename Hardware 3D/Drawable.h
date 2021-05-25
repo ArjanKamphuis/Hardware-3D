@@ -10,9 +10,6 @@ namespace Bind
 
 class Drawable
 {
-	template<class T>
-	friend class DrawableBase;
-
 public:
 	struct Material
 	{
@@ -29,8 +26,6 @@ public:
 	virtual ~Drawable() = default;
 
 	void Draw(const Graphics & gfx) const noexcept(!IS_DEBUG);
-
-	virtual void Update(float dt) noexcept = 0;
 	virtual DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept = 0;
 
 protected:
@@ -42,13 +37,9 @@ protected:
 				return pt;
 		return nullptr;
 	}
-	void AddBind(std::unique_ptr<Bind::Bindable> bind) noexcept(!IS_DEBUG);
-	void AddIndexBuffer(std::unique_ptr<Bind::IndexBuffer> buffer) noexcept(!IS_DEBUG);
-
-private:
-	virtual const std::vector<std::unique_ptr<Bind::Bindable>>& GetStaticBinds() const noexcept = 0;
+	void AddBind(std::shared_ptr<Bind::Bindable> bind) noexcept(!IS_DEBUG);
 
 private:
 	const Bind::IndexBuffer* mIndexBuffer = nullptr;
-	std::vector<std::unique_ptr<Bind::Bindable>> mBinds;
+	std::vector<std::shared_ptr<Bind::Bindable>> mBinds;
 };

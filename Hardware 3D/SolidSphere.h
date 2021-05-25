@@ -1,20 +1,14 @@
 #pragma once
 
-#include "DrawableBase.h"
+#include "Drawable.h"
 
-class SolidSphere : public DrawableBase<SolidSphere>
+class SolidSphere : public Drawable
 {
 public:
 	SolidSphere(const Graphics& gfx, float radius);
-
-	void Update(float dt) noexcept override;
 	void SetPosition(const DirectX::XMFLOAT3& position) noexcept;
 	void SetMaterial(const Graphics& gfx, const Material& material) noexcept;
-
 	DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept override;
-
-private:
-	void StaticInitialize(const Graphics& gfx) override;
 
 private:
 	float mRadius;
