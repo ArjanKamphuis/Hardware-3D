@@ -226,7 +226,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	bindablePtrs.push_back(std::make_unique<InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pVS->GetByteCode()));
 	bindablePtrs.push_back(std::make_unique<IndexBuffer>(gfx, indices));
 	bindablePtrs.push_back(std::make_unique<PixelShader>(gfx, L"PhongPS.cso"));
-	bindablePtrs.push_back(std::make_unique<PixelConstantBuffer<Drawable::Material>>(gfx, Drawable::Material{ { 0.6f, 0.6f, 0.8f } }));
+	bindablePtrs.push_back(std::make_unique<PixelConstantBuffer<Drawable::Material>>(gfx, Drawable::Material{}));
 
 	bindablePtrs.push_back(std::move(pVS));
 	bindablePtrs.push_back(std::move(pVbuf));

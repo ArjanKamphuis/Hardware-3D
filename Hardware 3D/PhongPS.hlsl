@@ -12,7 +12,10 @@ cbuffer LigthCBuf : register(b1)
 	float gAttQuad;
 };
 
-float4 main(float3 posW : POSITION, float3 normal : NORMAL) : SV_TARGET
+Texture2D gTexture;
+SamplerState gSampler;
+
+float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOORD) : SV_TARGET
 {
 	const float3 vToL = gLightPosition - posW;
 	const float distToL = length(vToL);
@@ -24,5 +27,5 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL) : SV_TARGET
 	const float rdotl = dot(normalize(reflect(-vToL, normal)), normalize(gCameraPosition - posW));
 	const float3 specular = att * (gDiffuseColor * gDiffuseIntensity) * gSpecularIntensity * pow(max(rdotl, 0.0f), gSpecularPower);
 
-	return float4(saturate((diffuse + specular + gAmbientColor) * gMaterialColor), 1.0f);
+	return float4(saturate(diffuse + specular + gAmbientColor), 1.0f) * gTexture.Sample(gSampler, texC);
 }
