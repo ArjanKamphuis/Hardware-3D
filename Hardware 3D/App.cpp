@@ -6,9 +6,6 @@ GDIPlusManager gdipm;
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	auto a = Bind::VertexShader::Resolve(mWnd.Gfx(), L"PhongVS.cso");
-	auto b = Bind::Sampler::Resolve(mWnd.Gfx());
-	auto c = Bind::Sampler::Resolve(mWnd.Gfx());
 }
 
 App::~App()

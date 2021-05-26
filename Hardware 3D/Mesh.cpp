@@ -9,7 +9,7 @@ using namespace DirectX;
 
 Mesh::Mesh(const Graphics& gfx, std::vector<std::shared_ptr<Bindable>> bindPtrs)
 {
-	AddBind(std::make_shared<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 
 	for (auto& pb : bindPtrs)
 		AddBind(std::move(pb));
@@ -177,6 +177,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	using Dvtx::VertexLayout;
 	using ElementType = VertexLayout::ElementType;
 
+	const wchar_t base[] = L"Models/nano_textured/";
+
 	Dvtx::VertexBuffer vbuf(std::move(
 		VertexLayout{}
 		.Append(ElementType::Position3D)
@@ -208,41 +210,40 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	if (mesh.mMaterialIndex >= 0)
 	{
 		auto& material = *pMaterials[mesh.mMaterialIndex];
-		const wchar_t base[] = L"Models/nano_textured/";
 		aiString texFileName;
 
 		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
 		std::string filename{ texFileName.C_Str() };
-		bindablePtrs.push_back(std::make_shared<Texture>(gfx, base + std::wstring(filename.begin(), filename.end())));
+		bindablePtrs.push_back(Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end())));
 
 		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
 			filename = texFileName.C_Str();
-			bindablePtrs.push_back(std::make_shared<Texture>(gfx, base + std::wstring(filename.begin(), filename.end()), 1u));
+			bindablePtrs.push_back(Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end()), 1u));
 			hasSpecularMap = true;
 		}
 		else
 			material.Get(AI_MATKEY_SHININESS, materialConstant.SpecularPower);
 
-		bindablePtrs.push_back(std::make_shared<Sampler>(gfx));
+		bindablePtrs.push_back(Sampler::Resolve(gfx));
 	}
 
-	std::shared_ptr<VertexBuffer> pVbuf = std::make_shared<VertexBuffer>(gfx, vbuf);
-	std::shared_ptr<VertexShader> pVS = std::make_shared<VertexShader>(gfx, L"PhongVS.cso");
+	const std::string meshName{ mesh.mName.C_Str() };
+	const std::wstring meshTag = std::wstring{ base } + L"%" + std::wstring{ meshName.begin(), meshName.end() };
+	bindablePtrs.push_back(VertexBuffer::Resolve(gfx, meshTag, vbuf));
+	bindablePtrs.push_back(IndexBuffer::Resolve(gfx, meshTag, indices));
 
-	bindablePtrs.push_back(std::make_shared<InputLayout>(gfx, vbuf.GetLayout(), pVS->GetByteCode()));
-	bindablePtrs.push_back(std::make_shared<IndexBuffer>(gfx, indices));
+	std::shared_ptr<Bindable> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+	bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), static_cast<VertexShader&>(*pVS).GetByteCode()));
+	bindablePtrs.push_back(std::move(pVS));
 
 	if (hasSpecularMap)
-		bindablePtrs.push_back(std::make_shared<PixelShader>(gfx, L"PhongPSSpecMap.cso"));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSSpecMap.cso"));
 	else
 	{
-		bindablePtrs.push_back(std::make_shared<PixelShader>(gfx, L"PhongPS.cso"));
-		bindablePtrs.push_back(std::make_shared<PixelConstantBuffer<Drawable::Material>>(gfx, materialConstant));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPS.cso"));
+		bindablePtrs.push_back(PixelConstantBuffer<Drawable::Material>::Resolve(gfx, materialConstant));
 	}
-
-	bindablePtrs.push_back(std::move(pVS));
-	bindablePtrs.push_back(std::move(pVbuf));
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }

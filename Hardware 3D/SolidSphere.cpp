@@ -12,17 +12,19 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	IndexedTriangleList model = Sphere::Make();
 	model.Transform(XMMatrixScaling(mRadius, mRadius, mRadius));
 
-	AddBind(std::make_shared<PixelShader>(gfx, L"SolidPS.cso"));
-	AddBind(std::make_shared<VertexBuffer>(gfx, model.Vertices));
-	AddBind(std::make_shared<IndexBuffer>(gfx, model.Indices));
-	AddBind(std::make_shared<Topology>(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	const std::wstring geoTag = L"$sphere." + std::to_wstring(mRadius);
+	AddBind(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
+	AddBind(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
 
-	std::shared_ptr<VertexShader> pVS = std::make_shared<VertexShader>(gfx, L"SolidVS.cso");
-	AddBind(std::make_shared<InputLayout>(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
+	AddBind(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
+
+	std::shared_ptr<Bindable> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), static_cast<VertexShader&>(*pVS).GetByteCode()));
 	AddBind(std::move(pVS));
 
-	AddBind(std::make_unique<TransformCBuf>(gfx, *this));
-	AddBind(std::make_unique<PixelConstantBuffer<Material>>(gfx, mMaterial));
+	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
 }
 
 void SolidSphere::SetPosition(const DirectX::XMFLOAT3& position) noexcept

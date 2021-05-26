@@ -10,8 +10,8 @@ namespace Bind
 		Texture(const Graphics& gfx, const std::wstring& path, UINT slot = 0);
 		void Bind(const Graphics& gfx) noexcept override;
 
-		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, const std::wstring& path, UINT slot);
-		static std::wstring GenerateUID(const std::wstring& path, UINT slot);
+		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, const std::wstring& path, UINT slot = 0);
+		static std::wstring GenerateUID(const std::wstring& path, UINT slot = 0);
 		std::wstring GetUID() const noexcept override;
 
 	private:

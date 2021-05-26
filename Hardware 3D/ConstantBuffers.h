@@ -72,18 +72,26 @@ namespace Bind
 			GetDeviceContext(gfx)->VSSetConstantBuffers(mSlot, 1u, mBuffer.GetAddressOf());
 		}
 
-		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx)
+		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, const C& consts, UINT slot = 0)
 		{
-			return Codex::Resolve<VertexConstantBuffer>(gfx);
+			return Codex::Resolve<VertexConstantBuffer>(gfx, consts, slot);
 		}
-		static std::wstring GenerateUID()
+		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, UINT slot = 0)
+		{
+			return Codex::Resolve<VertexConstantBuffer>(gfx, slot);
+		}
+		static std::wstring GenerateUID(const C&, UINT slot)
+		{
+			return GenerateUID(slot);
+		}
+		static std::wstring GenerateUID(UINT slot = 0)
 		{
 			const std::string name{ typeid(VertexConstantBuffer).name() };
-			return std::wstring{ name.begin(), name.end() };
+			return std::wstring{ name.begin(), name.end() } + L"#s" + std::to_wstring(slot);
 		}
 		std::wstring GetUID() const noexcept override
 		{
-			return GenerateUID();
+			return GenerateUID(mSlot);
 		}
 	};
 
@@ -100,18 +108,26 @@ namespace Bind
 			GetDeviceContext(gfx)->PSSetConstantBuffers(mSlot, 1u, mBuffer.GetAddressOf());
 		}
 
-		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx)
+		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, const C& consts, UINT slot = 0)
 		{
-			return Codex::Resolve<PixelConstantBuffer>(gfx);
+			return Codex::Resolve<PixelConstantBuffer>(gfx, consts, slot);
 		}
-		static std::wstring GenerateUID()
+		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, UINT slot = 0)
+		{
+			return Codex::Resolve<PixelConstantBuffer>(gfx, slot);
+		}
+		static std::wstring GenerateUID(const C&, UINT slot)
+		{
+			return GenerateUID(slot);
+		}
+		static std::wstring GenerateUID(UINT slot = 0)
 		{
 			const std::string name{ typeid(PixelConstantBuffer).name() };
-			return std::wstring{ name.begin(), name.end() };
+			return std::wstring{ name.begin(), name.end() } + L"#" + std::to_wstring(slot);
 		}
 		std::wstring GetUID() const noexcept override
 		{
-			return GenerateUID();
+			return GenerateUID(mSlot);
 		}
 	};
 }
