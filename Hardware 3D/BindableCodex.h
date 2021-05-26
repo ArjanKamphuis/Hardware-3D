@@ -11,6 +11,7 @@ namespace Bind
 		template<class T, typename ...Params>
 		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, Params&&... p) noexcept(!IS_DEBUG)
 		{
+			static_assert(std::is_base_of<Bindable, T>::value, "Can only resolve classes derived from Bindable");
 			return Get().Resolve_<T>(gfx, std::forward<Params>(p)...);
 		}
 

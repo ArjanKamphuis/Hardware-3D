@@ -213,12 +213,12 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName);
 		std::string filename{ texFileName.C_Str() };
-		bindablePtrs.push_back(std::make_shared<Texture>(gfx, Surface::FromFile(base + std::wstring(filename.begin(), filename.end()))));
+		bindablePtrs.push_back(std::make_shared<Texture>(gfx, base + std::wstring(filename.begin(), filename.end())));
 
 		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
 			filename = texFileName.C_Str();
-			bindablePtrs.push_back(std::make_shared<Texture>(gfx, Surface::FromFile(base + std::wstring(filename.begin(), filename.end())), 1u));
+			bindablePtrs.push_back(std::make_shared<Texture>(gfx, base + std::wstring(filename.begin(), filename.end()), 1u));
 			hasSpecularMap = true;
 		}
 		else
@@ -230,7 +230,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	std::shared_ptr<VertexBuffer> pVbuf = std::make_shared<VertexBuffer>(gfx, vbuf);
 	std::shared_ptr<VertexShader> pVS = std::make_shared<VertexShader>(gfx, L"PhongVS.cso");
 
-	bindablePtrs.push_back(std::make_shared<InputLayout>(gfx, vbuf.GetLayout().GetD3DLayout(), pVS->GetByteCode()));
+	bindablePtrs.push_back(std::make_shared<InputLayout>(gfx, vbuf.GetLayout(), pVS->GetByteCode()));
 	bindablePtrs.push_back(std::make_shared<IndexBuffer>(gfx, indices));
 
 	if (hasSpecularMap)

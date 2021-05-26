@@ -9,25 +9,23 @@ namespace Bind
 	class VertexBuffer : public Bindable
 	{
 	public:
-		template <class V>
-		VertexBuffer(const Graphics& gfx, const std::vector<V>& vertices)
-			: mStride(sizeof(V))
-		{
-			INFOMAN(gfx);
-
-			D3D11_BUFFER_DESC vbd = {};
-			vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-			vbd.ByteWidth = static_cast<UINT>(vertices.size() * sizeof(V));
-			vbd.Usage = D3D11_USAGE_IMMUTABLE;
-			D3D11_SUBRESOURCE_DATA vInitData = {};
-			vInitData.pSysMem = vertices.data();
-			GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&vbd, &vInitData, &mBuffer));
-		}
-
 		VertexBuffer(const Graphics& gfx, const Dvtx::VertexBuffer& vbuf);
+		VertexBuffer(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf);
 		void Bind(const Graphics& gfx) noexcept override;
 
+		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf);
+		template<typename ...Ignore>
+		static std::wstring GenerateUID(const std::wstring& tag, Ignore&& ...ignore)
+		{
+			return GenerateUID_(tag);
+		}
+		std::wstring GetUID() const noexcept override;
+
 	private:
+		static std::wstring GenerateUID_(const std::wstring& tag);
+
+	private:
+		std::wstring mTag;
 		UINT mStride;
 		UINT mOffset = 0u;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;

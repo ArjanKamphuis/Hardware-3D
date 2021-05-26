@@ -11,7 +11,7 @@ void Drawable::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
 	for (auto& b : mBinds)
 		b->Bind(gfx);
-	gfx.DrawIndexed(mIndexBuffer->GetSize());
+	gfx.DrawIndexed(mIndexBuffer->GetCount());
 }
 
 void Drawable::AddBind(std::shared_ptr<Bindable> bind) noexcept(!IS_DEBUG)

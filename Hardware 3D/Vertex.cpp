@@ -43,6 +43,23 @@ namespace Dvtx
 		}
 	}
 
+	const wchar_t* VertexLayout::Element::GetCode() const noexcept
+	{
+		switch (mType)
+		{
+		case ElementType::Position2D: return Map<ElementType::Position2D>::Code;
+		case ElementType::Position3D: return Map<ElementType::Position3D>::Code;
+		case ElementType::Texture2D: return Map<ElementType::Texture2D>::Code;
+		case ElementType::Normal: return Map<ElementType::Normal>::Code;
+		case ElementType::Float3Color: return Map<ElementType::Float3Color>::Code;
+		case ElementType::Float4Color: return Map<ElementType::Float4Color>::Code;
+		case ElementType::BGRAColor: return Map<ElementType::BGRAColor>::Code;
+		}
+
+		assert("Invalid element type" && false);
+		return L"Invalid";
+	}
+
 	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noexcept(!IS_DEBUG)
 	{
 		switch (type)
@@ -88,6 +105,14 @@ namespace Dvtx
 		for (const auto& e : mElements)
 			ied.push_back(e.GetDesc());
 		return ied;
+	}
+
+	std::wstring VertexLayout::GetCode() const noexcept(!IS_DEBUG)
+	{
+		std::wstring code;
+		for (const Element& e : mElements)
+			code += e.GetCode();
+		return code;
 	}
 
 	Vertex::Vertex(char* pData, const VertexLayout& layout) noexcept(!IS_DEBUG)

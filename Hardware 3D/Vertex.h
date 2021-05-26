@@ -16,42 +16,49 @@ namespace Dvtx
 			using SysType = DirectX::XMFLOAT2;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* Semantic = "POSITION";
+			static constexpr const wchar_t* Code = L"P2";
 		};
 		template<> struct Map<ElementType::Position3D>
 		{
 			using SysType = DirectX::XMFLOAT3;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* Semantic = "POSITION";
+			static constexpr const wchar_t* Code = L"P3";
 		};
 		template<> struct Map<ElementType::Texture2D>
 		{
 			using SysType = DirectX::XMFLOAT2;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* Semantic = "TEXCOORD";
+			static constexpr const wchar_t* Code = L"T2";
 		};
 		template<> struct Map<ElementType::Normal>
 		{
 			using SysType = DirectX::XMFLOAT3;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* Semantic = "NORMAL";
+			static constexpr const wchar_t* Code = L"N";
 		};
 		template<> struct Map<ElementType::Float3Color>
 		{
 			using SysType = DirectX::XMFLOAT3;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* Semantic = "COLOR";
+			static constexpr const wchar_t* Code = L"C3";
 		};
 		template<> struct Map<ElementType::Float4Color>
 		{
 			using SysType = DirectX::XMFLOAT4;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			static constexpr const char* Semantic = "COLOR";
+			static constexpr const wchar_t* Code = L"C4";
 		};
 		template<> struct Map<ElementType::BGRAColor>
 		{
 			using SysType = DirectX::PackedVector::XMCOLOR;
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 			static constexpr const char* Semantic = "COLOR";
+			static constexpr const wchar_t* Code = L"C8";
 		};
 
 		class Element
@@ -64,12 +71,13 @@ namespace Dvtx
 			size_t Size() const noexcept(!IS_DEBUG);
 			ElementType GetType() const noexcept;
 			D3D11_INPUT_ELEMENT_DESC GetDesc() const noexcept(!IS_DEBUG);
+			const wchar_t* GetCode() const noexcept;
 
 			static constexpr size_t SizeOf(ElementType type) noexcept(!IS_DEBUG);
 
 		private:
 			template<ElementType Type>
-			static constexpr D3D11_INPUT_ELEMENT_DESC GenerateDesc(size_t offset) noexcept(!IS_DEBUG)
+			static constexpr D3D11_INPUT_ELEMENT_DESC GenerateDesc(size_t offset) noexcept
 			{
 				return { Map<Type>::Semantic, 0u, Map<Type>::DXGIFormat, 0u, static_cast<UINT>(offset), D3D11_INPUT_PER_VERTEX_DATA, 0u };
 			}
@@ -97,6 +105,7 @@ namespace Dvtx
 		size_t Size() const noexcept(!IS_DEBUG);
 		size_t GetElementCount() const noexcept;
 		std::vector<D3D11_INPUT_ELEMENT_DESC> GetD3DLayout() const noexcept(!IS_DEBUG);
+		std::wstring GetCode() const noexcept(!IS_DEBUG);
 
 	private:
 		std::vector<Element> mElements;
