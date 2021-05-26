@@ -29,5 +29,6 @@ private:
 	PointLight mLight;
 
 	Model mNanoBot{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
+	Model mNanoBot2{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
 };
 

@@ -98,6 +98,7 @@ void App::DoFrame(float dt)
 	mLight.Bind(gfx);
 
 	mNanoBot.Draw(gfx);
+	mNanoBot2.Draw(gfx);
 	mLight.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
@@ -110,5 +111,6 @@ void App::DoImGui() noexcept
 {
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
-	mNanoBot.ShowWindow();
+	mNanoBot.ShowWindow("Model 1");
+	mNanoBot2.ShowWindow("Model 2");
 }
