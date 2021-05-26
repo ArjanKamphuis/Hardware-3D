@@ -27,9 +27,9 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
 }
 
-void SolidSphere::SetPosition(const DirectX::XMFLOAT3& position) noexcept
+void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept
 {
-	mPosition = position;
+	XMStoreFloat3(&mPosition, position);
 }
 
 void SolidSphere::SetMaterial(const Graphics& gfx, const Drawable::Material& material) noexcept
@@ -41,7 +41,7 @@ void SolidSphere::SetMaterial(const Graphics& gfx, const Drawable::Material& mat
 	pMaterialBuf->Update(gfx, mMaterial);
 }
 
-XMMATRIX SolidSphere::GetTransformMatrix() const noexcept
+XMMATRIX XM_CALLCONV SolidSphere::GetTransformMatrix() const noexcept
 {
 	return XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
 }
