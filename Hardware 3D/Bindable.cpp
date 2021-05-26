@@ -4,6 +4,11 @@
 
 namespace Bind
 {
+    std::wstring Bindable::GetUID() const noexcept
+    {
+        assert(false);
+        return L"";
+    }
     ID3D11Device* Bindable::GetDevice(const Graphics& gfx) noexcept
     {
         return gfx.mDevice.Get();

@@ -9,6 +9,7 @@ namespace Bind
 	public:
 		virtual ~Bindable() = default;
 		virtual void Bind(const Graphics& gfx) noexcept = 0;
+		virtual std::wstring GetUID() const noexcept;
 
 	protected:
 		static ID3D11Device* GetDevice(const Graphics& gfx) noexcept;
