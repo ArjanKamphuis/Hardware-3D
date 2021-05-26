@@ -177,9 +177,6 @@
     <ClCompile Include="Sphere.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="BindableCodex.cpp">
-      <Filter>Source Files\Bindable</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsMessageMap.h">

@@ -103,7 +103,6 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Bindable.cpp" />
-    <ClCompile Include="BindableCodex.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChiliException.cpp" />
     <ClCompile Include="ChiliTimer.cpp" />

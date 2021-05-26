@@ -25,13 +25,7 @@ namespace Bind
 	}
 	std::shared_ptr<Bindable> VertexShader::Resolve(const Graphics& gfx, const std::wstring& path)
 	{
-		std::shared_ptr<Bindable> bind = Codex::Resolve(GenerateUID(path));
-		if (!bind)
-		{
-			bind = std::make_shared<VertexShader>(gfx, path);
-			Codex::Store(bind);
-		}
-		return bind;
+		return Codex::Resolve<VertexShader>(gfx, path);
 	}
 
 	std::wstring VertexShader::GenerateUID(const std::wstring& path)
