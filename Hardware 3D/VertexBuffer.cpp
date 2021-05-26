@@ -30,6 +30,7 @@ namespace Bind
 
 	std::shared_ptr<VertexBuffer> VertexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf)
 	{
+		assert(tag != L"?");
 		return Codex::Resolve<VertexBuffer>(gfx, tag, vbuf);
 	}
 	std::wstring VertexBuffer::GetUID() const noexcept

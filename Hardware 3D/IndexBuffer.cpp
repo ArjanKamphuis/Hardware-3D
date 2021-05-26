@@ -36,6 +36,7 @@ namespace Bind
 
 	std::shared_ptr<IndexBuffer> IndexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const std::vector<USHORT>& indices)
 	{
+		assert(tag != L"?");
 		return Codex::Resolve<IndexBuffer>(gfx, tag, indices);
 	}
 
