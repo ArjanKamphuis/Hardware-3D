@@ -38,7 +38,7 @@ namespace Bind
 		GetDeviceContext(gfx)->PSSetShaderResources(mSlot, 1u, mTextureView.GetAddressOf());
 	}
 
-	std::shared_ptr<Bindable> Texture::Resolve(const Graphics& gfx, const std::wstring& path, UINT slot)
+	std::shared_ptr<Texture> Texture::Resolve(const Graphics& gfx, const std::wstring& path, UINT slot)
 	{
 		return Codex::Resolve<Texture>(gfx, path, slot);
 	}

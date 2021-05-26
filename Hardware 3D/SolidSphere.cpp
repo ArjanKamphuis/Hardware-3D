@@ -20,8 +20,8 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
 
-	std::shared_ptr<Bindable> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
-	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), static_cast<VertexShader&>(*pVS).GetByteCode()));
+	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 	AddBind(std::move(pVS));
 
 	AddBind(std::make_shared<TransformCBuf>(gfx, *this));

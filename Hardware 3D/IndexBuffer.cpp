@@ -34,7 +34,7 @@ namespace Bind
 		return mCount;
 	}
 
-	std::shared_ptr<Bindable> IndexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const std::vector<USHORT>& indices)
+	std::shared_ptr<IndexBuffer> IndexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const std::vector<USHORT>& indices)
 	{
 		return Codex::Resolve<IndexBuffer>(gfx, tag, indices);
 	}

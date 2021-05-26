@@ -10,7 +10,7 @@ namespace Bind
 		PixelShader(const Graphics& gfx, const std::wstring& path);
 		void Bind(const Graphics& gfx) noexcept override;
 
-		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, const std::wstring& path);
+		static std::shared_ptr<PixelShader> Resolve(const Graphics& gfx, const std::wstring& path);
 		static std::wstring GenerateUID(const std::wstring& path);
 		std::wstring GetUID() const noexcept override;
 

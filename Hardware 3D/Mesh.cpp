@@ -233,8 +233,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	bindablePtrs.push_back(VertexBuffer::Resolve(gfx, meshTag, vbuf));
 	bindablePtrs.push_back(IndexBuffer::Resolve(gfx, meshTag, indices));
 
-	std::shared_ptr<Bindable> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
-	bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), static_cast<VertexShader&>(*pVS).GetByteCode()));
+	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+	bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), pVS->GetByteCode()));
 	bindablePtrs.push_back(std::move(pVS));
 
 	if (hasSpecularMap)

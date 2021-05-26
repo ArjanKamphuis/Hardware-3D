@@ -9,7 +9,7 @@ namespace Bind
 	{
 	public:
 		template<class T, typename ...Params>
-		static std::shared_ptr<Bindable> Resolve(const Graphics& gfx, Params&&... p) noexcept(!IS_DEBUG)
+		static std::shared_ptr<T> Resolve(const Graphics& gfx, Params&&... p) noexcept(!IS_DEBUG)
 		{
 			static_assert(std::is_base_of<Bindable, T>::value, "Can only resolve classes derived from Bindable");
 			return Get().Resolve_<T>(gfx, std::forward<Params>(p)...);
@@ -17,7 +17,7 @@ namespace Bind
 
 	private:
 		template<class T, typename ...Params>
-		std::shared_ptr<Bindable> Resolve_(const Graphics& gfx, Params&&... p) noexcept(!IS_DEBUG)
+		std::shared_ptr<T> Resolve_(const Graphics& gfx, Params&&... p) noexcept(!IS_DEBUG)
 		{
 			const std::wstring key = T::GenerateUID(std::forward<Params>(p)...);
 			const auto it = mBinds.find(key);
@@ -27,7 +27,7 @@ namespace Bind
 				mBinds[key] = bind;
 				return bind;
 			}
-			return it->second;
+			return std::static_pointer_cast<T>(it->second);
 		}
 		static Codex& Get()
 		{

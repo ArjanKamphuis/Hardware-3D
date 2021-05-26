@@ -23,7 +23,7 @@ namespace Bind
 	{
 		return mByteCode.Get();
 	}
-	std::shared_ptr<Bindable> VertexShader::Resolve(const Graphics& gfx, const std::wstring& path)
+	std::shared_ptr<VertexShader> VertexShader::Resolve(const Graphics& gfx, const std::wstring& path)
 	{
 		return Codex::Resolve<VertexShader>(gfx, path);
 	}

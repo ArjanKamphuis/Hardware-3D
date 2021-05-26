@@ -19,7 +19,7 @@ namespace Bind
 	{
 		GetDeviceContext(gfx)->PSSetShader(mShader.Get(), nullptr, 0u);
 	}
-	std::shared_ptr<Bindable> PixelShader::Resolve(const Graphics& gfx, const std::wstring& path)
+	std::shared_ptr<PixelShader> PixelShader::Resolve(const Graphics& gfx, const std::wstring& path)
 	{
 		return Codex::Resolve<PixelShader>(gfx, path);
 	}

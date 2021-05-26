@@ -20,7 +20,7 @@ namespace Bind
 		GetDeviceContext(gfx)->PSSetSamplers(0u, 1u, mSampler.GetAddressOf());
 	}
 
-	std::shared_ptr<Bindable> Sampler::Resolve(const Graphics& gfx)
+	std::shared_ptr<Sampler> Sampler::Resolve(const Graphics& gfx)
 	{
 		return Codex::Resolve<Sampler>(gfx);
 	}

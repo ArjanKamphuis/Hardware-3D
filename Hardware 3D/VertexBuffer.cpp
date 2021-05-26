@@ -28,7 +28,7 @@ namespace Bind
 		GetDeviceContext(gfx)->IASetVertexBuffers(0u, 1u, mBuffer.GetAddressOf(), &mStride, &mOffset);
 	}
 
-	std::shared_ptr<Bindable> VertexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf)
+	std::shared_ptr<VertexBuffer> VertexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf)
 	{
 		return Codex::Resolve<VertexBuffer>(gfx, tag, vbuf);
 	}
