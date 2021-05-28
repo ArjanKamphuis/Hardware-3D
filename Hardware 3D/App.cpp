@@ -5,7 +5,9 @@ GDIPlusManager gdipm;
 
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
+	, mPlane(mWnd.Gfx(), 3.0f)
 {
+	mPlane.SetPosition({ 1.0f, 17.0f, -1.0f });
 }
 
 App::~App()
@@ -100,6 +102,7 @@ void App::DoFrame(float dt)
 	mNanoBot.Draw(gfx);
 	mNanoBot2.Draw(gfx);
 	mLight.Draw(gfx);
+	mPlane.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
 		DoImGui();

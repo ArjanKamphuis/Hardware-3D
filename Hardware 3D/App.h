@@ -5,6 +5,7 @@
 #include "ImguiManager.h"
 #include "Mesh.h"
 #include "PointLight.h"
+#include "TestPlane.h"
 #include "Window.h"
 
 class App
@@ -30,5 +31,5 @@ private:
 
 	Model mNanoBot{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
 	Model mNanoBot2{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
+	TestPlane mPlane;
 };
-
