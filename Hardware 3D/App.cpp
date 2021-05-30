@@ -116,4 +116,5 @@ void App::DoImGui() noexcept
 	mLight.SpawnControlWindow();
 	mNanoBot.ShowWindow("Model 1");
 	mNanoBot2.ShowWindow("Model 2");
+	mPlane.SpawnControlWindow(mWnd.Gfx());
 }

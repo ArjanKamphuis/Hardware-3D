@@ -35,10 +35,7 @@ void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept
 void XM_CALLCONV SolidSphere::SetColor(const Graphics& gfx, FXMVECTOR color) noexcept
 {
 	XMStoreFloat3(&mMaterial.Color, color);
-
-	auto pMaterialBuf = QueryBindable<PixelConstantBuffer<Material>>();
-	assert(pMaterialBuf != nullptr);
-	pMaterialBuf->Update(gfx, mMaterial);
+	QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);
 }
 
 XMMATRIX XM_CALLCONV SolidSphere::GetTransformMatrix() const noexcept
