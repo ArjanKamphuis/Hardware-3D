@@ -11,15 +11,6 @@ namespace Bind
 class Drawable
 {
 public:
-	struct Material
-	{
-		DirectX::XMFLOAT3 Color = { 1.0f, 1.0f, 1.0f };
-		float SpecularIntensity = 0.8f;
-		float SpecularPower = 35.0f;
-		float Padding[3] = {};
-	};
-
-public:
 	Drawable() = default;
 	Drawable(const Drawable&) = delete;
 	Drawable& operator=(const Drawable&) = delete;

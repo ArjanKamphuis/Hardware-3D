@@ -1,4 +1,8 @@
-#include "MaterialBuffer.hlsli"
+cbuffer ObjectBuffer : register(b0)
+{
+	float3 gMaterialColor;
+	float gObjectPad;
+}
 
 float4 main() : SV_TARGET
 {

@@ -17,7 +17,7 @@ TestPlane::TestPlane(const Graphics& gfx, float size)
 
 	AddBind(PixelShader::Resolve(gfx, L"PhongPS.cso"));
 	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, Drawable::Material{ { 1.0f, 1.0f, 1.0f }, 0.1f, 20.0f }));
+	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, Material{}));
 
 	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
 	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));

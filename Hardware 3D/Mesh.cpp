@@ -206,7 +206,13 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	std::vector<std::shared_ptr<Bindable>> bindablePtrs;
 
 	bool hasSpecularMap = false;
-	Drawable::Material materialConstant;
+	struct Material
+	{
+		float SpecularIntensity = 0.8f;
+		float SpecularPower = 35.0f;
+		float Padding[2] = {};
+	} materialConstant;
+
 	if (mesh.mMaterialIndex >= 0)
 	{
 		auto& material = *pMaterials[mesh.mMaterialIndex];
@@ -242,7 +248,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	else
 	{
 		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPS.cso"));
-		bindablePtrs.push_back(PixelConstantBuffer<Drawable::Material>::Resolve(gfx, materialConstant));
+		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));

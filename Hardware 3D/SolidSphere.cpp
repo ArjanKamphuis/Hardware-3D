@@ -32,9 +32,9 @@ void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept
 	XMStoreFloat3(&mPosition, position);
 }
 
-void SolidSphere::SetMaterial(const Graphics& gfx, const Drawable::Material& material) noexcept
+void XM_CALLCONV SolidSphere::SetColor(const Graphics& gfx, FXMVECTOR color) noexcept
 {
-	mMaterial = material;
+	XMStoreFloat3(&mMaterial.Color, color);
 
 	auto pMaterialBuf = QueryBindable<PixelConstantBuffer<Material>>();
 	assert(pMaterialBuf != nullptr);

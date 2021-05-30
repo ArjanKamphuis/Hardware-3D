@@ -49,7 +49,7 @@ void PointLight::Reset() noexcept
 void PointLight::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
 	mMesh.SetPosition(XMLoadFloat3(&mBufferData.LightPosition));
-	mMesh.SetMaterial(gfx, Drawable::Material{ mBufferData.DiffuseColor });
+	mMesh.SetColor(gfx, XMLoadFloat3(&mBufferData.DiffuseColor));
 	mMesh.Draw(gfx);
 }
 

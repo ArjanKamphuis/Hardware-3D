@@ -228,7 +228,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MaterialBuffer.hlsli" />
     <None Include="TransformBuffer.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

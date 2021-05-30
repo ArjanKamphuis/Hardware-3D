@@ -4,6 +4,14 @@
 
 class TestPlane : public Drawable
 {
+private:
+	struct Material
+	{
+		float SpecularIntensity = 0.1f;
+		float SpecularPower = 20.0f;
+		float Padding[2] = {};
+	};
+
 public:
 	TestPlane(const Graphics& gfx, float size);
 	void XM_CALLCONV SetPosition(DirectX::FXMVECTOR position) noexcept;
