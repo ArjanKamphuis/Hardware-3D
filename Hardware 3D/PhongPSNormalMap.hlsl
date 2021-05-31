@@ -25,7 +25,12 @@ SamplerState gSampler;
 float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOORD) : SV_TARGET
 {
 	if (gNormalMapEnabled)
-		normal = -gNormalMap.Sample(gSampler, texC).rgb;
+	{	
+		const float4 normalSample = gNormalMap.Sample(gSampler, texC);
+		normal.x = normalSample.x * 2.0f - 1.0f;
+		normal.y = -normalSample.y * 2.0f + 1.0f;
+		normal.z = -normalSample.z;
+	}
 	
 	const float3 vToL = gLightPosition - posW;
 	const float distToL = length(vToL);
