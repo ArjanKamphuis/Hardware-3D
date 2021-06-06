@@ -7,7 +7,7 @@ namespace Bind
 {
 	class TransformCBuf : public Bindable
 	{
-	private:
+	protected:
 		struct Transforms
 		{
 			DirectX::XMMATRIX World;
@@ -17,6 +17,10 @@ namespace Bind
 	public:
 		TransformCBuf(const Graphics& gfx, const Drawable& parent, UINT slot = 0u);
 		void Bind(const Graphics& gfx) noexcept override;
+
+	protected:
+		void UpdateBindImpl(const Graphics& gfx, const Transforms& tf) noexcept;
+		Transforms GetTransforms(const Graphics& gfx) noexcept;
 
 	private:
 		static std::unique_ptr<VertexConstantBuffer<Transforms>> mVCBuffer;

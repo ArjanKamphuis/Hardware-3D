@@ -15,10 +15,18 @@ namespace Bind
 
 	void TransformCBuf::Bind(const Graphics& gfx) noexcept
 	{
-		const XMMATRIX model = mParent.GetTransformMatrix();
-		const Transforms tf = { XMMatrixTranspose(model), XMMatrixTranspose(model * gfx.GetCamera() * gfx.GetProjection()) };
+		UpdateBindImpl(gfx, GetTransforms(gfx));
+	}
 
+	void TransformCBuf::UpdateBindImpl(const Graphics& gfx, const Transforms& tf) noexcept
+	{
 		mVCBuffer->Update(gfx, tf);
 		mVCBuffer->Bind(gfx);
+	}
+
+	TransformCBuf::Transforms TransformCBuf::GetTransforms(const Graphics& gfx) noexcept
+	{
+		const XMMATRIX model = mParent.GetTransformMatrix();
+		return { XMMatrixTranspose(model), XMMatrixTranspose(model * gfx.GetCamera() * gfx.GetProjection()) };
 	}
 }
