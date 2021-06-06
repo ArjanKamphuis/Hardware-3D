@@ -18,6 +18,12 @@ cbuffer LightCBuf : register(b1)
 	float gAttQuad;
 };
 
+cbuffer TransformBuffer : register(b2)
+{
+	matrix gWorld;
+	matrix gWVP;
+};
+
 Texture2D gTexture;
 Texture2D gNormalMap;
 SamplerState gSampler;
@@ -30,6 +36,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 		normal.x = normalSample.x * 2.0f - 1.0f;
 		normal.y = -normalSample.y * 2.0f + 1.0f;
 		normal.z = -normalSample.z;
+		normal = mul(normal, (float3x3)gWorld);
 	}
 	
 	const float3 vToL = gLightPosition - posW;

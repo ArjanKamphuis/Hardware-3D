@@ -15,10 +15,10 @@ namespace Bind
 	{
 		const auto tf = GetTransforms(gfx);
 		TransformCBuf::UpdateBindImpl(gfx, tf);
-		UpdateBindImp(gfx, tf);
+		UpdateBindImpl(gfx, tf);
 	}
 
-	void TransformCBufDouble::UpdateBindImp(const Graphics& gfx, const Transforms& tf) noexcept
+	void TransformCBufDouble::UpdateBindImpl(const Graphics& gfx, const Transforms& tf) noexcept
 	{
 		mPCBuffer->Update(gfx, tf);
 		mPCBuffer->Bind(gfx);

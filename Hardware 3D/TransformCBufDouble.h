@@ -11,7 +11,7 @@ namespace Bind
 		void Bind(const Graphics& gfx) noexcept override;
 
 	protected:
-		void UpdateBindImp(const Graphics& gfx, const Transforms& tf) noexcept;
+		void UpdateBindImpl(const Graphics& gfx, const Transforms& tf) noexcept;
 
 	private:
 		static std::unique_ptr<PixelConstantBuffer<Transforms>> mPCBuffer;
