@@ -145,7 +145,7 @@ Model::Model(const Graphics& gfx, std::string filename)
 	: mWindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer imp;
-	const auto pScene = imp.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals);
+	const auto pScene = imp.ReadFile(filename.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 	if (pScene == nullptr)
 		throw Exception(__LINE__, __FILEW__, imp.GetErrorString());
 
@@ -177,12 +177,14 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	using Dvtx::VertexLayout;
 	using ElementType = VertexLayout::ElementType;
 
-	const wchar_t base[] = L"Models/nano_textured/";
+	const wchar_t base[] = L"Models/brick_wall/";
 
 	Dvtx::VertexBuffer vbuf(std::move(
 		VertexLayout{}
 		.Append(ElementType::Position3D)
 		.Append(ElementType::Normal)
+		.Append(ElementType::Tangent)
+		.Append(ElementType::BiTangent)
 		.Append(ElementType::Texture2D)
 	));
 
@@ -190,6 +192,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		vbuf.EmplaceBack(
 			*reinterpret_cast<XMFLOAT3*>(&mesh.mVertices[i]),
 			*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]),
+			*reinterpret_cast<XMFLOAT3*>(&mesh.mTangents[i]),
+			*reinterpret_cast<XMFLOAT3*>(&mesh.mBitangents[i]),
 			*reinterpret_cast<XMFLOAT2*>(&mesh.mTextureCoords[0][i])
 		);
 
@@ -210,7 +214,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	{
 		float SpecularIntensity = 0.8f;
 		float SpecularPower = 35.0f;
-		float Padding[2] = {};
+		BOOL  NormalMapEnabled = TRUE;
+		float Padding = 0.0f;
 	} materialConstant;
 
 	if (mesh.mMaterialIndex >= 0)
@@ -231,6 +236,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		else
 			material.Get(AI_MATKEY_SHININESS, materialConstant.SpecularPower);
 
+		material.GetTexture(aiTextureType_NORMALS, 0, &texFileName);
+		filename = texFileName.C_Str();
+		bindablePtrs.push_back(Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end()), 2u));
+
 		bindablePtrs.push_back(Sampler::Resolve(gfx));
 	}
 
@@ -239,15 +248,15 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	bindablePtrs.push_back(VertexBuffer::Resolve(gfx, meshTag, vbuf));
 	bindablePtrs.push_back(IndexBuffer::Resolve(gfx, meshTag, indices));
 
-	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVSNormalMap.cso");
 	bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), pVS->GetByteCode()));
 	bindablePtrs.push_back(std::move(pVS));
 
 	if (hasSpecularMap)
-		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSSpecMap.cso"));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSSpecNormalMap.cso"));
 	else
 	{
-		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPS.cso"));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSNormalMap.cso"));
 		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
 

@@ -34,6 +34,8 @@ namespace Dvtx
 		case ElementType::Position3D: return GenerateDesc<ElementType::Position3D>(GetOffset());
 		case ElementType::Texture2D: return GenerateDesc<ElementType::Texture2D>(GetOffset());
 		case ElementType::Normal: return GenerateDesc<ElementType::Normal>(GetOffset());
+		case ElementType::Tangent: return GenerateDesc<ElementType::Tangent>(GetOffset());
+		case ElementType::BiTangent: return GenerateDesc<ElementType::BiTangent>(GetOffset());
 		case ElementType::Float3Color: return GenerateDesc<ElementType::Float3Color>(GetOffset());
 		case ElementType::Float4Color: return GenerateDesc<ElementType::Float4Color>(GetOffset());
 		case ElementType::BGRAColor: return GenerateDesc<ElementType::BGRAColor>(GetOffset());
@@ -51,6 +53,8 @@ namespace Dvtx
 		case ElementType::Position3D: return Map<ElementType::Position3D>::Code;
 		case ElementType::Texture2D: return Map<ElementType::Texture2D>::Code;
 		case ElementType::Normal: return Map<ElementType::Normal>::Code;
+		case ElementType::Tangent: return Map<ElementType::Tangent>::Code;
+		case ElementType::BiTangent: return Map<ElementType::BiTangent>::Code;
 		case ElementType::Float3Color: return Map<ElementType::Float3Color>::Code;
 		case ElementType::Float4Color: return Map<ElementType::Float4Color>::Code;
 		case ElementType::BGRAColor: return Map<ElementType::BGRAColor>::Code;
@@ -68,6 +72,8 @@ namespace Dvtx
 		case ElementType::Position3D: return sizeof(Map<ElementType::Position3D>::SysType);
 		case ElementType::Texture2D: return sizeof(Map<ElementType::Texture2D>::SysType);
 		case ElementType::Normal: return sizeof(Map<ElementType::Normal>::SysType);
+		case ElementType::Tangent: return sizeof(Map<ElementType::Tangent>::SysType);
+		case ElementType::BiTangent: return sizeof(Map<ElementType::BiTangent>::SysType);
 		case ElementType::Float3Color: return sizeof(Map<ElementType::Float3Color>::SysType);
 		case ElementType::Float4Color: return sizeof(Map<ElementType::Float4Color>::SysType);
 		case ElementType::BGRAColor: return sizeof(Map<ElementType::BGRAColor>::SysType);

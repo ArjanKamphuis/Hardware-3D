@@ -8,7 +8,7 @@ namespace Dvtx
 	class VertexLayout
 	{
 	public:
-		enum class ElementType { Position2D, Position3D, Texture2D, Normal, Float3Color, Float4Color, BGRAColor, Count };
+		enum class ElementType { Position2D, Position3D, Texture2D, Normal, Tangent, BiTangent, Float3Color, Float4Color, BGRAColor, Count };
 
 		template<ElementType> struct Map;
 		template<> struct Map<ElementType::Position2D>
@@ -31,6 +31,20 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* Semantic = "TEXCOORD";
 			static constexpr const wchar_t* Code = L"T2";
+		};
+		template<> struct Map<ElementType::Tangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* Semantic = "TANGENT";
+			static constexpr const wchar_t* Code = L"Nt";
+		};
+		template<> struct Map<ElementType::BiTangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* Semantic = "BITANGENT";
+			static constexpr const wchar_t* Code = L"Nb";
 		};
 		template<> struct Map<ElementType::Normal>
 		{
@@ -143,6 +157,12 @@ namespace Dvtx
 				break;
 			case ElementType::Normal:
 				SetAttribute<ElementType::Normal>(pAttribute, std::forward<T>(value));
+				break;
+			case ElementType::Tangent:
+				SetAttribute<ElementType::Tangent>(pAttribute, std::forward<T>(value));
+				break;
+			case ElementType::BiTangent:
+				SetAttribute<ElementType::BiTangent>(pAttribute, std::forward<T>(value));
 				break;
 			case ElementType::Float3Color:
 				SetAttribute<ElementType::Float3Color>(pAttribute, std::forward<T>(value));

@@ -19,17 +19,21 @@ cbuffer LightCBuf : register(b1)
 };
 
 Texture2D gTexture;
-Texture2D gNormalMap;
+Texture2D gNormalMap : register(t2);
 SamplerState gSampler;
 
-float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOORD) : SV_TARGET
+float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TANGENT, float3 bitangent : BITANGENT, float2 texC : TEXCOORD) : SV_TARGET
 {
 	if (gNormalMapEnabled)
 	{	
+		const float3x3 tanToView = float3x3(normalize(tangent), normalize(bitangent), normalize(normal));
 		const float4 normalSample = gNormalMap.Sample(gSampler, texC);
+		
 		normal.x = normalSample.x * 2.0f - 1.0f;
 		normal.y = -normalSample.y * 2.0f + 1.0f;
-		normal.z = -normalSample.z;
+		normal.z = normalSample.z;
+		
+		normal = mul(normal, tanToView);
 	}
 	
 	const float3 vToL = gLightPosition - posW;

@@ -29,7 +29,5 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	/*Model mNanoBot{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
-	Model mNanoBot2{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };*/
-	TestPlane mPlane;
+	Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj" };
 };
