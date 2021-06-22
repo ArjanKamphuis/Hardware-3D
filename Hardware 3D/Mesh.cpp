@@ -154,22 +154,29 @@ Model::Model(const Graphics& gfx, std::string filename)
 
 	int nextId = 0;
 	mRoot = ParseNode(nextId, *pScene->mRootNode);
+	
+	XMStoreFloat4x4(&mRootTransform, XMMatrixIdentity());
 }
 
 Model::~Model() noexcept
 {
 }
 
-void XM_CALLCONV Model::Draw(const Graphics& gfx) const
+void Model::Draw(const Graphics& gfx) const
 {
 	if (Node* node = mWindow->GetSelectedNode())
 		node->SetAppliedTransform(mWindow->GetTransform());
-	mRoot->Draw(gfx, XMMatrixIdentity());
+	mRoot->Draw(gfx, XMLoadFloat4x4(&mRootTransform));
 }
 
 void Model::ShowWindow(const char* windowName) noexcept
 {
 	mWindow->Show(windowName, *mRoot);
+}
+
+void XM_CALLCONV Model::SetRootTransform(DirectX::FXMMATRIX transform) noexcept
+{
+	XMStoreFloat4x4(&mRootTransform, transform);
 }
 
 std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials)
@@ -212,7 +219,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	bool hasSpecularMap = false;
 	struct Material
 	{
-		float SpecularIntensity = 0.8f;
+		float SpecularIntensity = 0.18f;
 		float SpecularPower = 35.0f;
 		BOOL  NormalMapEnabled = TRUE;
 		float Padding = 0.0f;

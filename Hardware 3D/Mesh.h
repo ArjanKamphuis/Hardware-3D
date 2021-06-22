@@ -63,8 +63,9 @@ public:
 public:
 	Model(const Graphics& gfx, std::string filename);
 	~Model() noexcept;
-	void XM_CALLCONV Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
+	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
 	void ShowWindow(const char* windowName = nullptr) noexcept;
+	void XM_CALLCONV SetRootTransform(DirectX::FXMMATRIX transform) noexcept;
 
 private:
 	static std::unique_ptr<Mesh> ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
@@ -74,4 +75,5 @@ private:
 	std::unique_ptr<Node> mRoot;
 	std::vector<std::unique_ptr<Mesh>> mMeshPtrs;
 	std::unique_ptr<class ModelWindow> mWindow;
+	DirectX::XMFLOAT4X4 mRootTransform;
 };

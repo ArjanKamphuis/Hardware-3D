@@ -3,6 +3,7 @@
 #include "BindableCommon.h"
 #include "imgui/imgui.h"
 #include "Plane.h"
+#include "TransformCBufDouble.h"
 
 using namespace Bind;
 using namespace DirectX;
@@ -16,7 +17,7 @@ TestPlane::TestPlane(const Graphics& gfx, float size)
 	AddBind(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
 	AddBind(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
 
-	AddBind(PixelShader::Resolve(gfx, L"PhongPSNormalMap.cso"));
+	AddBind(PixelShader::Resolve(gfx, L"PhongPSNormalMapObject.cso"));
 	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
 
@@ -25,10 +26,10 @@ TestPlane::TestPlane(const Graphics& gfx, float size)
 	AddBind(std::move(pVS));
 
 	AddBind(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
-	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal.jpg", 1u));
+	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal.jpg", 2u));
 	AddBind(Sampler::Resolve(gfx));
 
-	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
+	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));
 }
 
 void TestPlane::SpawnControlWindow(const Graphics& gfx) noexcept

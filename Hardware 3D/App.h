@@ -30,4 +30,5 @@ private:
 	PointLight mLight;
 
 	Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj" };
+	TestPlane mPlane{ mWnd.Gfx(), 1.0f };
 };

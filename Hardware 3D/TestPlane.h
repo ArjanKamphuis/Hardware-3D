@@ -7,8 +7,8 @@ class TestPlane : public Drawable
 private:
 	struct Material
 	{
-		float SpecularIntensity = 0.1f;
-		float SpecularPower = 20.0f;
+		float SpecularIntensity = 0.18f;
+		float SpecularPower = 18.0f;
 		BOOL  NormalMapEnabled = TRUE;
 		float Padding = 0.0f;
 	};
