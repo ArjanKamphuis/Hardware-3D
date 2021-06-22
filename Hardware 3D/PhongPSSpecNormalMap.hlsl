@@ -28,11 +28,10 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	if (gNormalMapEnabled)
 	{
 		const float3x3 tanToView = float3x3(normalize(tangent), normalize(bitangent), normalize(normal));
-		const float4 normalSample = gNormalMap.Sample(gSampler, texC);
+		const float3 normalSample = gNormalMap.Sample(gSampler, texC).xyz;
 		
-		normal.x = normalSample.x * 2.0f - 1.0f;
-		normal.y = -normalSample.y * 2.0f + 1.0f;
-		normal.z = normalSample.z;
+		normal = normalSample * 2.0f - 1.0f;
+		normal.y = -normal.y;
 		
 		normal = mul(normal, tanToView);
 	}

@@ -32,13 +32,12 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 {
 	if (gNormalMapEnabled)
 	{
-		const float4 normalSample = gNormalMap.Sample(gSampler, texC);
+		const float3 normalSample = gNormalMap.Sample(gSampler, texC).xyz;
 		
-		normal.x = normalSample.x * 2.0f - 1.0f;
-		normal.y = -normalSample.y * 2.0f + 1.0f;
-		normal.z = -normalSample.z;
+		normal = -normalSample * 2.0f + 1.0f;
+		normal.x = -normal.x;
 		
-		normal = mul(normal, (float3x3)gWorld);
+		normal = mul(normal, (float3x3) gWorld);
 	}
 	
 	const float3 vToL = gLightPosition - posW;
