@@ -5,6 +5,7 @@
 #include "ImguiManager.h"
 #include "Mesh.h"
 #include "PointLight.h"
+#include "TestCube.h"
 #include "TestPlane.h"
 #include "Window.h"
 
@@ -29,7 +30,8 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mNanoBot{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
-	Model mNanoBot2{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
+	/*Model mNanoBot{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };
+	Model mNanoBot2{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj" };*/
 	TestPlane mPlane;
+	TestCube mCube;
 };

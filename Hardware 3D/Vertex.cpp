@@ -125,9 +125,11 @@ namespace Dvtx
 		: mVertex(v)
 	{}
 
-	VertexBuffer::VertexBuffer(VertexLayout layout) noexcept(!IS_DEBUG)
+	VertexBuffer::VertexBuffer(VertexLayout layout, size_t size) noexcept(!IS_DEBUG)
 		: mLayout(std::move(layout))
-	{}
+	{
+		Resize(size);
+	}
 
 	const char* VertexBuffer::GetData() const noexcept(!IS_DEBUG)
 	{
@@ -137,6 +139,13 @@ namespace Dvtx
 	const VertexLayout& VertexBuffer::GetLayout() const noexcept
 	{
 		return mLayout;
+	}
+
+	void VertexBuffer::Resize(size_t newSize) noexcept(!IS_DEBUG)
+	{
+		const size_t size = Size();
+		if (size < newSize)
+			mBuffer.resize(mBuffer.size() + mLayout.Size() * (newSize - size));
 	}
 
 	size_t VertexBuffer::Size() const noexcept(!IS_DEBUG)

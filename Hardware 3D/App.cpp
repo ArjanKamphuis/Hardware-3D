@@ -5,9 +5,10 @@ GDIPlusManager gdipm;
 
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
-	, mPlane(mWnd.Gfx(), 3.0f)
+	, mPlane(mWnd.Gfx(), 3.0f), mCube(mWnd.Gfx(), 4.0f)
 {
-	mPlane.SetPosition({ 1.0f, 17.0f, -1.0f });
+	mPlane.SetPosition({ -5.0f, 17.0f, -1.0f });
+	mCube.SetPosition({ 3.0f, 14.0f, -2.0f });
 }
 
 App::~App()
@@ -99,10 +100,11 @@ void App::DoFrame(float dt)
 	mLight.SetCameraPosition(mCamera.GetPosition());
 	mLight.Bind(gfx);
 
-	mNanoBot.Draw(gfx);
-	mNanoBot2.Draw(gfx);
+	/*mNanoBot.Draw(gfx);
+	mNanoBot2.Draw(gfx);*/
 	mLight.Draw(gfx);
 	mPlane.Draw(gfx);
+	mCube.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
 		DoImGui();
@@ -114,7 +116,8 @@ void App::DoImGui() noexcept
 {
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
-	mNanoBot.ShowWindow("Model 1");
-	mNanoBot2.ShowWindow("Model 2");
+	/*mNanoBot.ShowWindow("Model 1");
+	mNanoBot2.ShowWindow("Model 2");*/
 	mPlane.SpawnControlWindow(mWnd.Gfx());
+	mCube.SpawnControlWindow(mWnd.Gfx());
 }

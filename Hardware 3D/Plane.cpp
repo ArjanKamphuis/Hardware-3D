@@ -10,8 +10,8 @@ IndexedTriangleList Plane::MakeTesselatedTextured(VertexLayout layout, size_t di
 	assert(divisionsX >= 1);
 	assert(divisionsY >= 1);
 
-	constexpr float width = 2.0f;
-	constexpr float height = 2.0f;
+	constexpr float width = 1.0f;
+	constexpr float height = 1.0f;
 	const size_t nVerticesX = divisionsX + 1;
 	const size_t nVerticesY = divisionsY + 1;
 	VertexBuffer vb{ std::move(layout) };
