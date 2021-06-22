@@ -3,7 +3,6 @@
 #include "BindableCommon.h"
 #include "imgui/imgui.h"
 #include "Plane.h"
-#include "TransformCBufDouble.h"
 
 using namespace Bind;
 using namespace DirectX;
@@ -29,7 +28,7 @@ TestPlane::TestPlane(const Graphics& gfx, float size)
 	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal.jpg", 1u));
 	AddBind(Sampler::Resolve(gfx));
 
-	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));
+	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
 }
 
 void TestPlane::SpawnControlWindow(const Graphics& gfx) noexcept
