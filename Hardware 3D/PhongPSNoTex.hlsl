@@ -1,9 +1,9 @@
 cbuffer gMaterialCBuf : register(b0)
 {
 	float3 gMaterialColor;
-	float gSpecularIntensity;
+	float gMaterialPad;
+	float3 gSpecularColor;
 	float gSpecularPower;
-	float gMaterialPad[3];
 };
 
 cbuffer LightCBuf : register(b1)
@@ -28,7 +28,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL) : SV_TARGET
 	const float3 diffuse = gDiffuseColor * gDiffuseIntensity * att * max(0.0f, dot(dirToL, normal));
 	
 	const float rdotl = dot(normalize(reflect(-vToL, normal)), normalize(gCameraPosition - posW));
-	const float3 specular = att * (gDiffuseColor * gDiffuseIntensity) * gSpecularIntensity * pow(max(rdotl, 0.0f), gSpecularPower);
+	const float3 specular = att * (gDiffuseColor * gDiffuseIntensity) * gSpecularColor * pow(max(rdotl, 0.0f), gSpecularPower);
 
 	return float4(saturate((diffuse + gAmbientColor) * gMaterialColor + specular), 1.0f);
 }

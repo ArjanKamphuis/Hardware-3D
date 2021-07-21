@@ -39,9 +39,9 @@ public:
 	struct PSMaterialNoTexture
 	{
 		DirectX::XMFLOAT3 MaterialColor = { 0.4479790f, 0.327254f, 0.176283f };
-		float SpecularIntensity = 0.65f;
+		float Padding = 0.0f;
+		DirectX::XMFLOAT3 SpecularColor = { 0.65f, 0.65f, 0.65f };
 		float SpecularPower = 120.0f;
-		float Padding[3] = {};
 	};
 
 public:
@@ -88,7 +88,7 @@ public:
 			{
 				ImGui::Text("Material");
 
-				ImGui::SliderFloat("Specular Intensity", &material.SpecularIntensity, 0.0f, 1.0f);
+				ImGui::ColorPicker3("Specular Color", reinterpret_cast<float*>(&material.SpecularColor));
 				ImGui::SliderFloat("Specular Power", &material.SpecularPower, 0.0f, 1000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
 				ImGui::ColorPicker3("Diffuse Color", reinterpret_cast<float*>(&material.MaterialColor));
 
