@@ -11,6 +11,7 @@ namespace Bind
 	{
 		INFOMAN(gfx);
 		const Surface s = Surface::FromFile(path);
+		mHasAlpha = s.AlphaLoaded();
 
 		D3D11_TEXTURE2D_DESC texDesc = {};
 		texDesc.ArraySize = 1u;
@@ -50,5 +51,9 @@ namespace Bind
 	std::wstring Texture::GetUID() const noexcept
 	{
 		return GenerateUID(mPath, mSlot);
+	}
+	bool Texture::HasAlpha() const noexcept
+	{
+		return mHasAlpha;
 	}
 }

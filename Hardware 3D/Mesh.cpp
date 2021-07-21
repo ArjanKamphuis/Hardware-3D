@@ -189,6 +189,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	std::vector<std::shared_ptr<Bindable>> bindablePtrs;
 
 	bool hasSpecularMap = false;
+	bool hasAlphaGloss = false;
 	bool hasNormalMap = false;
 	bool hasDiffuseMap = false;
 	float shininess = 35.0f;
@@ -209,16 +210,20 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
 			filename = texFileName.C_Str();
-			bindablePtrs.push_back(Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end()), 1u));
+			auto tex = Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end()), 1u);
+			hasAlphaGloss = tex->HasAlpha();
+			bindablePtrs.push_back(std::move(tex));
 			hasSpecularMap = true;
 		}
-		else
+		if (!hasAlphaGloss)
 			material.Get(AI_MATKEY_SHININESS, shininess);
 
 		if (material.GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS)
 		{
 			filename = texFileName.C_Str();
-			bindablePtrs.push_back(Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end()), 2u));
+			auto tex = Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end()), 2u);
+			hasAlphaGloss = tex->HasAlpha();
+			bindablePtrs.push_back(std::move(tex));
 			hasNormalMap = true;
 		}
 
@@ -271,8 +276,12 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		struct Material
 		{
 			BOOL  NormalMapEnabled = TRUE;
-			float Padding[3] = {};
+			BOOL  HasGlossMap = TRUE;
+			float SpecularPower = 0.0f;
+			float Padding = 0.0f;
 		} materialConstant;
+		materialConstant.SpecularPower = shininess;
+		materialConstant.HasGlossMap = hasAlphaGloss ? TRUE : FALSE;
 
 		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
@@ -402,7 +411,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		struct Material
 		{
-			DirectX::XMFLOAT3 MaterialColor = { 0.65f, 0.65f, 0.85f };
+			DirectX::XMFLOAT3 MaterialColor = { 0.45f, 0.45f, 0.85f };
 			float SpecularIntensity = 0.18f;
 			float SpecularPower = 0.0f;
 			float Padding[3] = {};

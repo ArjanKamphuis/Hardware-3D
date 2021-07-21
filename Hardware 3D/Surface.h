@@ -49,11 +49,14 @@ public:
 	void Save(const std::wstring& filename) const;
 	void Copy(const Surface& src) noexcept(!IS_DEBUG);
 
+	bool AlphaLoaded() const noexcept;
+
 private:
-	Surface(UINT width, UINT height, std::unique_ptr<Color[]> pBuffer) noexcept;
+	Surface(UINT width, UINT height, std::unique_ptr<Color[]> pBuffer, bool alphaLoaded = false) noexcept;
 
 private:
 	std::unique_ptr<Color[]> mBuffer;
 	UINT mWidth = 0;
 	UINT mHeight = 0;
+	bool mAlphaLoaded = false;
 };

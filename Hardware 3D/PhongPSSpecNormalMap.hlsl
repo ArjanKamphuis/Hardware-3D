@@ -1,7 +1,9 @@
 cbuffer ObjectBuffer : register(b0)
 {
 	bool gNormalMapEnabled;
-	float gObjectPad[3];
+	bool gHasGloss;
+	float gSpecularPowerConst;
+	float gObjectPad;
 }
 
 cbuffer LightCBuf : register(b1)
@@ -43,7 +45,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	
 	const float rdotl = dot(normalize(reflect(-vToL, normal)), normalize(gCameraPosition - posW));
 	const float4 specularSample = gSpecMap.Sample(gSampler, texC);
-	const float3 specular = att * (gDiffuseColor * gDiffuseIntensity) * pow(max(rdotl, 0.0f), pow(2.0f, specularSample.a * 13.0f));
-
+	
+	const float3 specular = att * (gDiffuseColor * gDiffuseIntensity) * pow(max(rdotl, 0.0f), gHasGloss ? pow(2.0f, specularSample.a * 13.0f) : gSpecularPowerConst);
 	return float4(saturate((diffuse + gAmbientColor) * gTexture.Sample(gSampler, texC).rgb) + specular * specularSample.rgb, 1.0f);
 }
