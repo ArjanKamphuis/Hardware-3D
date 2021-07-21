@@ -223,7 +223,9 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	bool hasAlphaGloss = false;
 	bool hasNormalMap = false;
 	bool hasDiffuseMap = false;
-	float shininess = 35.0f;
+	float shininess = 2.0f;
+	XMFLOAT3 specularColor = { 0.18f, 0.18f, 0.18f };
+	XMFLOAT3 diffuseColor = { 0.45f, 0.45f, 0.45f };
 
 	if (mesh.mMaterialIndex >= 0)
 	{
@@ -237,6 +239,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 			bindablePtrs.push_back(Texture::Resolve(gfx, base + std::wstring(filename.begin(), filename.end())));
 			hasDiffuseMap = true;
 		}
+		else
+			material.Get(AI_MATKEY_COLOR_DIFFUSE, reinterpret_cast<aiColor3D&>(diffuseColor));
 
 		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
@@ -246,6 +250,9 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 			bindablePtrs.push_back(std::move(tex));
 			hasSpecularMap = true;
 		}
+		else
+			material.Get(AI_MATKEY_COLOR_SPECULAR, reinterpret_cast<aiColor3D&>(specularColor));
+
 		if (!hasAlphaGloss)
 			material.Get(AI_MATKEY_SHININESS, shininess);
 
@@ -350,12 +357,13 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		struct Material
 		{
-			float SpecularIntensity = 0.18f;
+			float SpecularIntensity = 0.0f;
 			float SpecularPower = 0.0f;
 			BOOL  NormalMapEnabled = TRUE;
 			float Padding = 0.0f;
 		} materialConstant;
 		materialConstant.SpecularPower = shininess;
+		materialConstant.SpecularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
 		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
 	else if (hasDiffuseMap)
@@ -394,11 +402,12 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		struct Material
 		{
-			float SpecularIntensity = 0.18f;
+			float SpecularIntensity = 0.0f;
 			float SpecularPower = 0.0f;
 			float Padding[2] = {};
 		} materialConstant;
 		materialConstant.SpecularPower = shininess;
+		materialConstant.SpecularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
 
 		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
@@ -436,12 +445,14 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		struct Material
 		{
-			DirectX::XMFLOAT3 MaterialColor = { 0.45f, 0.45f, 0.85f };
-			float SpecularIntensity = 0.18f;
+			DirectX::XMFLOAT3 MaterialColor = {};
+			float SpecularIntensity = 0.0f;
 			float SpecularPower = 0.0f;
 			float Padding[3] = {};
 		} materialConstant;
 		materialConstant.SpecularPower = shininess;
+		materialConstant.SpecularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
+		materialConstant.MaterialColor = diffuseColor;
 
 		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
