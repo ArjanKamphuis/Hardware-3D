@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include <unordered_map>
-#include "imgui/imgui.h"
 #include "Surface.h"
 
 using namespace Bind;
@@ -72,34 +71,6 @@ void Node::ShowTree(Node*& pSelectedNode) const noexcept
 	}
 }
 
-void Node::ShowExtraControls(const Graphics& gfx, PSMaterialNormSpec& material)
-{
-	if (mMeshPtrs.empty()) return;
-
-	if (auto pcb = mMeshPtrs.front()->QueryBindable<Bind::PixelConstantBuffer<PSMaterialNormSpec>>())
-	{
-		ImGui::Text("Material");
-
-		bool normalMapEnabled = static_cast<bool>(material.NormalMapEnabled);
-		ImGui::Checkbox("Normal Map", &normalMapEnabled);
-		material.NormalMapEnabled = normalMapEnabled ? TRUE : FALSE;
-
-		bool specularMapEnabled = static_cast<bool>(material.SpecularMapEnabled);
-		ImGui::Checkbox("Specular Map", &specularMapEnabled);
-		material.SpecularMapEnabled = specularMapEnabled ? TRUE : FALSE;
-
-		bool hasGlossMap = static_cast<bool>(material.HasGlossMap);
-		ImGui::Checkbox("Gloss Map", &hasGlossMap);
-		material.HasGlossMap = hasGlossMap ? TRUE : FALSE;
-
-		ImGui::SliderFloat("Specular Weight", &material.SpecularMapWeight, 0.0f, 2.0f);
-		ImGui::SliderFloat("Specular Power", &material.SpecularPower, 0.0f, 1000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-		ImGui::ColorPicker3("Specular Color", reinterpret_cast<float*>(&material.SpecularColor));
-
-		pcb->Update(gfx, material);
-	}
-}
-
 int Node::GetId() const noexcept
 {
 	return mId;
@@ -151,7 +122,8 @@ public:
 				if (ImGui::Button("Reset"))
 					transform = {};
 
-				mSelectedNode->ShowExtraControls(gfx, mPSMaterial);
+				if (!mSelectedNode->ShowExtraControls(gfx, mSkinMaterial))
+					mSelectedNode->ShowExtraControls(gfx, mRingMaterial);
 			}
 		}
 		ImGui::End();
@@ -169,7 +141,8 @@ public:
 
 private:
 	Node* mSelectedNode = nullptr;
-	Node::PSMaterialNormSpec mPSMaterial;
+	Node::PSMaterialNormSpec mSkinMaterial;
+	Node::PSMaterialNoTexture mRingMaterial;
 	std::unordered_map<int, TransformParameters> mTransforms;
 };
 
@@ -443,18 +416,12 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		bindablePtrs.push_back(std::move(pVS));
 		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSNoTex.cso"));
 
-		struct Material
-		{
-			DirectX::XMFLOAT3 MaterialColor = {};
-			float SpecularIntensity = 0.0f;
-			float SpecularPower = 0.0f;
-			float Padding[3] = {};
-		} materialConstant;
+		Node::PSMaterialNoTexture materialConstant;
 		materialConstant.SpecularPower = shininess;
 		materialConstant.SpecularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
 		materialConstant.MaterialColor = diffuseColor;
 
-		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
+		bindablePtrs.push_back(PixelConstantBuffer<Node::PSMaterialNoTexture>::Resolve(gfx, materialConstant));
 	}
 	else
 		throw std::runtime_error("Terrible combination of textures in material smh");
