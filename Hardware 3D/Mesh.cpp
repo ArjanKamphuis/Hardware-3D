@@ -276,9 +276,11 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		struct Material
 		{
 			BOOL  NormalMapEnabled = TRUE;
+			BOOL  SpecularMapEnabled = TRUE;
 			BOOL  HasGlossMap = TRUE;
 			float SpecularPower = 0.0f;
-			float Padding = 0.0f;
+			XMFLOAT3 SpecularColor = { 1.0f, 1.0f, 1.0f };
+			float SpecularMapWeight = 1.0f;
 		} materialConstant;
 		materialConstant.SpecularPower = shininess;
 		materialConstant.HasGlossMap = hasAlphaGloss ? TRUE : FALSE;
