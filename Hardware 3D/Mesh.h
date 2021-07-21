@@ -30,9 +30,9 @@ public:
 		BOOL  NormalMapEnabled = TRUE;
 		BOOL  SpecularMapEnabled = TRUE;
 		BOOL  HasGlossMap = FALSE;
-		float SpecularPower = 1.0f;
-		DirectX::XMFLOAT3 SpecularColor = { 1.0f, 1.0f, 1.0f };
-		float SpecularMapWeight = 1.0f;
+		float SpecularPower = 3.1f;
+		DirectX::XMFLOAT3 SpecularColor = { 0.75f, 0.75f, 0.75f };
+		float SpecularMapWeight = 0.671f;
 	};
 
 public:
