@@ -1,9 +1,7 @@
 cbuffer ObjectBuffer : register(b0)
 {
-	float gSpecularIntensity;
-	float gSpecularPower;
 	bool gNormalMapEnabled;
-	float gObjectPad;
+	float gObjectPad[3];
 }
 
 cbuffer LightCBuf : register(b1)

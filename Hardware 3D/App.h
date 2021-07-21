@@ -29,7 +29,8 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj" };
-	Model mCube{ mWnd.Gfx(), "Models/brick_wall/brick_cube.obj" };
-	TestPlane mPlane{ mWnd.Gfx(), 1.0f };
+	Model mGobber{ mWnd.Gfx(), "Models/gobber/GoblinX.obj" };
+	//Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj" };
+	//Model mCube{ mWnd.Gfx(), "Models/brick_wall/brick_cube.obj" };
+	//TestPlane mPlane{ mWnd.Gfx(), 1.0f };
 };

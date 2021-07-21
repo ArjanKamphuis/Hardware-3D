@@ -8,9 +8,9 @@ using namespace DirectX;
 App::App()
     : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	mWall.SetRootTransform(XMMatrixTranslation(-1.5f, 0.0f, 0.0f));
-	mCube.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, 5.0f));
-	mPlane.SetPosition({ 1.5f, 0.0f, 0.0f });
+	//mWall.SetRootTransform(XMMatrixTranslation(-1.5f, 0.0f, 0.0f));
+	//mCube.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, 5.0f));
+	//mPlane.SetPosition({ 1.5f, 0.0f, 0.0f });
 }
 
 App::~App()
@@ -102,9 +102,10 @@ void App::DoFrame(float dt)
 	mLight.SetCameraPosition(mCamera.GetPosition());
 	mLight.Bind(gfx);
 	
-	mWall.Draw(gfx);
-	mPlane.Draw(gfx);
-	mCube.Draw(gfx);
+	//mWall.Draw(gfx);
+	//mPlane.Draw(gfx);
+	//mCube.Draw(gfx);
+	mGobber.Draw(gfx);
 	mLight.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
@@ -117,7 +118,8 @@ void App::DoImGui() noexcept
 {
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
-	mWall.ShowWindow("Wall");
-	mPlane.SpawnControlWindow(mWnd.Gfx());
-	mCube.ShowWindow("Cube");
+	//mWall.ShowWindow("Wall");
+	//mPlane.SpawnControlWindow(mWnd.Gfx());
+	//mCube.ShowWindow("Cube");
+	mGobber.ShowWindow("Gobber");
 }
