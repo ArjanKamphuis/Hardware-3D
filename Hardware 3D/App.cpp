@@ -121,5 +121,5 @@ void App::DoImGui() noexcept
 	//mWall.ShowWindow("Wall");
 	//mPlane.SpawnControlWindow(mWnd.Gfx());
 	//mCube.ShowWindow("Cube");
-	mGobber.ShowWindow("Gobber");
+	mGobber.ShowWindow(mWnd.Gfx(), "Gobber");
 }

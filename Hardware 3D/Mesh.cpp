@@ -72,6 +72,34 @@ void Node::ShowTree(Node*& pSelectedNode) const noexcept
 	}
 }
 
+void Node::ShowExtraControls(const Graphics& gfx, PSMaterialNormSpec& material)
+{
+	if (mMeshPtrs.empty()) return;
+
+	if (auto pcb = mMeshPtrs.front()->QueryBindable<Bind::PixelConstantBuffer<PSMaterialNormSpec>>())
+	{
+		ImGui::Text("Material");
+
+		bool normalMapEnabled = static_cast<bool>(material.NormalMapEnabled);
+		ImGui::Checkbox("Normal Map", &normalMapEnabled);
+		material.NormalMapEnabled = normalMapEnabled ? TRUE : FALSE;
+
+		bool specularMapEnabled = static_cast<bool>(material.SpecularMapEnabled);
+		ImGui::Checkbox("Specular Map", &specularMapEnabled);
+		material.SpecularMapEnabled = specularMapEnabled ? TRUE : FALSE;
+
+		bool hasGlossMap = static_cast<bool>(material.HasGlossMap);
+		ImGui::Checkbox("Gloss Map", &hasGlossMap);
+		material.HasGlossMap = hasGlossMap ? TRUE : FALSE;
+
+		ImGui::SliderFloat("Specular Weight", &material.SpecularMapWeight, 0.0f, 2.0f);
+		ImGui::SliderFloat("Specular Power", &material.SpecularPower, 0.0f, 1000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+		ImGui::ColorPicker3("Specular Color", reinterpret_cast<float*>(&material.SpecularColor));
+
+		pcb->Update(gfx, material);
+	}
+}
+
 int Node::GetId() const noexcept
 {
 	return mId;
@@ -95,7 +123,7 @@ private:
 	};
 
 public:
-	void Show(const char* windowName, const Node& root) noexcept
+	void Show(const Graphics& gfx, const char* windowName, const Node& root) noexcept
 	{
 		windowName = windowName ? windowName : "Model";
 
@@ -122,6 +150,8 @@ public:
 
 				if (ImGui::Button("Reset"))
 					transform = {};
+
+				mSelectedNode->ShowExtraControls(gfx, mPSMaterial);
 			}
 		}
 		ImGui::End();
@@ -139,6 +169,7 @@ public:
 
 private:
 	Node* mSelectedNode = nullptr;
+	Node::PSMaterialNormSpec mPSMaterial;
 	std::unordered_map<int, TransformParameters> mTransforms;
 };
 
@@ -170,9 +201,9 @@ void Model::Draw(const Graphics& gfx) const
 	mRoot->Draw(gfx, XMLoadFloat4x4(&mRootTransform));
 }
 
-void Model::ShowWindow(const char* windowName) noexcept
+void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
 {
-	mWindow->Show(windowName, *mRoot);
+	mWindow->Show(gfx, windowName, *mRoot);
 }
 
 void XM_CALLCONV Model::SetRootTransform(DirectX::FXMMATRIX transform) noexcept
@@ -273,19 +304,11 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		bindablePtrs.push_back(std::move(pVS));
 		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSSpecNormalMap.cso"));
 
-		struct Material
-		{
-			BOOL  NormalMapEnabled = TRUE;
-			BOOL  SpecularMapEnabled = TRUE;
-			BOOL  HasGlossMap = TRUE;
-			float SpecularPower = 0.0f;
-			XMFLOAT3 SpecularColor = { 1.0f, 1.0f, 1.0f };
-			float SpecularMapWeight = 1.0f;
-		} materialConstant;
+		Node::PSMaterialNormSpec materialConstant;
 		materialConstant.SpecularPower = shininess;
 		materialConstant.HasGlossMap = hasAlphaGloss ? TRUE : FALSE;
 
-		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
+		bindablePtrs.push_back(PixelConstantBuffer<Node::PSMaterialNormSpec>::Resolve(gfx, materialConstant));
 	}
 	else if (hasDiffuseMap && hasNormalMap)
 	{

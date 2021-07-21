@@ -25,10 +25,22 @@ class Node
 	friend class Model;
 
 public:
+	struct PSMaterialNormSpec
+	{
+		BOOL  NormalMapEnabled = TRUE;
+		BOOL  SpecularMapEnabled = TRUE;
+		BOOL  HasGlossMap = FALSE;
+		float SpecularPower = 1.0f;
+		DirectX::XMFLOAT3 SpecularColor = { 1.0f, 1.0f, 1.0f };
+		float SpecularMapWeight = 1.0f;
+	};
+
+public:
 	Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
 	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	void XM_CALLCONV SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 	void ShowTree(Node*& pSelectedNode) const noexcept;
+	void ShowExtraControls(const Graphics& gfx, PSMaterialNormSpec& material);
 	int GetId() const noexcept;
 
 private:
@@ -64,7 +76,7 @@ public:
 	Model(const Graphics& gfx, std::string filename);
 	~Model() noexcept;
 	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
-	void ShowWindow(const char* windowName = nullptr) noexcept;
+	void ShowWindow(const Graphics& gfx, const char* windowName = nullptr) noexcept;
 	void XM_CALLCONV SetRootTransform(DirectX::FXMMATRIX transform) noexcept;
 
 private:

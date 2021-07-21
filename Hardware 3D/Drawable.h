@@ -19,7 +19,6 @@ public:
 	void Draw(const Graphics & gfx) const noexcept(!IS_DEBUG);
 	virtual DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept = 0;
 
-protected:
 	template<class T>
 	T* QueryBindable() noexcept
 	{
@@ -28,6 +27,8 @@ protected:
 				return pt;
 		return nullptr;
 	}
+
+protected:
 	void AddBind(std::shared_ptr<Bind::Bindable> bind) noexcept(!IS_DEBUG);
 
 private:
