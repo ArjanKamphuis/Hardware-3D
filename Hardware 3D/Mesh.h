@@ -38,10 +38,10 @@ public:
 
 	struct PSMaterialNoTexture
 	{
-		DirectX::XMFLOAT3 MaterialColor = { 0.4479790f, 0.327254f, 0.176283f };
+		DirectX::XMFLOAT3 MaterialColor = { 0.819608f, 0.576471f, 0.274510f };
 		float Padding = 0.0f;
-		DirectX::XMFLOAT3 SpecularColor = { 0.65f, 0.65f, 0.65f };
-		float SpecularPower = 120.0f;
+		DirectX::XMFLOAT3 SpecularColor = { 1.0f, 0.972549f, 0.423529f };
+		float SpecularPower = 3.25f;
 	};
 
 public:
