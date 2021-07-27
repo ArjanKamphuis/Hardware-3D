@@ -253,6 +253,8 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="PointLightBuffer.hlsli" />
+    <None Include="ShaderOperations.hlsli" />
     <None Include="TransformBuffer.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -46,6 +46,9 @@
     <Filter Include="Source Files\Geometry">
       <UniqueIdentifier>{a58bda53-5108-456e-80e3-44eab756bee3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Common">
+      <UniqueIdentifier>{e00ba155-79b0-434c-ae2e-647321ae5fe7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -391,8 +394,14 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="PointLightBuffer.hlsli">
+      <Filter>Shaders\Common</Filter>
+    </None>
+    <None Include="ShaderOperations.hlsli">
+      <Filter>Shaders\Common</Filter>
+    </None>
     <None Include="TransformBuffer.hlsli">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Common</Filter>
     </None>
   </ItemGroup>
 </Project>
