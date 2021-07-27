@@ -26,7 +26,7 @@ TestPlane::TestPlane(const Graphics& gfx, float size)
 	AddBind(std::move(pVS));
 
 	AddBind(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
-	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal.jpg", 2u));
+	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal_obj.png", 2u));
 	AddBind(Sampler::Resolve(gfx));
 
 	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));

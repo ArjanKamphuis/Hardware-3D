@@ -3,11 +3,25 @@
 #include "GDIPlusManager.h"
 GDIPlusManager gdipm;
 
+#include <shellapi.h>
+#include "NormalMapTwerker.h"
+
 using namespace DirectX;
 
-App::App()
-    : mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
+App::App(const std::wstring& commandLine)
+    : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
+	if (mCommandLine != L"")
+	{
+		int nArgs;
+		const LPWSTR* pArgs = CommandLineToArgvW(mCommandLine.c_str(), &nArgs);
+		if (nArgs >= 3 /*&& pArgs[0] == L"--ntwerk-rotx180"*/)
+		{
+			NormalMapTwerker::RotateXAxis180(pArgs[1], pArgs[2]);
+			throw std::runtime_error("Normal map processed successfully. Just kidding about that whole runtime error thing.");
+		}
+	}
+
 	mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
 	mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
 	mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));

@@ -11,7 +11,7 @@
 class App
 {
 public:
-	App();
+	App(const std::wstring& commandLine = L"");
 	~App();
 
 	int Go();
@@ -23,6 +23,7 @@ private:
 	void DoImGui(const Graphics& gfx) noexcept;
 
 private:
+	std::wstring mCommandLine;
 	ImguiManager mImgui;
 	Window mWnd;
 	ChiliTimer mTimer;
