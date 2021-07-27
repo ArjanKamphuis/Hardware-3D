@@ -20,7 +20,7 @@ private:
 	void HandleInput(float dt);
 	void DoFrame(float dt);
 
-	void DoImGui() noexcept;
+	void DoImGui(const Graphics& gfx) noexcept;
 
 private:
 	ImguiManager mImgui;
@@ -29,8 +29,8 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mGobber{ mWnd.Gfx(), "Models/gobber/GoblinX.obj" };
-	//Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj" };
-	//Model mCube{ mWnd.Gfx(), "Models/brick_wall/brick_cube.obj" };
-	//TestPlane mPlane{ mWnd.Gfx(), 1.0f };
+	Model mGobber{ mWnd.Gfx(), "Models/gobber/GoblinX.obj", 6.0f };
+	Model mNano{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj", 2.0f };
+	Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj", 6.0f };
+	TestPlane mPlane{ mWnd.Gfx(), 6.0f };
 };

@@ -146,7 +146,7 @@ private:
 	std::unordered_map<int, TransformParameters> mTransforms;
 };
 
-Model::Model(const Graphics& gfx, const std::string& pathName)
+Model::Model(const Graphics& gfx, const std::string& pathName, float scale)
 	: mWindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer imp;
@@ -155,7 +155,7 @@ Model::Model(const Graphics& gfx, const std::string& pathName)
 		throw Exception(__LINE__, __FILEW__, imp.GetErrorString());
 
 	for (size_t i = 0; i < pScene->mNumMeshes; i++)
-		mMeshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials, pathName));
+		mMeshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials, pathName, scale));
 
 	int nextId = 0;
 	mRoot = ParseNode(nextId, *pScene->mRootNode);
@@ -184,7 +184,7 @@ void XM_CALLCONV Model::SetRootTransform(DirectX::FXMMATRIX transform) noexcept
 	XMStoreFloat4x4(&mRootTransform, transform);
 }
 
-std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path)
+std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, float scale)
 {
 	using Dvtx::VertexLayout;
 	using ElementType = VertexLayout::ElementType;
@@ -244,7 +244,6 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 	const std::string meshName{ mesh.mName.C_Str() };
 	const std::wstring meshTag = rootPath + L"%" + std::wstring{ meshName.begin(), meshName.end() };
-	const float scale = 6.0f;
 
 	if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 	{
