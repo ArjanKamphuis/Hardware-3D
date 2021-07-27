@@ -40,6 +40,8 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 		normal = mul(normal, (float3x3) gWorld);
 	}
 	
+	normal = normalize(normal);
+	
 	const float3 vToL = gLightPosition - posW;
 	const float distToL = length(vToL);
 	const float3 dirToL = vToL / distToL;

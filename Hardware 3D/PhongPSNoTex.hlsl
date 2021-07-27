@@ -19,7 +19,9 @@ cbuffer LightCBuf : register(b1)
 };
 
 float4 main(float3 posW : POSITION, float3 normal : NORMAL) : SV_TARGET
-{		
+{
+	normal = normalize(normal);
+	
 	const float3 vToL = gLightPosition - posW;
 	const float distToL = length(vToL);
 	const float3 dirToL = vToL / distToL;
