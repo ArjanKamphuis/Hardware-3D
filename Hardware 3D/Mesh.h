@@ -5,6 +5,7 @@
 #include <assimp\scene.h>
 #include "imgui/imgui.h"
 
+#include <filesystem>
 #include <optional>
 #include "BindableCommon.h"
 #include "Drawable.h"
@@ -130,14 +131,14 @@ public:
 	};
 
 public:
-	Model(const Graphics& gfx, std::string filename);
+	Model(const Graphics& gfx, const std::string& pathName);
 	~Model() noexcept;
 	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
 	void ShowWindow(const Graphics& gfx, const char* windowName = nullptr) noexcept;
 	void XM_CALLCONV SetRootTransform(DirectX::FXMMATRIX transform) noexcept;
 
 private:
-	static std::unique_ptr<Mesh> ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials);
+	static std::unique_ptr<Mesh> ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path);
 	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
 
 private:
