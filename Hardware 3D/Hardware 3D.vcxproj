@@ -253,6 +253,7 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="LightVectorData.hlsli" />
     <None Include="PointLightBuffer.hlsli" />
     <None Include="ShaderOperations.hlsli" />
     <None Include="TransformBuffer.hlsli" />

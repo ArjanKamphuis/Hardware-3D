@@ -1,4 +1,4 @@
-cbuffer PointLightCBuf : register(b1)
+cbuffer PointLightCBuf
 {
 	float3 gCameraPosition;
 	float3 gLightPosition;

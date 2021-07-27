@@ -403,5 +403,8 @@
     <None Include="TransformBuffer.hlsli">
       <Filter>Shaders\Common</Filter>
     </None>
+    <None Include="LightVectorData.hlsli">
+      <Filter>Shaders\Common</Filter>
+    </None>
   </ItemGroup>
 </Project>

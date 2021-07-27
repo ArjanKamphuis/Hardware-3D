@@ -1,6 +1,3 @@
-#include "PointLightBuffer.hlsli"
-#include "ShaderOperations.hlsli"
-
 cbuffer ObjectBuffer : register(b0)
 {
 	bool gNormalMapEnabled;
@@ -10,6 +7,10 @@ cbuffer ObjectBuffer : register(b0)
 	float3 gSpecularColor;
 	float gSpecularMapWeight;
 }
+
+#include "PointLightBuffer.hlsli"
+#include "LightVectorData.hlsli"
+#include "ShaderOperations.hlsli"
 
 Texture2D gTexture;
 Texture2D gSpecMap;
@@ -22,10 +23,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	if (gNormalMapEnabled)
 		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
 	
-	const float3 vToL = gLightPosition - posW;
-	const float distToL = length(vToL);
-	const float3 dirToL = vToL / distToL;
-	
+	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);	
 	float3 specularReflectionColor;
 	float specularPower = gSpecularPowerConst;
 	
@@ -39,9 +37,9 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	else
 		specularReflectionColor = gSpecularColor;	
 
-	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, distToL);
-	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, dirToL, normal);
-	const float3 specularReflected = Speculate(specularReflectionColor, 1.0f, normal, vToL, gCameraPosition, posW, att, specularPower);
+	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
+	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
+	const float3 specularReflected = Speculate(specularReflectionColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, specularPower);
 
 	return float4(saturate((diffuse + gAmbientColor) * gTexture.Sample(gSampler, texC).rgb + specularReflected), 1.0f);
 }
