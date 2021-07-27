@@ -19,17 +19,19 @@ void NormalMapTwerker::RotateXAxis180(const std::wstring& pathIn, const std::wst
 	const auto pEnd = sIn.GetBufferPtrConst() + nPixels;
 
 	for (auto pCurrent = pBegin; pCurrent < pEnd; ++pCurrent)
-		*pCurrent = VectorToColor(XMVector3Transform(ColorToVector(*pCurrent), rotation));
+		*pCurrent = MapNormalToColor(XMVector3Transform(MapColorToNormal(*pCurrent), rotation));
 
 	sIn.Save(pathOut);
 }
 
-DirectX::XMVECTOR XM_CALLCONV NormalMapTwerker::ColorToVector(Surface::Color c)
+// Map Color[0,1] to Normal[-1,-1]
+DirectX::XMVECTOR XM_CALLCONV NormalMapTwerker::MapColorToNormal(Surface::Color c)
 {
 	return XMVectorSubtract(XMVectorMultiply(XMLoadColor(&c), XMVectorReplicate(2.0f)), XMVectorReplicate(1.0f));
 }
 
-Color XM_CALLCONV NormalMapTwerker::VectorToColor(DirectX::FXMVECTOR n)
+//Map Normal[-1,1] to Color[0,1]
+Color XM_CALLCONV NormalMapTwerker::MapNormalToColor(DirectX::FXMVECTOR n)
 {
 	XMCOLOR xmc;
 	XMStoreColor(&xmc, XMVectorDivide(XMVectorAdd(n, XMVectorReplicate(1.0f)), XMVectorReplicate(2.0f)));

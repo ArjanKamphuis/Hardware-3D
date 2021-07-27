@@ -15,9 +15,9 @@ App::App(const std::wstring& commandLine)
 	{
 		int nArgs;
 		const LPWSTR* pArgs = CommandLineToArgvW(mCommandLine.c_str(), &nArgs);
-		if (nArgs >= 3 /*&& pArgs[0] == L"--ntwerk-rotx180"*/)
+		if (nArgs >= 4 && wcscmp(pArgs[1], L"--ntwerk-rotx180") == 0)
 		{
-			NormalMapTwerker::RotateXAxis180(pArgs[1], pArgs[2]);
+			NormalMapTwerker::RotateXAxis180(pArgs[2], pArgs[3]);
 			throw std::runtime_error("Normal map processed successfully. Just kidding about that whole runtime error thing.");
 		}
 	}

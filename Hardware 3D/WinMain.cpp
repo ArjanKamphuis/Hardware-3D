@@ -6,7 +6,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 {
 	try
 	{
-		return App{ lpCmdLine }.Go();
+		return App{ GetCommandLineW() }.Go();
 	}
 	catch (const ChiliException& e)
 	{
