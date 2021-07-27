@@ -398,6 +398,9 @@
     <FxCompile Include="PhongPSNoTex.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="PhongPSSpec.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PointLightBuffer.hlsli">

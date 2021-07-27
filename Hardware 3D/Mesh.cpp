@@ -338,6 +338,51 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		materialConstant.SpecularIntensity = (specularColor.x + specularColor.y + specularColor.z) / 3.0f;
 		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
 	}
+	else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
+	{
+		Dvtx::VertexBuffer vbuf(std::move(
+			VertexLayout{}
+			.Append(ElementType::Position3D)
+			.Append(ElementType::Normal)
+			.Append(ElementType::Texture2D)
+		));
+
+		for (UINT i = 0; i < mesh.mNumVertices; i++)
+			vbuf.EmplaceBack(
+				XMFLOAT3{ mesh.mVertices[i].x * scale, mesh.mVertices[i].y * scale, mesh.mVertices[i].z * scale },
+				*reinterpret_cast<XMFLOAT3*>(&mesh.mNormals[i]),
+				*reinterpret_cast<XMFLOAT2*>(&mesh.mTextureCoords[0][i])
+			);
+
+		std::vector<USHORT> indices;
+		indices.reserve(static_cast<size_t>(mesh.mNumFaces) * 3u);
+		for (UINT i = 0; i < mesh.mNumFaces; i++)
+		{
+			const auto& face = mesh.mFaces[i];
+			assert(face.mNumIndices == 3);
+			for (int j = 0; j < 3; j++)
+				indices.push_back(face.mIndices[j]);
+		}
+
+		bindablePtrs.push_back(VertexBuffer::Resolve(gfx, meshTag, vbuf));
+		bindablePtrs.push_back(IndexBuffer::Resolve(gfx, meshTag, indices));
+
+		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+		bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), pVS->GetByteCode()));
+		bindablePtrs.push_back(std::move(pVS));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSSpec.cso"));
+
+		struct Material
+		{
+			BOOL  HasGloss = FALSE;
+			float SpecularPowerConst = 0.0f;
+			float gSpecularMapWeight = 1.0f;
+			float Padding = 0.0f;
+		} materialConstant;
+		materialConstant.HasGloss = hasAlphaGloss ? TRUE : FALSE;
+		materialConstant.SpecularPowerConst = shininess;
+		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
+	}
 	else if (hasDiffuseMap)
 	{
 		Dvtx::VertexBuffer vbuf(std::move(
