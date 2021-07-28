@@ -2,10 +2,12 @@
 
 #include <stdexcept>
 #include <unordered_map>
+#include "ChiliXM.h"
 #include "Surface.h"
 
 using namespace Bind;
 using namespace DirectX;
+using namespace ChiliXM;
 
 Mesh::Mesh(const Graphics& gfx, std::vector<std::shared_ptr<Bindable>> bindPtrs)
 {
@@ -48,6 +50,11 @@ void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform)
 void XM_CALLCONV Node::SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept
 {
 	XMStoreFloat4x4(&mAppliedTransform, transform);
+}
+
+const DirectX::XMMATRIX& XM_CALLCONV Node::GetAppliedTransform() const noexcept
+{
+	return XMLoadFloat4x4(&mAppliedTransform);
 }
 
 void Node::ShowTree(Node*& pSelectedNode) const noexcept
@@ -107,7 +114,22 @@ public:
 
 			if (mSelectedNode != nullptr)
 			{
-				TransformParameters& transform = mTransforms[mSelectedNode->GetId()];
+				const int id = mSelectedNode->GetId();
+				auto it = mTransforms.find(id);
+				if (it == mTransforms.end())
+				{
+					const XMMATRIX& applied = mSelectedNode->GetAppliedTransform();
+					TransformParameters tp;
+					XMStoreFloat3(&tp.Position, ExtractTranslation(applied));
+					XMFLOAT3 angles;
+					XMStoreFloat3(&angles, ExtractEulerAngles(applied));
+					tp.Roll = angles.z;
+					tp.Pitch = angles.x;
+					tp.Yaw = angles.y;
+					std::tie(it, std::ignore) = mTransforms.insert({ id, tp });
+				}
+
+				TransformParameters& transform = it->second;
 
 				ImGui::Text("Orientation");
 				ImGui::SliderAngle("Roll", &transform.Roll, -180.0f, 180.0f);
@@ -132,7 +154,7 @@ public:
 	{
 		assert(mSelectedNode != nullptr);
 		const TransformParameters& transform = mTransforms.at(mSelectedNode->GetId());
-		return XMMatrixRotationRollPitchYaw(transform.Roll, transform.Pitch, transform.Yaw) * XMMatrixTranslationFromVector(XMLoadFloat3(&transform.Position));
+		return XMMatrixRotationRollPitchYaw(transform.Pitch, transform.Yaw, transform.Roll) * XMMatrixTranslationFromVector(XMLoadFloat3(&transform.Position));
 	}
 	Node* GetSelectedNode() const noexcept
 	{
@@ -159,8 +181,6 @@ Model::Model(const Graphics& gfx, const std::string& pathName, float scale)
 
 	int nextId = 0;
 	mRoot = ParseNode(nextId, *pScene->mRootNode);
-	
-	XMStoreFloat4x4(&mRootTransform, XMMatrixIdentity());
 }
 
 Model::~Model() noexcept
@@ -171,7 +191,7 @@ void Model::Draw(const Graphics& gfx) const
 {
 	if (Node* node = mWindow->GetSelectedNode())
 		node->SetAppliedTransform(mWindow->GetTransform());
-	mRoot->Draw(gfx, XMLoadFloat4x4(&mRootTransform));
+	mRoot->Draw(gfx, XMMatrixIdentity());
 }
 
 void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
@@ -181,7 +201,7 @@ void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
 
 void XM_CALLCONV Model::SetRootTransform(DirectX::FXMMATRIX transform) noexcept
 {
-	XMStoreFloat4x4(&mRootTransform, transform);
+	mRoot->SetAppliedTransform(transform);
 }
 
 std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, float scale)
