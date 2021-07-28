@@ -1,9 +1,9 @@
 cbuffer gMaterialCBuf : register(b0)
 {
-	float gSpecularIntensity;
+	float3 gSpecularColor;
 	float gSpecularPower;
 	bool gNormalMapEnabled;
-	float gMaterialPad;
+	float3 gMaterialPad;
 };
 
 #include "PointLightBuffer.hlsli"
@@ -23,7 +23,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
 	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
-	const float3 specular = Speculate(gSpecularIntensity.rrr, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, gSpecularPower);
+	const float3 specular = Speculate(gSpecularColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, gSpecularPower);
 
 	return float4(saturate((diffuse + gAmbientColor) * gTexture.Sample(gSampler, texC).rgb + specular), 1.0f);
 }
