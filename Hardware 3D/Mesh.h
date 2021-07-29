@@ -34,7 +34,7 @@ public:
 		BOOL  HasGlossMap = FALSE;
 		float SpecularPower = 3.1f;
 		DirectX::XMFLOAT3 SpecularColor = { 0.75f, 0.75f, 0.75f };
-		float SpecularMapWeight = 0.671f;
+		float SpecularMapWeight = 0.309f;
 	};
 
 	struct PSMaterialNoTexture

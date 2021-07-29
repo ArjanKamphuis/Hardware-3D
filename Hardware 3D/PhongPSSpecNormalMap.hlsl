@@ -23,7 +23,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	if (gNormalMapEnabled)
 		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
 	
-	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);	
+	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	float3 specularReflectionColor;
 	float specularPower = gSpecularPowerConst;
 	
