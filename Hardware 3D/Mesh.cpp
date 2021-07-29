@@ -47,12 +47,12 @@ void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform)
 		pc->Draw(gfx, built);
 }
 
-void XM_CALLCONV Node::SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept
+void XM_CALLCONV Node::SetAppliedTransform(FXMMATRIX transform) noexcept
 {
 	XMStoreFloat4x4(&mAppliedTransform, transform);
 }
 
-const DirectX::XMMATRIX& XM_CALLCONV Node::GetAppliedTransform() const noexcept
+const XMMATRIX XM_CALLCONV Node::GetAppliedTransform() const noexcept
 {
 	return XMLoadFloat4x4(&mAppliedTransform);
 }
@@ -97,7 +97,7 @@ private:
 		float Roll = 0.0f;
 		float Pitch = 0.0f;
 		float Yaw = 0.0f;
-		DirectX::XMFLOAT3 Position = {};
+		XMFLOAT3 Position = {};
 	};
 
 public:
@@ -199,7 +199,7 @@ void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
 	mWindow->Show(gfx, windowName, *mRoot);
 }
 
-void XM_CALLCONV Model::SetRootTransform(DirectX::FXMMATRIX transform) noexcept
+void XM_CALLCONV Model::SetRootTransform(FXMMATRIX transform) noexcept
 {
 	mRoot->SetAppliedTransform(transform);
 }
