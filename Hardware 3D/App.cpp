@@ -4,7 +4,7 @@
 GDIPlusManager gdipm;
 
 #include <shellapi.h>
-#include "NormalMapTwerker.h"
+#include "TexturePreprocessor.h"
 
 using namespace DirectX;
 
@@ -15,9 +15,9 @@ App::App(const std::wstring& commandLine)
 	{
 		int nArgs;
 		const LPWSTR* pArgs = CommandLineToArgvW(mCommandLine.c_str(), &nArgs);
-		if (nArgs >= 4 && wcscmp(pArgs[1], L"--ntwerk-rotx180") == 0)
+		if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--twerk-objnorm")
 		{
-			NormalMapTwerker::RotateXAxis180(pArgs[2], pArgs[3]);
+			TexturePreprocessor::FlipYAllNormalMapsInObj(pArgs[2]);
 			throw std::runtime_error("Normal map processed successfully. Just kidding about that whole runtime error thing.");
 		}
 	}

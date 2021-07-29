@@ -195,7 +195,7 @@
     <ClCompile Include="TestCube.cpp">
       <Filter>Source Files\Drawable</Filter>
     </ClCompile>
-    <ClCompile Include="NormalMapTwerker.cpp">
+    <ClCompile Include="TexturePreprocessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ChiliXM.cpp">
@@ -356,7 +356,7 @@
     <ClInclude Include="TestCube.h">
       <Filter>Header Files\Drawable</Filter>
     </ClInclude>
-    <ClInclude Include="NormalMapTwerker.h">
+    <ClInclude Include="TexturePreprocessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ChiliXM.h">
