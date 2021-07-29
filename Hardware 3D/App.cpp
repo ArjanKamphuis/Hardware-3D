@@ -22,10 +22,10 @@ App::App(const std::wstring& commandLine)
 		}
 	}
 
-	mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
-	mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
-	mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
-	mNano.SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
+	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
+	//mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
+	//mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
+	//mNano.SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
 }
 
 App::~App()
@@ -117,10 +117,11 @@ void App::DoFrame(float dt)
 	mLight.SetCameraPosition(mCamera.GetPosition());
 	mLight.Bind(gfx);
 	
-	mWall.Draw(gfx);
-	mPlane.Draw(gfx);
-	mNano.Draw(gfx);
-	mGobber.Draw(gfx);
+	//mWall.Draw(gfx);
+	//mPlane.Draw(gfx);
+	//mNano.Draw(gfx);
+	//mGobber.Draw(gfx);
+	mSponza.Draw(gfx);
 	mLight.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
@@ -133,8 +134,9 @@ void App::DoImGui(const Graphics& gfx) noexcept
 {
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
-	mWall.ShowWindow(gfx, "Wall");
-	mPlane.SpawnControlWindow(gfx);
-	mNano.ShowWindow(gfx, "Nano");
-	mGobber.ShowWindow(gfx, "Gobber");
+	//mWall.ShowWindow(gfx, "Wall");
+	//mPlane.SpawnControlWindow(gfx);
+	//mNano.ShowWindow(gfx, "Nano");
+	//mGobber.ShowWindow(gfx, "Gobber");
+	mSponza.ShowWindow(gfx, "Sponza");
 }
