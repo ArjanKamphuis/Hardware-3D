@@ -18,6 +18,11 @@ App::App(const std::wstring& commandLine)
 		if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--twerk-objnorm")
 		{
 			TexturePreprocessor::FlipYAllNormalMapsInObj(pArgs[2]);
+			throw std::runtime_error("Normal maps all processed successfully. Just kidding about that whole runtime error thing.");
+		}
+		else if (nArgs >= 4 && std::wstring(pArgs[1]) == L"--twerk-flipy")
+		{
+			TexturePreprocessor::FlipYNormalMap(pArgs[2], pArgs[3]);
 			throw std::runtime_error("Normal map processed successfully. Just kidding about that whole runtime error thing.");
 		}
 	}

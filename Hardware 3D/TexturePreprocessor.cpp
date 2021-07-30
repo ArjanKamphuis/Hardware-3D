@@ -31,12 +31,6 @@ void TexturePreprocessor::FlipYAllNormalMapsInObj(const std::wstring& objPath)
 	if (pScene == nullptr)
 		throw Model::Exception(__LINE__, __FILEW__, imp.GetErrorString());
 
-	const XMVECTOR flipY = XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f);
-	const auto ProcessNormal = [flipY](FXMVECTOR n) -> XMVECTOR
-	{
-		return XMVectorMultiply(n, flipY);
-	};
-
 	for (UINT i = 0u; i < pScene->mNumMaterials; i++)
 	{
 		const aiMaterial& mat = *pScene->mMaterials[i];
@@ -45,9 +39,20 @@ void TexturePreprocessor::FlipYAllNormalMapsInObj(const std::wstring& objPath)
 		{
 			std::string fileString = std::string(texFileName.C_Str());
 			const std::wstring path = rootPath + std::wstring(fileString.begin(), fileString.end());
-			TransformFile(path, path, ProcessNormal);
+			FlipYNormalMap(path, path);
 		}
 	}
+}
+
+void TexturePreprocessor::FlipYNormalMap(const std::wstring& pathIn, const std::wstring& pathOut)
+{
+	const XMVECTOR flipY = XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f);
+	const auto ProcessNormal = [flipY](FXMVECTOR n) -> XMVECTOR
+	{
+		return XMVectorMultiply(n, flipY);
+	};
+
+	TransformFile(pathIn, pathOut, ProcessNormal);
 }
 
 // Map Color[0,1] to Normal[-1,-1]

@@ -10,6 +10,7 @@ public:
 	static void RotateXAxis180(const std::wstring& pathIn);
 	static void RotateXAxis180(const std::wstring& pathIn, const std::wstring& pathOut);
 	static void FlipYAllNormalMapsInObj(const std::wstring& objPath);
+	static void FlipYNormalMap(const std::wstring& pathIn, const std::wstring& pathOut);
 
 private:
 	template<typename F>
