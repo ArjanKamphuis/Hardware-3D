@@ -103,6 +103,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Bindable.cpp" />
+    <ClCompile Include="Blender.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChiliException.cpp" />
     <ClCompile Include="ChiliTimer.cpp" />
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BindableCodex.h" />
+    <ClInclude Include="Blender.h" />
     <ClInclude Include="ChiliXM.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Mesh.h" />
