@@ -19,6 +19,9 @@ SamplerState gSampler;
 
 float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TANGENT, float3 bitangent : BITANGENT, float2 texC : TEXCOORD) : SV_TARGET
 {
+	const float4 texSample = gTexture.Sample(gSampler, texC);
+	clip(texSample.a < 0.1f ? -1 : 1);
+	
 	normal = normalize(normal);
 	if (gNormalMapEnabled)
 		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
@@ -40,7 +43,6 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
 	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
 	const float3 specularReflected = Speculate(specularReflectionColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, specularPower);
-	const float4 texSample = gTexture.Sample(gSampler, texC);
 
 	return float4(saturate((diffuse + gAmbientColor) * texSample.rgb + specularReflected), texSample.a);
 }
