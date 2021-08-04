@@ -11,9 +11,6 @@ using namespace DirectX;
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	TexturePreprocessor::ValidateNormalMap(L"Models/Sponza/textures/vase_ddn.png", -1.0f, 1.0f);
-	throw std::runtime_error("Normal map validated successfully. Just kidding about that whole runtime error thing.");
-
 	if (mCommandLine != L"")
 	{
 		int nArgs;
@@ -134,7 +131,7 @@ void App::DoFrame(float dt)
 	//mPlane.Draw(gfx);
 	//mNano.Draw(gfx);
 	//mGobber.Draw(gfx);
-	//mSponza.Draw(gfx);
+	mSponza.Draw(gfx);
 	mLight.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
@@ -151,5 +148,5 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mPlane.SpawnControlWindow(gfx);
 	//mNano.ShowWindow(gfx, "Nano");
 	//mGobber.ShowWindow(gfx, "Gobber");
-	//mSponza.ShowWindow(gfx, "Sponza");
+	mSponza.ShowWindow(gfx, "Sponza");
 }
