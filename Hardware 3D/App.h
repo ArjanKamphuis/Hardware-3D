@@ -30,7 +30,7 @@ private:
 	Camera mCamera;
 	PointLight mLight;
 
-	Model mSponza{ mWnd.Gfx(), "Models/sponza/sponza.obj", 0.05f };
+	//Model mSponza{ mWnd.Gfx(), "Models/sponza/sponza.obj", 0.05f };
 	//Model mGobber{ mWnd.Gfx(), "Models/gobber/GoblinX.obj", 6.0f };
 	//Model mNano{ mWnd.Gfx(), "Models/nano_textured/nanosuit.obj", 2.0f };
 	//Model mWall{ mWnd.Gfx(), "Models/brick_wall/brick_wall.obj", 6.0f };

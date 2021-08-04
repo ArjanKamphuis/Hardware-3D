@@ -1,6 +1,7 @@
 #include "TexturePreprocessor.h"
 
 #include <filesystem>
+#include <sstream>
 #include "Mesh.h"
 
 using namespace DirectX;
@@ -15,7 +16,7 @@ void TexturePreprocessor::RotateXAxis180(const std::wstring& pathIn)
 void TexturePreprocessor::RotateXAxis180(const std::wstring& pathIn, const std::wstring& pathOut)
 {
 	const XMMATRIX rotation = XMMatrixRotationX(XM_PI);
-	const auto ProcessNormal = [rotation](FXMVECTOR n) -> XMVECTOR
+	const auto ProcessNormal = [rotation](FXMVECTOR n, UINT x, UINT y) -> XMVECTOR
 	{
 		return XMVector3Transform(n, rotation);
 	};
@@ -47,12 +48,51 @@ void TexturePreprocessor::FlipYAllNormalMapsInObj(const std::wstring& objPath)
 void TexturePreprocessor::FlipYNormalMap(const std::wstring& pathIn, const std::wstring& pathOut)
 {
 	const XMVECTOR flipY = XMVectorSet(1.0f, -1.0f, 1.0f, 1.0f);
-	const auto ProcessNormal = [flipY](FXMVECTOR n) -> XMVECTOR
+	const auto ProcessNormal = [flipY](FXMVECTOR n, UINT x, UINT y) -> XMVECTOR
 	{
 		return XMVectorMultiply(n, flipY);
 	};
 
 	TransformFile(pathIn, pathOut, ProcessNormal);
+}
+
+void TexturePreprocessor::ValidateNormalMap(const std::wstring& pathIn, float thresholdMin, float thresholdMax)
+{
+	OutputDebugString((L"Validating normal map [" + pathIn + L"]\n").c_str());
+
+	XMVECTOR sum = XMVectorZero();
+	const auto ProcessNormal = [thresholdMin, thresholdMax, &sum](FXMVECTOR n, UINT x, UINT y) -> XMVECTOR
+	{
+		const float length = XMVectorGetX(XMVector3Length(n));
+		const float z = XMVectorGetZ(n);
+		if (length < thresholdMin || length > thresholdMax)
+		{
+			XMFLOAT3 vec;
+			XMStoreFloat3(&vec, n);
+			std::wostringstream oss;
+			oss << L"Bad normal length: " << length << L" at: (" << x << L"," << y << L") normal: (" << vec.x << L"," << vec.y << L"," << vec.z << L")\n";
+			OutputDebugString(oss.str().c_str());
+		}
+		if (z < 0.0f)
+		{
+			XMFLOAT3 vec;
+			XMStoreFloat3(&vec, n);
+			std::wostringstream oss;
+			oss << L"Bad normal Z direction at: (" << x << L"," << y << L") normal: (" << vec.x << L"," << vec.y << L"," << vec.z << L")\n";
+			OutputDebugString(oss.str().c_str());
+		}
+		sum = XMVectorAdd(sum, n);
+		return n;
+	};
+
+	Surface surface = Surface::FromFile(pathIn);
+	TransformSurface(surface, ProcessNormal);
+
+	XMFLOAT2 sumv;
+	XMStoreFloat2(&sumv, sum);
+	std::wostringstream oss;
+	oss << L"Normal map biases: (" << sumv.x << L"," << sumv.y << L")\n";
+	OutputDebugString(oss.str().c_str());
 }
 
 // Map Color[0,1] to Normal[-1,-1]
