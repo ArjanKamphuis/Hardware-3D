@@ -370,3 +370,6 @@ FodyWeavers.xsd
 
 # not ignore obj model
 !/Hardware 3D/Models/**/*.obj
+
+# unignore dxtex libs
+!/Hardware 3D/dxtex/**/*
