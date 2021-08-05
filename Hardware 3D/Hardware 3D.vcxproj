@@ -129,6 +129,7 @@
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ModelExceptions.cpp" />
+    <ClCompile Include="Rasterizer.cpp" />
     <ClCompile Include="TexturePreprocessor.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="IndexedTriangleList.h" />
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Rasterizer.h" />
     <ClInclude Include="TexturePreprocessor.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="PointLight.h" />
