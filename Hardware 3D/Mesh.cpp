@@ -491,7 +491,9 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	else
 		throw std::runtime_error("Terrible combination of textures in material smh");
 
-	bindablePtrs.push_back(Rasterizer::Resolve(gfx, false));
+	// hasAlphaDiffuse as no-culling works only in sponza
+	bindablePtrs.push_back(Rasterizer::Resolve(gfx, hasAlphaDiffuse));
+
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }
 
