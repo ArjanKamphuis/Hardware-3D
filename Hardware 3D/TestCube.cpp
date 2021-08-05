@@ -31,6 +31,9 @@ TestCube::TestCube(const Graphics& gfx, float size)
 	AddBind(Sampler::Resolve(gfx));
 
 	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));
+
+	AddBind(Blender::Resolve(gfx, false));
+	AddBind(Rasterizer::Resolve(gfx, false));
 }
 
 void TestCube::SpawnControlWindow(const Graphics& gfx) noexcept

@@ -493,6 +493,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 	// hasAlphaDiffuse as no-culling works only in sponza
 	bindablePtrs.push_back(Rasterizer::Resolve(gfx, hasAlphaDiffuse));
+	bindablePtrs.push_back(Blender::Resolve(gfx, false));
 
 	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
 }

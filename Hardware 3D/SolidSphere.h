@@ -17,7 +17,7 @@ private:
 	struct Material
 	{
 		DirectX::XMFLOAT3 Color = { 1.0f, 1.0f, 1.0f };
-		float Padding = 0.0f;
+		float AlphaChannelShaderPad = 1.0f;
 	} mMaterial = {};
 };
 

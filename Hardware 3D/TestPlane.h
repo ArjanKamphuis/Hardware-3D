@@ -7,14 +7,11 @@ class TestPlane : public Drawable
 private:
 	struct Material
 	{
-		float SpecularIntensity = 0.18f;
-		float SpecularPower = 18.0f;
-		BOOL  NormalMapEnabled = TRUE;
-		float Padding = 0.0f;
+		DirectX::XMFLOAT4 Color;
 	};
 
 public:
-	TestPlane(const Graphics& gfx, float size);
+	TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color = DirectX::XMVectorReplicate(1.0f));
 	void SpawnControlWindow(const Graphics& gfx) noexcept;
 
 	void XM_CALLCONV SetPosition(DirectX::FXMVECTOR position) noexcept;

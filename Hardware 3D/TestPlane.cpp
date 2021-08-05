@@ -8,8 +8,10 @@
 using namespace Bind;
 using namespace DirectX;
 
-TestPlane::TestPlane(const Graphics& gfx, float size)
+TestPlane::TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color)
 {
+	XMStoreFloat4(&mMaterial.Color, color);
+
 	IndexedTriangleList model = Plane::Make();
 	model.Transform(XMMatrixScaling(size, size, 1.0f));
 	const std::wstring geoTag = L"$plane." + std::to_wstring(size);
@@ -17,19 +19,18 @@ TestPlane::TestPlane(const Graphics& gfx, float size)
 	AddBind(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
 	AddBind(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
 
-	AddBind(PixelShader::Resolve(gfx, L"PhongPSNormalMapObject.cso"));
+	AddBind(PixelShader::Resolve(gfx, L"SolidPS.cso"));
 	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
 	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
 
-	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
 	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 	AddBind(std::move(pVS));
 
-	AddBind(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
-	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal_obj.png", 2u));
-	AddBind(Sampler::Resolve(gfx));
-
 	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));
+
+	AddBind(Blender::Resolve(gfx, true, 0.5f));
+	AddBind(Rasterizer::Resolve(gfx, true));
 }
 
 void TestPlane::SpawnControlWindow(const Graphics& gfx) noexcept
@@ -47,14 +48,10 @@ void TestPlane::SpawnControlWindow(const Graphics& gfx) noexcept
 		ImGui::SliderAngle("Yaw", &mYaw, -180.0f, 180.0f);
 
 		ImGui::Text("Shading");
-		bool changed0 = ImGui::SliderFloat("Spec. Int.", &mMaterial.SpecularIntensity, 0.0f, 1.0f);
-		bool changed1 = ImGui::SliderFloat("Spec. Power", &mMaterial.SpecularPower, 0.0f, 100.0f);
-		bool checkState = mMaterial.NormalMapEnabled == TRUE;
-		bool changed2 = ImGui::Checkbox("Enable Normal Map", &checkState);
-		mMaterial.NormalMapEnabled = checkState ? TRUE : FALSE;
-
-		if (changed0 || changed1 || changed2)
-			QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);
+		Blender* pBlender = QueryBindable<Blender>();
+		float factor = pBlender->GetBlendFactor();
+		ImGui::SliderFloat("Translucency", &factor, 0.0f, 1.0f);
+		pBlender->SetBlendFactor(factor);
 	}
 	ImGui::End();
 }

@@ -25,6 +25,9 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	AddBind(std::move(pVS));
 
 	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
+
+	AddBind(Blender::Resolve(gfx, false));
+	AddBind(Rasterizer::Resolve(gfx, false));
 }
 
 void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept
