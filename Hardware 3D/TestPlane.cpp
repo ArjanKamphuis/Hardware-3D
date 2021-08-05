@@ -21,7 +21,7 @@ TestPlane::TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color)
 
 	AddBind(PixelShader::Resolve(gfx, L"SolidPS.cso"));
 	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
+	AddBind(std::make_shared<PixelConstantBuffer<Material>>(gfx, mMaterial));
 
 	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
 	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
