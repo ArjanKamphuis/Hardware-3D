@@ -33,6 +33,7 @@ App::App(const std::wstring& commandLine)
 	}
 
 	mBluePlane.SetPosition(mCamera.GetPosition());
+	mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
 	//mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
 	//mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
@@ -135,6 +136,7 @@ void App::DoFrame(float dt)
 	mLight.Draw(gfx);
 	mSponza.Draw(gfx);
 	mBluePlane.Draw(gfx);
+	mRedPlane.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
 		DoImGui(gfx);
@@ -151,5 +153,6 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mNano.ShowWindow(gfx, "Nano");
 	//mGobber.ShowWindow(gfx, "Gobber");
 	mSponza.ShowWindow(gfx, "Sponza");
-	mBluePlane.SpawnControlWindow(gfx);
+	mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
+	mRedPlane.SpawnControlWindow(gfx, "Red Plane");
 }

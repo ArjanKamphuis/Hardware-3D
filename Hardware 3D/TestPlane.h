@@ -12,7 +12,7 @@ private:
 
 public:
 	TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color = DirectX::XMVectorReplicate(1.0f));
-	void SpawnControlWindow(const Graphics& gfx) noexcept;
+	void SpawnControlWindow(const Graphics& gfx, const std::string& name) noexcept;
 
 	void XM_CALLCONV SetPosition(DirectX::FXMVECTOR position) noexcept;
 	void SetRotation(float roll, float pitch, float yaw) noexcept;

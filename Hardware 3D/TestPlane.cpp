@@ -33,9 +33,9 @@ TestPlane::TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color)
 	AddBind(Rasterizer::Resolve(gfx, true));
 }
 
-void TestPlane::SpawnControlWindow(const Graphics& gfx) noexcept
+void TestPlane::SpawnControlWindow(const Graphics& gfx, const std::string& name) noexcept
 {
-	if (ImGui::Begin("Plane"))
+	if (ImGui::Begin(name.c_str()))
 	{
 		ImGui::Text("Position");
 		ImGui::SliderFloat("X", &mPosition.x, -80.0f, 80.0f, "%.1f");
