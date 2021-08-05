@@ -22,6 +22,9 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	const float4 texSample = gTexture.Sample(gSampler, texC);
 	clip(texSample.a < 0.1f ? -1 : 1);
 	
+	if (dot(normal, posW - gCameraPosition) >= 0.0f)
+		normal = -normal;
+	
 	normal = normalize(normal);
 	if (gNormalMapEnabled)
 		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
