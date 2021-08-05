@@ -20,10 +20,12 @@ SamplerState gSampler;
 float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TANGENT, float3 bitangent : BITANGENT, float2 texC : TEXCOORD) : SV_TARGET
 {
 	const float4 texSample = gTexture.Sample(gSampler, texC);
-	clip(texSample.a < 0.1f ? -1 : 1);
 	
+	#ifdef MASKED
+	clip(texSample.a < 0.1f ? -1 : 1);
 	if (dot(normal, posW - gCameraPosition) >= 0.0f)
 		normal = -normal;
+	#endif
 	
 	normal = normalize(normal);
 	if (gNormalMapEnabled)

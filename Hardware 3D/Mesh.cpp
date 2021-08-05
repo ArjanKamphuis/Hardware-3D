@@ -304,7 +304,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVSNormalMap.cso");
 		bindablePtrs.push_back(InputLayout::Resolve(gfx, vbuf.GetLayout(), pVS->GetByteCode()));
 		bindablePtrs.push_back(std::move(pVS));
-		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSSpecNormalMap.cso"));
+		bindablePtrs.push_back(PixelShader::Resolve(gfx, hasAlphaDiffuse ? L"PhongPSSpecNormMask.cso" : L"PhongPSSpecNormalMap.cso"));
 
 		Node::PSMaterialNormSpec materialConstant;
 		materialConstant.SpecularPower = shininess;
