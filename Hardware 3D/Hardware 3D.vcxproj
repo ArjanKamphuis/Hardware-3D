@@ -109,6 +109,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ChiliException.cpp" />
     <ClCompile Include="ChiliTimer.cpp" />
+    <ClCompile Include="ChiliUtil.cpp" />
     <ClCompile Include="ChiliXM.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Drawable.cpp" />
@@ -158,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="BindableCodex.h" />
     <ClInclude Include="Blender.h" />
+    <ClInclude Include="ChiliUtil.h" />
     <ClInclude Include="ChiliXM.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="Mesh.h" />
