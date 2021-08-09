@@ -1,9 +1,5 @@
 #include "App.h"
 
-#include "GDIPlusManager.h"
-GDIPlusManager gdipm;
-
-#include <DirectXTex.h>
 #include <shellapi.h>
 #include "TexturePreprocessor.h"
 
@@ -12,14 +8,6 @@ using namespace DirectX;
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
 {
-	ScratchImage scratch = ScratchImage{};
-	LoadFromWICFile(L"Images/brickwall.jpg", WIC_FLAGS_NONE, nullptr, scratch);
-	const Image* image = scratch.GetImage(0u, 0u, 0u);
-	auto a = image->pixels[0];
-	auto b = image->pixels[1];
-	auto c = image->pixels[2];
-	auto d = image->pixels[3];
-
 	if (mCommandLine != L"")
 	{
 		int nArgs;

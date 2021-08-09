@@ -187,7 +187,7 @@ Model::~Model() noexcept
 {
 }
 
-void Model::Draw(const Graphics& gfx) const
+void Model::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
 	if (Node* node = mWindow->GetSelectedNode())
 		node->SetAppliedTransform(mWindow->GetTransform());
