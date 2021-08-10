@@ -132,6 +132,8 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="ModelExceptions.cpp" />
     <ClCompile Include="Rasterizer.cpp" />
+    <ClCompile Include="ScriptCommander.cpp" />
+    <ClCompile Include="ScriptCommanderExceptions.cpp" />
     <ClCompile Include="TexturePreprocessor.cpp" />
     <ClCompile Include="Plane.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -190,6 +192,7 @@
     <ClInclude Include="InputLayout.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Rasterizer.h" />
+    <ClInclude Include="ScriptCommander.h" />
     <ClInclude Include="TexturePreprocessor.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="PointLight.h" />
@@ -274,6 +277,7 @@
   <ItemGroup>
     <None Include="LightVectorData.hlsli" />
     <None Include="PointLightBuffer.hlsli" />
+    <None Include="process.json" />
     <None Include="ShaderOperations.hlsli" />
     <None Include="TransformBuffer.hlsli" />
   </ItemGroup>

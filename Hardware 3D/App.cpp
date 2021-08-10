@@ -1,34 +1,12 @@
 #include "App.h"
 
-#include <shellapi.h>
-#include "TexturePreprocessor.h"
+#include "ChiliUtil.h"
 
 using namespace DirectX;
 
 App::App(const std::wstring& commandLine)
-    : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mLight(mWnd.Gfx())
+    : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	if (mCommandLine != L"")
-	{
-		int nArgs;
-		const LPWSTR* pArgs = CommandLineToArgvW(mCommandLine.c_str(), &nArgs);
-		if (nArgs >= 3 && std::wstring(pArgs[1]) == L"--twerk-objnorm")
-		{
-			TexturePreprocessor::FlipYAllNormalMapsInObj(pArgs[2]);
-			throw std::runtime_error("Normal maps all processed successfully. Just kidding about that whole runtime error thing.");
-		}
-		else if (nArgs >= 4 && std::wstring(pArgs[1]) == L"--twerk-flipy")
-		{
-			TexturePreprocessor::FlipYNormalMap(pArgs[2], pArgs[3]);
-			throw std::runtime_error("Normal map processed successfully. Just kidding about that whole runtime error thing.");
-		}
-		else if (nArgs >= 4 && std::wstring(pArgs[1]) == L"--twerk-validate")
-		{
-			TexturePreprocessor::ValidateNormalMap(pArgs[4], std::stof(pArgs[2]), std::stof(pArgs[3]));
-			throw std::runtime_error("Normal map validated successfully. Just kidding about that whole runtime error thing.");
-		}
-	}
-
 	mBluePlane.SetPosition(mCamera.GetPosition());
 	mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));

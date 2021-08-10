@@ -5,6 +5,7 @@
 #include "ImguiManager.h"
 #include "Mesh.h"
 #include "PointLight.h"
+#include "ScriptCommander.h"
 #include "TestPlane.h"
 #include "Window.h"
 
@@ -26,6 +27,7 @@ private:
 	std::wstring mCommandLine;
 	ImguiManager mImgui;
 	Window mWnd;
+	ScriptCommander mScriptCommander;
 	ChiliTimer mTimer;
 	Camera mCamera;
 	PointLight mLight;

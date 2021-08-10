@@ -207,6 +207,12 @@
     <ClCompile Include="ChiliUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ScriptCommander.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptCommanderExceptions.cpp">
+      <Filter>Source Files\ExceptionDefinitions</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsMessageMap.h">
@@ -374,6 +380,9 @@
     <ClInclude Include="ChiliUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ScriptCommander.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Hardware 3D.rc">
@@ -436,5 +445,6 @@
     <None Include="LightVectorData.hlsli">
       <Filter>Shaders\Common</Filter>
     </None>
+    <None Include="process.json" />
   </ItemGroup>
 </Project>
