@@ -26,23 +26,23 @@ ScriptCommander::ScriptCommander(const std::vector<std::wstring>& args)
 		bool abort = false;
 		for (const auto& j : top)
 		{
-			const std::string commandName = j["command"].get<std::string>();
-			const auto params = j["params"];
-			const std::wstring sourceWide = ToWide(params["source"].get<std::string>());
+			const std::string commandName = j.at("command").get<std::string>();
+			const auto params = j.at("params");
 
 			if (commandName == "flip-y")
 			{
-				TexturePreprocessor::FlipYNormalMap(sourceWide, ToWide(params.value("dest", ToNarrow(sourceWide))));
+				const auto source = params.at("source");
+				TexturePreprocessor::FlipYNormalMap(ToWide(source), ToWide(params.value("dest", source)));
 				abort = true;
 			}
 			else if (commandName == "flip-y-obj")
 			{
-				TexturePreprocessor::FlipYAllNormalMapsInObj(sourceWide);
+				TexturePreprocessor::FlipYAllNormalMapsInObj(ToWide(params.at("source")));
 				abort = true;
 			}
 			else if (commandName == "validate-map")
 			{
-				TexturePreprocessor::ValidateNormalMap(sourceWide, params["min"], params["max"]);
+				TexturePreprocessor::ValidateNormalMap(ToWide(params.at("source")), params.at("min"), params.at("max"));
 				abort = true;
 			}
 			else
