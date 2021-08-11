@@ -2,12 +2,11 @@
   "enabled" : false,
   "commands": [
     {
-      "command": "flip-y",
+      "command": "make-stripes",
       "params": {
-        "source": "Images/reference_nrm.png",
-        "dest": "Images/reference_nrm.png",
-        "min": 0.8,
-        "max": 1.2
+        "dest": "Images/stripes.png",
+        "size": 256,
+        "stripeWidth": 4
       }
     }
   ]

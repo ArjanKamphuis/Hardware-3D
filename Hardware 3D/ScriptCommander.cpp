@@ -2,8 +2,12 @@
 
 #include <fstream>
 #include "ChiliUtil.h"
-#include "json.hpp"
 #include "TexturePreprocessor.h"
+
+#pragma warning(push)
+#pragma warning(disable : 26819)
+#include "json.hpp"
+#pragma warning(pop)
 
 using namespace ChiliUtil;
 
@@ -31,7 +35,7 @@ ScriptCommander::ScriptCommander(const std::vector<std::wstring>& args)
 				if (commandName == "flip-y")
 				{
 					const auto source = params.at("source");
-						TexturePreprocessor::FlipYNormalMap(ToWide(source), ToWide(params.value("dest", source)));
+					TexturePreprocessor::FlipYNormalMap(ToWide(source), ToWide(params.value("dest", source)));
 					abort = true;
 				}
 				else if (commandName == "flip-y-obj")
@@ -42,6 +46,11 @@ ScriptCommander::ScriptCommander(const std::vector<std::wstring>& args)
 				else if (commandName == "validate-map")
 				{
 					TexturePreprocessor::ValidateNormalMap(ToWide(params.at("source")), params.at("min"), params.at("max"));
+					abort = true;
+				}
+				else if (commandName == "make-stripes")
+				{
+					TexturePreprocessor::MakeStripes(ToWide(params.at("dest")), params.at("size"), params.at("stripeWidth"));
 					abort = true;
 				}
 				else

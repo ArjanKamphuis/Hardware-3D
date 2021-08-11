@@ -96,6 +96,22 @@ void TexturePreprocessor::ValidateNormalMap(const std::wstring& pathIn, float th
 	OutputDebugString(oss.str().c_str());
 }
 
+void TexturePreprocessor::MakeStripes(const std::wstring& pathOut, size_t size, size_t stripeWidth)
+{
+	double power = log2(size);
+	assert(modf(power, &power) == 0.0);
+	assert(stripeWidth < size / 2);
+
+	Surface s(size, size);
+	const Color white{ UINT32_MAX };
+	const Color color{ 0xFFFFD700 };
+	for (size_t y = 0; y < size; y++)
+		for (size_t x = 0; x < size; x++)
+			s.PutPixel(x, y, (x / stripeWidth) % 2 == 0 ? color : white);
+
+	s.Save(pathOut);
+}
+
 // Map Color[0,1] to Normal[-1,-1]
 XMVECTOR XM_CALLCONV TexturePreprocessor::MapColorToNormal(Color c)
 {
