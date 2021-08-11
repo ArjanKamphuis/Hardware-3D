@@ -1,6 +1,7 @@
 #include "Blender.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -58,8 +59,7 @@ namespace Bind
 
 	std::wstring Blender::GenerateUID(bool blending, std::optional<float> factor)
 	{
-		const std::string name(typeid(Blender).name());
-		return std::wstring{ name.begin(), name.end() } + L"#" + (blending ? L"b" : L"n") + (factor ? L"#f" + std::to_wstring(*factor) : L"");
+		return ChiliUtil::ToWide(typeid(Blender).name()) + L"#" + (blending ? L"b" : L"n") + (factor ? L"#f" + std::to_wstring(*factor) : L"");
 	}
 
 	std::wstring Blender::GetUID() const noexcept

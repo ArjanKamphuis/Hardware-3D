@@ -1,6 +1,7 @@
 #include "Sampler.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -28,8 +29,7 @@ namespace Bind
 
 	std::wstring Sampler::GenerateUID()
 	{
-		const std::string name(typeid(Sampler).name());
-		return std::wstring{ name.begin(), name.end() };
+		return ChiliUtil::ToWide(typeid(Sampler).name());
 	}
 
 	std::wstring Sampler::GetUID() const noexcept

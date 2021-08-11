@@ -1,6 +1,7 @@
 #include "Rasterizer.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -26,8 +27,7 @@ namespace Bind
 
 	std::wstring Rasterizer::GenerateUID(bool twoSided)
 	{
-		const std::string name(typeid(Rasterizer).name());
-		return std::wstring{ name.begin(), name.end() } + L"#" + (twoSided ? L"2s" : L"1s");
+		return ChiliUtil::ToWide(typeid(Rasterizer).name()) + L"#" + (twoSided ? L"2s" : L"1s");
 	}
 
 	std::wstring Rasterizer::GetUID() const noexcept

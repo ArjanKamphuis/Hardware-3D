@@ -2,10 +2,12 @@
 
 #include <filesystem>
 #include <sstream>
+#include "ChiliUtil.h"
 #include "Mesh.h"
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
+using namespace ChiliUtil;
 using Color = Surface::Color;
 
 void TexturePreprocessor::RotateXAxis180(const std::wstring& pathIn)
@@ -28,7 +30,7 @@ void TexturePreprocessor::FlipYAllNormalMapsInObj(const std::wstring& objPath)
 	const std::wstring rootPath = std::filesystem::path{ objPath }.parent_path().generic_wstring() + L"/";
 
 	Assimp::Importer imp;
-	const aiScene* pScene = imp.ReadFile(std::filesystem::path{ objPath }.string(), 0u);
+	const aiScene* pScene = imp.ReadFile(ToNarrow(objPath).c_str(), 0u);
 	if (pScene == nullptr)
 		throw Model::Exception(__LINE__, __FILEW__, imp.GetErrorString());
 
@@ -38,8 +40,7 @@ void TexturePreprocessor::FlipYAllNormalMapsInObj(const std::wstring& objPath)
 		aiString texFileName;
 		if (mat.GetTexture(aiTextureType_NORMALS, 0u, &texFileName) == aiReturn_SUCCESS)
 		{
-			std::string fileString = std::string(texFileName.C_Str());
-			const std::wstring path = rootPath + std::wstring(fileString.begin(), fileString.end());
+			const std::wstring path = rootPath + ToWide(texFileName.C_Str());
 			FlipYNormalMap(path, path);
 		}
 	}

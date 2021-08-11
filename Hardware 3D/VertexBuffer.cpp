@@ -1,6 +1,7 @@
 #include "VertexBuffer.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 
 namespace Bind
 {
@@ -39,7 +40,6 @@ namespace Bind
 	}
 	std::wstring VertexBuffer::GenerateUID_(const std::wstring& tag)
 	{
-		const std::string name{ typeid(VertexBuffer).name() };
-		return std::wstring{ name.begin(), name.end() } + L"#" + tag;
+		return ChiliUtil::ToWide(typeid(VertexBuffer).name()) + L"#" + tag;
 	}
 }

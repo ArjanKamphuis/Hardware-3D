@@ -1,6 +1,7 @@
 #include "VertexShader.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -30,8 +31,7 @@ namespace Bind
 
 	std::wstring VertexShader::GenerateUID(const std::wstring& path)
 	{
-		const std::string name = typeid(VertexShader).name();
-		return std::wstring{ name.begin(), name.end() } + L"#" + path;
+		return ChiliUtil::ToWide(typeid(VertexShader).name()) + L"#" + path;
 	}
 
 	std::wstring VertexShader::GetUID() const noexcept

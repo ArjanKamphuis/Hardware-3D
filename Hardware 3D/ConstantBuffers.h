@@ -2,7 +2,10 @@
 
 #include "Bindable.h"
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
+
+using ChiliUtil::ToWide;
 
 namespace Bind
 {
@@ -86,8 +89,7 @@ namespace Bind
 		}
 		static std::wstring GenerateUID(UINT slot = 0)
 		{
-			const std::string name{ typeid(VertexConstantBuffer).name() };
-			return std::wstring{ name.begin(), name.end() } + L"#s" + std::to_wstring(slot);
+			return ToWide(typeid(VertexConstantBuffer).name()) + L"#s" + std::to_wstring(slot);
 		}
 		std::wstring GetUID() const noexcept override
 		{
@@ -122,8 +124,7 @@ namespace Bind
 		}
 		static std::wstring GenerateUID(UINT slot = 0)
 		{
-			const std::string name{ typeid(PixelConstantBuffer).name() };
-			return std::wstring{ name.begin(), name.end() } + L"#" + std::to_wstring(slot);
+			return ToWide(typeid(PixelConstantBuffer).name()) + L"#" + std::to_wstring(slot);
 		}
 		std::wstring GetUID() const noexcept override
 		{

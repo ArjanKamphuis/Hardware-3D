@@ -1,6 +1,7 @@
 #include "Topology.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 
 namespace Bind
 {
@@ -20,8 +21,7 @@ namespace Bind
 	}
 	std::wstring Topology::GenerateUID(D3D11_PRIMITIVE_TOPOLOGY type)
 	{
-		const std::string name{ typeid(Topology).name() };
-		return std::wstring{ name.begin(), name.end() } + L"#" + std::to_wstring(type);
+		return ChiliUtil::ToWide(typeid(Topology).name()) + L"#" + std::to_wstring(type);
 	}
 	std::wstring Topology::GetUID() const noexcept
 	{

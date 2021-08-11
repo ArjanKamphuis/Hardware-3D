@@ -3,11 +3,13 @@
 #include <stdexcept>
 #include <unordered_map>
 #include "ChiliXM.h"
+#include "ChiliUtil.h"
 #include "Surface.h"
 
 using namespace Bind;
 using namespace DirectX;
 using namespace ChiliXM;
+using ChiliUtil::ToWide;
 
 Mesh::Mesh(const Graphics& gfx, std::vector<std::shared_ptr<Bindable>> bindPtrs)
 {
@@ -225,12 +227,10 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	{
 		auto& material = *pMaterials[mesh.mMaterialIndex];
 		aiString texFileName;
-		std::string filename;
 
 		if (material.GetTexture(aiTextureType_DIFFUSE, 0, &texFileName) == aiReturn_SUCCESS)
 		{
-			filename = texFileName.C_Str();
-			auto tex = Texture::Resolve(gfx, rootPath + std::wstring(filename.begin(), filename.end()));
+			auto tex = Texture::Resolve(gfx, rootPath + ToWide(texFileName.C_Str()));
 			hasAlphaDiffuse = tex->HasAlpha();
 			bindablePtrs.push_back(std::move(tex));
 			hasDiffuseMap = true;
@@ -240,8 +240,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		if (material.GetTexture(aiTextureType_SPECULAR, 0, &texFileName) == aiReturn_SUCCESS)
 		{
-			filename = texFileName.C_Str();
-			auto tex = Texture::Resolve(gfx, rootPath + std::wstring(filename.begin(), filename.end()), 1u);
+			auto tex = Texture::Resolve(gfx, rootPath + ToWide(texFileName.C_Str()), 1u);
 			hasAlphaGloss = tex->HasAlpha();
 			bindablePtrs.push_back(std::move(tex));
 			hasSpecularMap = true;
@@ -254,8 +253,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 
 		if (material.GetTexture(aiTextureType_NORMALS, 0, &texFileName) == aiReturn_SUCCESS)
 		{
-			filename = texFileName.C_Str();
-			auto tex = Texture::Resolve(gfx, rootPath + std::wstring(filename.begin(), filename.end()), 2u);
+			auto tex = Texture::Resolve(gfx, rootPath + ToWide(texFileName.C_Str()), 2u);
 			hasAlphaGloss = tex->HasAlpha();
 			bindablePtrs.push_back(std::move(tex));
 			hasNormalMap = true;
@@ -265,8 +263,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 			bindablePtrs.push_back(Sampler::Resolve(gfx));
 	}
 
-	const std::string meshName{ mesh.mName.C_Str() };
-	const std::wstring meshTag = rootPath + L"%" + std::wstring{ meshName.begin(), meshName.end() };
+	const std::wstring meshTag = rootPath + L"%" + ToWide(mesh.mName.C_Str());
 
 	if (hasDiffuseMap && hasNormalMap && hasSpecularMap)
 	{

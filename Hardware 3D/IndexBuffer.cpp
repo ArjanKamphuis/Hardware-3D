@@ -1,6 +1,7 @@
 #include "IndexBuffer.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -47,7 +48,6 @@ namespace Bind
 
 	std::wstring IndexBuffer::GenerateUID_(const std::wstring& tag)
 	{
-		const std::string name{ typeid(IndexBuffer).name() };
-		return std::wstring{ name.begin(), name.end() } + L"#" + tag;
+		return ChiliUtil::ToWide(typeid(IndexBuffer).name()) + L"#" + tag;
 	}
 }

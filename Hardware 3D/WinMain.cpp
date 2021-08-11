@@ -1,6 +1,7 @@
 #include "Window.h"
 
 #include "App.h"
+#include "ChiliUtil.h"
 
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR lpCmdLine, _In_ int nShowCmd)
 {
@@ -14,8 +15,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	}
 	catch (const std::exception& e)
 	{
-		const std::string message = std::string(e.what());
-		MessageBox(nullptr, std::wstring(message.begin(), message.end()).c_str(), L"Standard Exception", MB_OK | MB_ICONEXCLAMATION);
+		MessageBox(nullptr, ChiliUtil::ToWide(e.what()).c_str(), L"Standard Exception", MB_OK | MB_ICONEXCLAMATION);
 	}
 	catch (...)
 	{

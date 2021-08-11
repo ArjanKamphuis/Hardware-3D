@@ -1,6 +1,7 @@
 #include "Texture.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 #include "Surface.h"
 
@@ -45,8 +46,7 @@ namespace Bind
 	}
 	std::wstring Texture::GenerateUID(const std::wstring& path, UINT slot)
 	{
-		const std::string name{ typeid(Texture).name() };
-		return std::wstring{ name.begin(), name.end() } + L"#" + path + L"#" + std::to_wstring(slot);
+		return ChiliUtil::ToWide(typeid(Texture).name()) + L"#" + path + L"#" + std::to_wstring(slot);
 	}
 	std::wstring Texture::GetUID() const noexcept
 	{

@@ -1,6 +1,7 @@
 #include "InputLayout.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -26,8 +27,7 @@ namespace Bind
 	}
 	std::wstring InputLayout::GenerateUID(Dvtx::VertexLayout layout, ID3DBlob* pVertexShaderByteCode)
 	{
-		const std::string name{ typeid(InputLayout).name() };
-		return std::wstring{ name.begin(), name.end() } + L"#" + layout.GetCode();
+		return ChiliUtil::ToWide(typeid(InputLayout).name()) + L"#" + layout.GetCode();
 	}
 	std::wstring InputLayout::GetUID() const noexcept
 	{

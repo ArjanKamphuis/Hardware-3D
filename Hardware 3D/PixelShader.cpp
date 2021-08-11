@@ -1,6 +1,7 @@
 #include "PixelShader.h"
 
 #include "BindableCodex.h"
+#include "ChiliUtil.h"
 #include "GraphicsThrowMacros.h"
 
 namespace Bind
@@ -25,8 +26,7 @@ namespace Bind
 	}
 	std::wstring PixelShader::GenerateUID(const std::wstring& path)
 	{
-		const std::string name{ typeid(PixelShader).name() };
-		return std::wstring{ name.begin(), name.end() } + L"#" + path;
+		return ChiliUtil::ToWide(typeid(PixelShader).name()) + L"#" + path;
 	}
 	std::wstring PixelShader::GetUID() const noexcept
 	{
