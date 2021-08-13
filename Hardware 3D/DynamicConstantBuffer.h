@@ -40,6 +40,8 @@ systype& operator=(const systype& rhs) noexcept(!IS_DEBUG) \
 
 namespace Dcb
 {
+	class Struct;
+
 	class LayoutElement
 	{
 	public:
@@ -51,7 +53,8 @@ namespace Dcb
 		size_t GetOffsetBegin() const noexcept;
 		virtual size_t GetOffsetEnd() const noexcept = 0;
 
-		class Struct& AsStruct() noexcept(!IS_DEBUG);
+		template<typename T>
+		Struct& Add(const std::wstring& key) noexcept(!IS_DEBUG);
 
 		RESOLVE_BASE(Float3);
 		RESOLVE_BASE(Float);
@@ -112,5 +115,13 @@ namespace Dcb
 		if (!mMap.emplace(name, mElements.back().get()).second)
 			assert(false);
 		return *this;
+	}
+
+	template<typename T>
+	inline Struct& LayoutElement::Add(const std::wstring& key) noexcept(!IS_DEBUG)
+	{
+		Struct* ps = dynamic_cast<Struct*>(this);
+		assert(ps != nullptr);
+		return ps->Add<T>(key);
 	}
 }

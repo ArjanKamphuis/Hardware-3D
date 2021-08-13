@@ -10,7 +10,7 @@ App::App(const std::wstring& commandLine)
 {
 	Dcb::Struct s(0);
 	s.Add<Dcb::Struct>(L"butts");
-	s[L"butts"].AsStruct().Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
+	s[L"butts"].Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
 	Dcb::Buffer b(std::move(s));
 	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
 	b[L"butts"][L"dank"] = 420.0f;

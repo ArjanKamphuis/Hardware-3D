@@ -26,13 +26,6 @@ namespace Dcb
         return mOffset;
     }
 
-    Struct& LayoutElement::AsStruct() noexcept(!IS_DEBUG)
-    {
-        Struct* ps = dynamic_cast<Struct*>(this);
-        assert(ps != nullptr);
-        return *ps;
-    }
-
     LayoutElement& Struct::operator[](const wchar_t* key)
     {
         return *mMap.at(key);
