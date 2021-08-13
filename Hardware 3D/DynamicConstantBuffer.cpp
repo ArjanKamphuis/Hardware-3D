@@ -26,20 +26,11 @@ namespace Dcb
         return mOffset;
     }
 
-    size_t LayoutElement::ResolveFloat3() const noexcept(!IS_DEBUG)
+    Struct& LayoutElement::AsStruct() noexcept(!IS_DEBUG)
     {
-        assert(false && "Cannot resolve LayoutElement type");
-        return 0;
-    }
-
-    size_t Float3::ResolveFloat3() const noexcept(!IS_DEBUG)
-    {
-        return GetOffsetBegin();
-    }
-
-    size_t Float3::GetOffsetEnd() const noexcept
-    {
-        return GetOffsetBegin() + sizeof(XMFLOAT3);
+        Struct* ps = dynamic_cast<Struct*>(this);
+        assert(ps != nullptr);
+        return *ps;
     }
 
     LayoutElement& Struct::operator[](const wchar_t* key)
@@ -65,16 +56,6 @@ namespace Dcb
     ElementRef ElementRef::operator[](const wchar_t* key) noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes };
-    }
-
-    ElementRef::operator DirectX::XMFLOAT3&() noexcept(!IS_DEBUG)
-    {
-        return *reinterpret_cast<XMFLOAT3*>(mBytes + mLayout->ResolveFloat3());
-    }
-
-    XMFLOAT3& ElementRef::operator=(const XMFLOAT3& rhs) noexcept(!IS_DEBUG)
-    {
-        return static_cast<XMFLOAT3&>(*this) = rhs;
     }
 
     Buffer::Buffer(const Struct& pLayout)

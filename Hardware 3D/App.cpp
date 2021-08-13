@@ -10,10 +10,12 @@ App::App(const std::wstring& commandLine)
 {
 	Dcb::Struct s(0);
 	s.Add<Dcb::Struct>(L"butts");
-	static_cast<Dcb::Struct&>(s[L"butts"]).Add<Dcb::Float3>(L"pubes");
+	s[L"butts"].AsStruct().Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
 	Dcb::Buffer b(std::move(s));
 	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
+	b[L"butts"][L"dank"] = 420.0f;
 	XMFLOAT3 v = b[L"butts"][L"pubes"];
+	float u = b[L"butts"][L"dank"];
 
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
