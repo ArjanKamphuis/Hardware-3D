@@ -17,6 +17,7 @@ virtual size_t Resolve ## eltype() const noexcept(!IS_DEBUG) \
 class eltype : public LayoutElement \
 { \
 public: \
+	using SystemType = systype; \
 	using LayoutElement::LayoutElement; \
 	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final \
 	{ \
@@ -28,14 +29,14 @@ public: \
 	} \
 };
 
-#define REF_CONVERSION(eltype, systype) \
-operator systype& () noexcept(!IS_DEBUG) \
+#define REF_CONVERSION(eltype) \
+operator eltype::SystemType& () noexcept(!IS_DEBUG) \
 { \
-	return *reinterpret_cast<systype*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
+	return *reinterpret_cast<eltype::SystemType*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
 } \
-systype& operator=(const systype& rhs) noexcept(!IS_DEBUG) \
+eltype::SystemType& operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG) \
 { \
-	return static_cast<systype&>(*this) = rhs; \
+	return static_cast<eltype::SystemType&>(*this) = rhs; \
 }
 
 namespace Dcb
@@ -62,15 +63,23 @@ namespace Dcb
 		template<typename T>
 		Array& Set(size_t size) noexcept(!IS_DEBUG);
 
+		RESOLVE_BASE(Matrix);
+		RESOLVE_BASE(Float4);
 		RESOLVE_BASE(Float3);
+		RESOLVE_BASE(Float2);
 		RESOLVE_BASE(Float);
+		RESOLVE_BASE(Bool);
 
 	private:
 		size_t mOffset;
 	};
 
+	LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
+	LEAF_ELEMENT(Float4, DirectX::XMFLOAT4);
 	LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
+	LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
 	LEAF_ELEMENT(Float, float);
+	LEAF_ELEMENT(Bool, bool);
 
 	class Struct : public LayoutElement
 	{
@@ -113,8 +122,12 @@ namespace Dcb
 		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
 		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 		
-		REF_CONVERSION(Float3, DirectX::XMFLOAT3);
-		REF_CONVERSION(Float, float);
+		REF_CONVERSION(Matrix);
+		REF_CONVERSION(Float4);
+		REF_CONVERSION(Float3);
+		REF_CONVERSION(Float2);
+		REF_CONVERSION(Float);
+		REF_CONVERSION(Bool);
 
 	private:
 		const LayoutElement* mLayout;

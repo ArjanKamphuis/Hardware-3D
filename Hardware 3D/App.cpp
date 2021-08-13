@@ -18,20 +18,20 @@ App::App(const std::wstring& commandLine)
 	s[L"arr"].T()[L"werk"].Set<Dcb::Float>(6);
 	s[L"arr"].T().Add<Dcb::Array>(L"meta");
 	s[L"arr"].T()[L"meta"].Set<Dcb::Array>(6);
-	s[L"arr"].T()[L"meta"].T().Set<Dcb::Float>(4);
+	s[L"arr"].T()[L"meta"].T().Set<Dcb::Matrix>(4);
 
 	Dcb::Buffer b(std::move(s));
 	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
 	b[L"butts"][L"dank"] = 420.0f;
 	b[L"woot"] = 42.0f;
 	b[L"arr"][2][L"werk"][5] = 111.0f;
-	b[L"arr"][2][L"meta"][5][3] = 222.0f;
+	XMStoreFloat4x4(&static_cast<XMFLOAT4X4&>(b[L"arr"][2][L"meta"][5][3]), XMMatrixIdentity());
 
 	float k = b[L"woot"];
 	XMFLOAT3 v = b[L"butts"][L"pubes"];
 	float u = b[L"butts"][L"dank"];
 	float er = b[L"arr"][2][L"werk"][5];
-	float eq = b[L"arr"][2][L"meta"][5][3];
+	XMFLOAT4X4 eq = b[L"arr"][2][L"meta"][5][3];
 
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
