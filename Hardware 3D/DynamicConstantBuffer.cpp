@@ -21,9 +21,26 @@ namespace Dcb
         return *this;
     }
 
+    LayoutElement& LayoutElement::T()
+    {
+        assert(false);
+        return *this;
+    }
+
+    const LayoutElement& LayoutElement::T() const
+    {
+        assert(false);
+        return *this;
+    }
+
     size_t LayoutElement::GetOffsetBegin() const noexcept
     {
         return mOffset;
+    }
+
+    size_t LayoutElement::GetSizeInBytes() const noexcept
+    {
+        return GetOffsetEnd() - GetOffsetBegin();
     }
 
     LayoutElement& Struct::operator[](const wchar_t* key)
@@ -41,14 +58,36 @@ namespace Dcb
         return mElements.empty() ? GetOffsetBegin() : mElements.back()->GetOffsetEnd();
     }
 
-    ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes)
-        : mLayout(pLayout), mBytes(pBytes)
+    LayoutElement& Array::T()
+    {
+        return *mElement;
+    }
+
+    const LayoutElement& Array::T() const
+    {
+        return *mElement;
+    }
+
+    size_t Array::GetOffsetEnd() const noexcept
+    {
+        assert(mElement);
+        return GetOffsetBegin() + mElement->GetSizeInBytes() * mSize;
+    }
+
+    ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
+        : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
     {
     }
 
     ElementRef ElementRef::operator[](const wchar_t* key) noexcept(!IS_DEBUG)
     {
-        return { &(*mLayout)[key], mBytes };
+        return { &(*mLayout)[key], mBytes, mOffset };
+    }
+
+    ElementRef ElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
+    {
+        const LayoutElement& t = mLayout->T();
+        return { &t, mBytes, mOffset + t.GetSizeInBytes() * index };
     }
 
     Buffer::Buffer(const Struct& pLayout)
@@ -58,6 +97,6 @@ namespace Dcb
 
     ElementRef Buffer::operator[](const wchar_t* key) noexcept(!IS_DEBUG)
     {
-        return { &(*mLayout)[key], mBytes.data() };
+        return { &(*mLayout)[key], mBytes.data(), 0u };
     }
 }

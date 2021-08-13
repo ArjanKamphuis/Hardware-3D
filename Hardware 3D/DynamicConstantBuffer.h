@@ -31,7 +31,7 @@ public: \
 #define REF_CONVERSION(eltype, systype) \
 operator systype& () noexcept(!IS_DEBUG) \
 { \
-	return *reinterpret_cast<systype*>(mBytes + mLayout->Resolve ## eltype()); \
+	return *reinterpret_cast<systype*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
 } \
 systype& operator=(const systype& rhs) noexcept(!IS_DEBUG) \
 { \
@@ -41,6 +41,7 @@ systype& operator=(const systype& rhs) noexcept(!IS_DEBUG) \
 namespace Dcb
 {
 	class Struct;
+	class Array;
 
 	class LayoutElement
 	{
@@ -49,12 +50,17 @@ namespace Dcb
 
 		virtual LayoutElement& operator[](const wchar_t* key);
 		virtual const LayoutElement& operator[](const wchar_t* key) const;
+		virtual LayoutElement& T();
+		virtual const LayoutElement& T() const;
 
 		size_t GetOffsetBegin() const noexcept;
 		virtual size_t GetOffsetEnd() const noexcept = 0;
+		size_t GetSizeInBytes() const noexcept;
 
 		template<typename T>
 		Struct& Add(const std::wstring& key) noexcept(!IS_DEBUG);
+		template<typename T>
+		Array& Set(size_t size) noexcept(!IS_DEBUG);
 
 		RESOLVE_BASE(Float3);
 		RESOLVE_BASE(Float);
@@ -83,11 +89,29 @@ namespace Dcb
 		std::vector<std::unique_ptr<LayoutElement>> mElements;
 	};
 
+	class Array : public LayoutElement
+	{
+	public:
+		using LayoutElement::LayoutElement;
+		
+		LayoutElement& T() override final;
+		const LayoutElement& T() const override final;
+		size_t GetOffsetEnd() const noexcept override final;
+
+		template<typename T>
+		Array& Set(size_t size) noexcept(!IS_DEBUG);
+
+	private:
+		size_t mSize = 0u;
+		std::unique_ptr<LayoutElement> mElement;
+	};
+
 	class ElementRef
 	{
 	public:
-		ElementRef(const LayoutElement* pLayout, std::byte* pBytes);
+		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
 		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
+		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 		
 		REF_CONVERSION(Float3, DirectX::XMFLOAT3);
 		REF_CONVERSION(Float, float);
@@ -95,6 +119,7 @@ namespace Dcb
 	private:
 		const LayoutElement* mLayout;
 		std::byte* mBytes;
+		size_t mOffset;
 	};
 
 	class Buffer
@@ -123,5 +148,21 @@ namespace Dcb
 		Struct* ps = dynamic_cast<Struct*>(this);
 		assert(ps != nullptr);
 		return ps->Add<T>(key);
+	}
+
+	template<typename T>
+	inline Array& LayoutElement::Set(size_t size) noexcept(!IS_DEBUG)
+	{
+		Array* pa = dynamic_cast<Array*>(this);
+		assert(pa != nullptr);
+		return pa->Set<T>(size);
+	}
+
+	template<typename T>
+	inline Array& Array::Set(size_t size) noexcept(!IS_DEBUG)
+	{
+		mElement = std::make_unique<T>(GetOffsetBegin());
+		mSize = size;
+		return *this;
 	}
 }
