@@ -1,14 +1,22 @@
 #include "App.h"
 
 #include "ChiliUtil.h"
+#include "DynamicConstantBuffer.h"
 
 using namespace DirectX;
 
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	mBluePlane.SetPosition(mCamera.GetPosition());
-	mRedPlane.SetPosition(mCamera.GetPosition());
+	Dcb::Struct s(0);
+	s.Add<Dcb::Struct>(L"butts");
+	static_cast<Dcb::Struct&>(s[L"butts"]).Add<Dcb::Float3>(L"pubes");
+	Dcb::Buffer b(std::move(s));
+	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
+	XMFLOAT3 v = b[L"butts"][L"pubes"];
+
+	//mBluePlane.SetPosition(mCamera.GetPosition());
+	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
 	//mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
 	//mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
@@ -109,9 +117,9 @@ void App::DoFrame(float dt)
 	//mNano.Draw(gfx);
 	//mGobber.Draw(gfx);
 	mLight.Draw(gfx);
-	mSponza.Draw(gfx);
-	mBluePlane.Draw(gfx);
-	mRedPlane.Draw(gfx);
+	//mSponza.Draw(gfx);
+	//mBluePlane.Draw(gfx);
+	//mRedPlane.Draw(gfx);
 
 	if (gfx.IsImguiEnabled())
 		DoImGui(gfx);
@@ -127,7 +135,7 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mPlane.SpawnControlWindow(gfx);
 	//mNano.ShowWindow(gfx, "Nano");
 	//mGobber.ShowWindow(gfx, "Gobber");
-	mSponza.ShowWindow(gfx, "Sponza");
-	mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
-	mRedPlane.SpawnControlWindow(gfx, "Red Plane");
+	//mSponza.ShowWindow(gfx, "Sponza");
+	//mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
+	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
 }

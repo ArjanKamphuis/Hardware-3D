@@ -115,6 +115,7 @@
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DxgiInfoManager.cpp" />
+    <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GraphicsExceptions.cpp" />
     <ClCompile Include="ImguiManager.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="ChiliUtil.h" />
     <ClInclude Include="ChiliXM.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="Bindable.h" />
