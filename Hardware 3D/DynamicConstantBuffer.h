@@ -84,9 +84,9 @@ namespace Dcb
 		size_t GetSizeInBytes() const noexcept;
 
 		template<typename T>
-		Struct& Add(const std::wstring& key) noexcept(!IS_DEBUG);
+		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
 		template<typename T>
-		Array& Set(size_t size) noexcept(!IS_DEBUG);
+		LayoutElement& Set(size_t size) noexcept(!IS_DEBUG);
 
 		static size_t GetNextBoundaryOffset(size_t offset);
 
@@ -120,7 +120,7 @@ namespace Dcb
 		size_t GetOffsetEnd() const noexcept override final;
 
 		template<typename T>
-		Struct& Add(const std::wstring& name) noexcept(!IS_DEBUG);
+		void Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG);
 
 	protected:
 		size_t Finalize(size_t offset) override final;
@@ -142,7 +142,7 @@ namespace Dcb
 		size_t GetOffsetEnd() const noexcept override final;
 
 		template<typename T>
-		Array& Set(size_t size) noexcept(!IS_DEBUG);
+		void Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG);
 
 	protected:
 		size_t Finalize(size_t offset) override final;
@@ -268,36 +268,36 @@ namespace Dcb
 	};
 
 	template<typename T>
-	inline Struct& Struct::Add(const std::wstring& name) noexcept(!IS_DEBUG)
-	{
-		mElements.push_back(std::make_unique<T>());
-		if (!mMap.emplace(name, mElements.back().get()).second)
-			assert(false);
-		return *this;
-	}
-
-	template<typename T>
-	inline Struct& LayoutElement::Add(const std::wstring& key) noexcept(!IS_DEBUG)
+	inline LayoutElement& LayoutElement::Add(const std::wstring& key) noexcept(!IS_DEBUG)
 	{
 		Struct* ps = dynamic_cast<Struct*>(this);
 		assert(ps != nullptr);
-		return ps->Add<T>(key);
+		ps->Add<T>(key, std::make_unique<T>());
+		return *this;
 	}
 
 	template<typename T>
-	inline Array& LayoutElement::Set(size_t size) noexcept(!IS_DEBUG)
+	inline LayoutElement& LayoutElement::Set(size_t size) noexcept(!IS_DEBUG)
 	{
 		Array* pa = dynamic_cast<Array*>(this);
 		assert(pa != nullptr);
-		return pa->Set<T>(size);
+		pa->Set<T>(std::make_unique<T>(), size);
+		return *this;
 	}
 
 	template<typename T>
-	inline Array& Array::Set(size_t size) noexcept(!IS_DEBUG)
+	inline void Struct::Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG)
 	{
-		mElement = std::make_unique<T>();
+		mElements.push_back(std::move(pElement));
+		if (!mMap.emplace(name, mElements.back().get()).second)
+			assert(false);
+	}
+
+	template<typename T>
+	inline void Array::Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG)
+	{
+		mElement = std::move(pElement);
 		mSize = size;
-		return *this;
 	}
 
 	template<typename T>
