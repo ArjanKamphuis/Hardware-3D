@@ -71,8 +71,8 @@ namespace Dcb
 	public:
 		virtual ~LayoutElement();
 
-		virtual LayoutElement& operator[](const wchar_t* key);
-		virtual const LayoutElement& operator[](const wchar_t* key) const;
+		virtual LayoutElement& operator[](const std::wstring& key);
+		virtual const LayoutElement& operator[](const std::wstring& key) const;
 		virtual LayoutElement& T();
 		virtual const LayoutElement& T() const;
 
@@ -112,8 +112,8 @@ namespace Dcb
 	class Struct : public LayoutElement
 	{
 	public:
-		LayoutElement& operator[](const wchar_t* key) override final;
-		const LayoutElement& operator[](const wchar_t* key) const override final;
+		LayoutElement& operator[](const std::wstring& key) override final;
+		const LayoutElement& operator[](const std::wstring& key) const override final;
 		size_t GetOffsetEnd() const noexcept override final;
 
 		template<typename T>
@@ -156,11 +156,11 @@ namespace Dcb
 		Layout();
 		Layout(std::shared_ptr<LayoutElement> pLayout);
 
-		LayoutElement& operator[](const wchar_t* key);
+		LayoutElement& operator[](const std::wstring& key);
 		size_t GetSizeInBytes() const noexcept;
 
 		template<typename T>
-		LayoutElement& Add(const wchar_t* key);
+		LayoutElement& Add(const std::wstring& key);
 		std::shared_ptr<LayoutElement> Finalize();
 
 	private:
@@ -189,7 +189,7 @@ namespace Dcb
 
 	public:
 		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
-		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
+		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
 		Ptr operator&() noexcept(!IS_DEBUG);
@@ -211,7 +211,7 @@ namespace Dcb
 	{
 	public:
 		Buffer(Layout& layout);
-		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
+		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 
 		const std::byte* GetData() const noexcept;
 		size_t GetSizeInBytes() const noexcept;
@@ -257,7 +257,7 @@ namespace Dcb
 	}
 
 	template<typename T>
-	inline LayoutElement& Layout::Add(const wchar_t* key)
+	inline LayoutElement& Layout::Add(const std::wstring& key)
 	{
 		assert(!mFinalized && "Cannot modify finalized layout");
 		return mLayout->Add<T>(key);

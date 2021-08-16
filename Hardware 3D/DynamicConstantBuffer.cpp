@@ -8,13 +8,13 @@ namespace Dcb
     {
     }
 
-    LayoutElement& LayoutElement::operator[](const wchar_t* key)
+    LayoutElement& LayoutElement::operator[](const std::wstring& key)
     {
         assert(false && "Cannot access member on non Struct");
         return *this;
     }
 
-    const LayoutElement& LayoutElement::operator[](const wchar_t* key) const
+    const LayoutElement& LayoutElement::operator[](const std::wstring& key) const
     {
         assert(false && "Cannot access member on non Struct");
         return *this;
@@ -47,12 +47,12 @@ namespace Dcb
         return offset + (16u - offset % 16) % 16;
     }
 
-    LayoutElement& Struct::operator[](const wchar_t* key)
+    LayoutElement& Struct::operator[](const std::wstring& key)
     {
         return *mMap.at(key);
     }
 
-    const LayoutElement& Struct::operator[](const wchar_t* key) const
+    const LayoutElement& Struct::operator[](const std::wstring& key) const
     {
         return *mMap.at(key);
     }
@@ -127,7 +127,7 @@ namespace Dcb
     {
     }
 
-    LayoutElement& Layout::operator[](const wchar_t* key)
+    LayoutElement& Layout::operator[](const std::wstring& key)
     {
         assert(!mFinalized && "Cannot modify finalized layout");
         return (*mLayout)[key];
@@ -155,7 +155,7 @@ namespace Dcb
     {
     }
 
-    ElementRef ElementRef::operator[](const wchar_t* key) noexcept(!IS_DEBUG)
+    ElementRef ElementRef::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes, mOffset };
     }
@@ -177,7 +177,7 @@ namespace Dcb
     {
     }
 
-    ElementRef Buffer::operator[](const wchar_t* key) noexcept(!IS_DEBUG)
+    ElementRef Buffer::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes.data(), 0u };
     }
