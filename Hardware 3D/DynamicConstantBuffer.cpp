@@ -122,6 +122,11 @@ namespace Dcb
     {
     }
 
+    Layout::Layout(std::shared_ptr<LayoutElement> pLayout)
+        : mLayout(std::move(pLayout))
+    {
+    }
+
     LayoutElement& Layout::operator[](const wchar_t* key)
     {
         assert(!mFinalized && "Cannot modify finalized layout");

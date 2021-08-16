@@ -153,6 +153,7 @@ namespace Dcb
 	{
 	public:
 		Layout();
+		Layout(std::shared_ptr<LayoutElement> pLayout);
 
 		LayoutElement& operator[](const wchar_t* key);
 		size_t GetSizeInBytes() const noexcept;
