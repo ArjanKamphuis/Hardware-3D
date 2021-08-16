@@ -26,7 +26,7 @@ App::App(const std::wstring& commandLine)
 	b[L"butts"][L"dank"] = 420.0f;
 	b[L"woot"] = 42.0f;
 	b[L"arr"][2][L"werk"][5] = 111.0f;
-	XMStoreFloat4x4(&static_cast<XMFLOAT4X4&>(b[L"arr"][2][L"meta"][5][3]), XMMatrixIdentity());
+	XMStoreFloat4x4(&b[L"arr"][2][L"meta"][5][3], XMMatrixIdentity());
 
 	float k = b[L"woot"];
 	XMFLOAT3 v = b[L"butts"][L"pubes"];

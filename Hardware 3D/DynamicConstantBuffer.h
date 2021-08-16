@@ -40,6 +40,12 @@ eltype::SystemType& operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG)
 	return static_cast<eltype::SystemType&>(*this) = rhs; \
 }
 
+#define PTR_CONVERSION(eltype) \
+operator eltype::SystemType*() noexcept(!IS_DEBUG) \
+{ \
+	return &static_cast<eltype::SystemType&>(mRef); \
+}
+
 namespace Dcb
 {
 	class Struct;
@@ -119,9 +125,28 @@ namespace Dcb
 	class ElementRef
 	{
 	public:
+		class ElementPtr
+		{
+		public:
+			ElementPtr(ElementRef& ref);
+
+			PTR_CONVERSION(Matrix);
+			PTR_CONVERSION(Float4);
+			PTR_CONVERSION(Float3);
+			PTR_CONVERSION(Float2);
+			PTR_CONVERSION(Float);
+			PTR_CONVERSION(Bool);
+
+		private:
+			ElementRef& mRef;
+		};
+
+	public:
 		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
 		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
 		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
+
+		ElementPtr operator&() noexcept(!IS_DEBUG);
 		
 		REF_CONVERSION(Matrix);
 		REF_CONVERSION(Float4);

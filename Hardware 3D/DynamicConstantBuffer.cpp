@@ -74,6 +74,11 @@ namespace Dcb
         return GetOffsetBegin() + mElement->GetSizeInBytes() * mSize;
     }
 
+    ElementRef::ElementPtr::ElementPtr(ElementRef& ref)
+        : mRef(ref)
+    {
+    }
+
     ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
     {
@@ -88,6 +93,11 @@ namespace Dcb
     {
         const LayoutElement& t = mLayout->T();
         return { &t, mBytes, mOffset + t.GetSizeInBytes() * index };
+    }
+
+    ElementRef::ElementPtr ElementRef::operator&() noexcept(!IS_DEBUG)
+    {
+        return { *this };
     }
 
     Buffer::Buffer(std::shared_ptr<Struct> pLayout)
