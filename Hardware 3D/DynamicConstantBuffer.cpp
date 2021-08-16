@@ -145,6 +145,33 @@ namespace Dcb
         return mLayout;
     }
 
+    ConstElementRef::Ptr::Ptr(ConstElementRef& ref)
+        : mRef(ref)
+    {
+    }
+
+    ConstElementRef::ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
+        : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
+    {
+    }
+
+    ConstElementRef ConstElementRef::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
+    {
+        return { &(*mLayout)[key], mBytes, mOffset };
+    }
+
+    ConstElementRef ConstElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
+    {
+        const LayoutElement& t = mLayout->T();
+        const size_t elementSize = LayoutElement::GetNextBoundaryOffset(t.GetSizeInBytes());
+        return { &t, mBytes, mOffset + elementSize * index };
+    }
+
+    ConstElementRef::Ptr ConstElementRef::operator&() noexcept(!IS_DEBUG)
+    {
+        return { *this };
+    }
+
     ElementRef::Ptr::Ptr(ElementRef& ref)
         : mRef(ref)
     {
@@ -172,6 +199,11 @@ namespace Dcb
         return { *this };
     }
 
+    ElementRef::operator ConstElementRef() const noexcept
+    {
+        return { mLayout, mBytes, mOffset };
+    }
+
     Buffer::Buffer(Layout& layout)
         : mLayout(std::static_pointer_cast<Struct>(layout.Finalize())), mBytes(mLayout->GetOffsetEnd())
     {
@@ -180,6 +212,11 @@ namespace Dcb
     ElementRef Buffer::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes.data(), 0u };
+    }
+
+    ConstElementRef Buffer::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
+    {
+        return const_cast<Buffer&>(*this)[key];
     }
 
     const std::byte* Buffer::GetData() const noexcept

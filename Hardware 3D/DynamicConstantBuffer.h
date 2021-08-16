@@ -40,20 +40,23 @@ protected: \
 };
 #define LEAF_ELEMENT(eltype, systype) LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
 
-#define REF_CONVERSION(eltype) \
-operator eltype::SystemType& () noexcept(!IS_DEBUG) \
+#define REF_CONVERSION(eltype, ...) \
+operator __VA_ARGS__ eltype::SystemType& () noexcept(!IS_DEBUG) \
 { \
 	return *reinterpret_cast<eltype::SystemType*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
-} \
+}
+#define REF_ASSIGN(eltype) \
 eltype::SystemType& operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG) \
 { \
 	return static_cast<eltype::SystemType&>(*this) = rhs; \
 }
+#define REF_NONCONST(eltype) REF_CONVERSION(eltype) REF_ASSIGN(eltype)
+#define REF_CONST(eltype) REF_CONVERSION(eltype)
 
-#define PTR_CONVERSION(eltype) \
-operator eltype::SystemType*() noexcept(!IS_DEBUG) \
+#define PTR_CONVERSION(eltype, ...) \
+operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG) \
 { \
-	return &static_cast<eltype::SystemType&>(mRef); \
+	return &static_cast<__VA_ARGS__ eltype::SystemType&>(mRef); \
 }
 
 namespace Dcb
@@ -168,6 +171,45 @@ namespace Dcb
 		std::shared_ptr<LayoutElement> mLayout;
 	};
 
+	class ConstElementRef
+	{
+	public:
+		class Ptr
+		{
+		public:
+			Ptr(ConstElementRef& ref);
+
+			PTR_CONVERSION(Matrix, const);
+			PTR_CONVERSION(Float4, const);
+			PTR_CONVERSION(Float3, const);
+			PTR_CONVERSION(Float2, const);
+			PTR_CONVERSION(Float, const);
+			PTR_CONVERSION(Bool, const);
+
+		private:
+			ConstElementRef& mRef;
+		};
+
+	public:
+		ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
+		ConstElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
+		ConstElementRef operator[](size_t index) noexcept(!IS_DEBUG);
+
+		Ptr operator&() noexcept(!IS_DEBUG);
+
+		REF_CONST(Matrix);
+		REF_CONST(Float4);
+		REF_CONST(Float3);
+		REF_CONST(Float2);
+		REF_CONST(Float);
+		REF_CONST(Bool);
+
+	private:
+		const LayoutElement* mLayout;
+		std::byte* mBytes;
+		size_t mOffset;
+	};
+
 	class ElementRef
 	{
 	public:
@@ -193,13 +235,14 @@ namespace Dcb
 		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
 		Ptr operator&() noexcept(!IS_DEBUG);
+		operator ConstElementRef() const noexcept;
 		
-		REF_CONVERSION(Matrix);
-		REF_CONVERSION(Float4);
-		REF_CONVERSION(Float3);
-		REF_CONVERSION(Float2);
-		REF_CONVERSION(Float);
-		REF_CONVERSION(Bool);
+		REF_NONCONST(Matrix);
+		REF_NONCONST(Float4);
+		REF_NONCONST(Float3);
+		REF_NONCONST(Float2);
+		REF_NONCONST(Float);
+		REF_NONCONST(Bool);
 
 	private:
 		const LayoutElement* mLayout;
@@ -212,6 +255,7 @@ namespace Dcb
 	public:
 		Buffer(Layout& layout);
 		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
+		ConstElementRef operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
 
 		const std::byte* GetData() const noexcept;
 		size_t GetSizeInBytes() const noexcept;

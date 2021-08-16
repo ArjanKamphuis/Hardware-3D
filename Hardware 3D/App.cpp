@@ -25,6 +25,12 @@ void TestDynamicConstant()
 		Dcb::Buffer b(s);
 
 		{
+			float exp = 42.0f;
+			b[L"woot"] = exp;
+			float act = b[L"woot"];
+			assert(act == exp);
+		}
+		{
 			float exp = 420.0f;
 			b[L"butts"][L"dank"] = exp;
 			float act = b[L"butts"][L"dank"];
@@ -60,6 +66,13 @@ void TestDynamicConstant()
 			b[L"arr"][2][L"booler"] = exp;
 			bool act = b[L"arr"][2][L"booler"];
 			assert(act == exp);
+		}
+
+		const Dcb::Buffer& cb = b;
+		{
+			XMFLOAT4X4 act = cb[L"arr"][2][L"meta"][5][3];
+			assert(act._11 == 1.0f);
+			//cb[L"arr"][2][L"booler"] = true;
 		}
 	}
 	// size test array of arrays
