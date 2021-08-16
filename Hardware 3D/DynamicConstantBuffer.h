@@ -19,7 +19,6 @@ class eltype : public LayoutElement \
 { \
 public: \
 	using SystemType = systype; \
-	using LayoutElement::LayoutElement; \
 	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final \
 	{ \
 		return GetOffsetBegin(); \
@@ -27,6 +26,12 @@ public: \
 	size_t GetOffsetEnd() const noexcept override final \
 	{ \
 		return GetOffsetBegin() + sizeof(systype); \
+	} \
+protected: \
+	size_t Finalize(size_t offset) override \
+	{ \
+		mOffset = offset; \
+		return offset + sizeof(systype); \
 	} \
 };
 
@@ -50,11 +55,15 @@ namespace Dcb
 {
 	class Struct;
 	class Array;
+	class Layout;
 
 	class LayoutElement
 	{
+		friend class Layout;
+		friend class Array;
+		friend class Struct;
+
 	public:
-		LayoutElement(size_t offset);
 		virtual ~LayoutElement();
 
 		virtual LayoutElement& operator[](const wchar_t* key);
@@ -78,8 +87,11 @@ namespace Dcb
 		RESOLVE_BASE(Float);
 		RESOLVE_BASE(Bool);
 
-	private:
-		size_t mOffset;
+	protected:
+		virtual size_t Finalize(size_t offset) = 0;
+
+	protected:
+		size_t mOffset = 0u;
 	};
 
 	LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
@@ -92,14 +104,15 @@ namespace Dcb
 	class Struct : public LayoutElement
 	{
 	public:
-		using LayoutElement::LayoutElement;
-
 		LayoutElement& operator[](const wchar_t* key) override final;
 		const LayoutElement& operator[](const wchar_t* key) const override final;
 		size_t GetOffsetEnd() const noexcept override final;
 
 		template<typename T>
 		Struct& Add(const std::wstring& name) noexcept(!IS_DEBUG);
+
+	protected:
+		size_t Finalize(size_t offset) override;
 
 	private:
 		std::unordered_map<std::wstring, LayoutElement*> mMap;
@@ -109,14 +122,15 @@ namespace Dcb
 	class Array : public LayoutElement
 	{
 	public:
-		using LayoutElement::LayoutElement;
-		
 		LayoutElement& T() override final;
 		const LayoutElement& T() const override final;
 		size_t GetOffsetEnd() const noexcept override final;
 
 		template<typename T>
 		Array& Set(size_t size) noexcept(!IS_DEBUG);
+
+	protected:
+		size_t Finalize(size_t offset) override;
 
 	private:
 		size_t mSize = 0u;
@@ -198,7 +212,7 @@ namespace Dcb
 	template<typename T>
 	inline Struct& Struct::Add(const std::wstring& name) noexcept(!IS_DEBUG)
 	{
-		mElements.push_back(std::make_unique<T>(GetOffsetEnd()));
+		mElements.push_back(std::make_unique<T>());
 		if (!mMap.emplace(name, mElements.back().get()).second)
 			assert(false);
 		return *this;
@@ -223,7 +237,7 @@ namespace Dcb
 	template<typename T>
 	inline Array& Array::Set(size_t size) noexcept(!IS_DEBUG)
 	{
-		mElement = std::make_unique<T>(GetOffsetBegin());
+		mElement = std::make_unique<T>();
 		mSize = size;
 		return *this;
 	}

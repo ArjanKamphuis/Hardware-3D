@@ -4,11 +4,6 @@ using namespace DirectX;
 
 namespace Dcb
 {
-    LayoutElement::LayoutElement(size_t offset)
-        : mOffset(offset)
-    {
-    }
-
     LayoutElement::~LayoutElement()
     {
     }
@@ -62,6 +57,17 @@ namespace Dcb
         return mElements.empty() ? GetOffsetBegin() : mElements.back()->GetOffsetEnd();
     }
 
+    size_t Struct::Finalize(size_t offset)
+    {
+        assert(mElements.size() != 0u);
+        mOffset = offset;
+        size_t offsetNext = offset;
+        for (auto& el : mElements)
+            offsetNext = (*el).Finalize(offsetNext);
+        return GetOffsetEnd();
+    }
+    
+
     LayoutElement& Array::T()
     {
         return *mElement;
@@ -78,8 +84,16 @@ namespace Dcb
         return GetOffsetBegin() + mElement->GetSizeInBytes() * mSize;
     }
 
+    size_t Array::Finalize(size_t offset)
+    {
+        assert(mSize != 0u && mElement);
+        mOffset = offset;
+        mElement->Finalize(offset);
+        return offset + mElement->GetSizeInBytes() * mSize;
+    }
+
     Layout::Layout()
-        : mLayout(std::make_shared<Struct>(0u))
+        : mLayout(std::make_shared<Struct>())
     {
     }
 
@@ -96,6 +110,7 @@ namespace Dcb
 
     std::shared_ptr<LayoutElement> Layout::Finalize()
     {
+        mLayout->Finalize(0u);
         mFinalized = true;
         return mLayout;
     }
