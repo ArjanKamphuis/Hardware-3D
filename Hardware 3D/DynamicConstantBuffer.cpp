@@ -114,4 +114,9 @@ namespace Dcb
     {
         return *mLayout;
     }
+
+    std::shared_ptr<LayoutElement> Buffer::CloneLayout() const
+    {
+        return mLayout;
+    }
 }

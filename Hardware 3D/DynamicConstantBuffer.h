@@ -145,6 +145,7 @@ namespace Dcb
 		const std::byte* GetData() const noexcept;
 		size_t GetSizeInBytes() const noexcept;
 		const LayoutElement& GetLayout() const noexcept;
+		std::shared_ptr<LayoutElement> CloneLayout() const;
 
 	private:
 		std::shared_ptr<Struct> mLayout;
