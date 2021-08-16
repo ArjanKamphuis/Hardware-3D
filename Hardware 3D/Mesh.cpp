@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "ChiliXM.h"
 #include "ChiliUtil.h"
+#include "ConstantBuffersEx.h"
 #include "Surface.h"
 
 using namespace Bind;
@@ -347,16 +348,17 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		bindablePtrs.push_back(std::move(pVS));
 		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSNormalMap.cso"));
 
-		struct Material
-		{
-			XMFLOAT3 SpecularColor = {};
-			float SpecularPower = 0.0f;
-			BOOL  NormalMapEnabled = TRUE;
-			float Padding[3] = {};
-		} materialConstant;
-		materialConstant.SpecularPower = shininess;
-		materialConstant.SpecularColor = specularColor;
-		bindablePtrs.push_back(PixelConstantBuffer<Material>::Resolve(gfx, materialConstant));
+		auto layout = std::make_shared<Dcb::Struct>(0u);
+		layout->Add<Dcb::Float3>(L"SpecularColor");
+		layout->Add<Dcb::Float>(L"SpecularPower");
+		layout->Add<Dcb::Bool>(L"NormalMapEnabled");
+		layout->Add<Dcb::Float3>(L"Padding");
+
+		Dcb::Buffer cbuf{ std::move(layout) };
+		cbuf[L"SpecularColor"] = specularColor;
+		cbuf[L"SpecularPower"] = shininess;
+		cbuf[L"NormalMapEnabled"] = TRUE;
+		bindablePtrs.push_back(std::make_shared<PixelConstantBufferEx>(gfx, cbuf));
 	}
 	else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
 	{

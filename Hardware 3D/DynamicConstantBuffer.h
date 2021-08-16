@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include "ChiliWin.h"
 
 #define RESOLVE_BASE(eltype) \
 virtual size_t Resolve ## eltype() const noexcept(!IS_DEBUG) \
@@ -79,7 +80,7 @@ namespace Dcb
 	LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
 	LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
 	LEAF_ELEMENT(Float, float);
-	LEAF_ELEMENT(Bool, bool);
+	LEAF_ELEMENT(Bool, BOOL);
 
 	class Struct : public LayoutElement
 	{
@@ -138,11 +139,15 @@ namespace Dcb
 	class Buffer
 	{
 	public:
-		Buffer(const Struct& pLayout);
+		Buffer(std::shared_ptr<Struct> pLayout);
 		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
 
+		const std::byte* GetData() const noexcept;
+		size_t GetSizeInBytes() const noexcept;
+		const LayoutElement& GetLayout() const noexcept;
+
 	private:
-		const Struct* mLayout;
+		std::shared_ptr<Struct> mLayout;
 		std::vector<std::byte> mBytes;
 	};
 

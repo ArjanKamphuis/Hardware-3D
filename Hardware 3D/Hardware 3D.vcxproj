@@ -111,6 +111,7 @@
     <ClCompile Include="ChiliTimer.cpp" />
     <ClCompile Include="ChiliUtil.cpp" />
     <ClCompile Include="ChiliXM.cpp" />
+    <ClCompile Include="ConstantBuffersEx.cpp" />
     <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="dxerr.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Blender.h" />
     <ClInclude Include="ChiliUtil.h" />
     <ClInclude Include="ChiliXM.h" />
+    <ClInclude Include="ConstantBuffersEx.h" />
     <ClInclude Include="Cube.h" />
     <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="Mesh.h" />

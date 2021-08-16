@@ -90,13 +90,28 @@ namespace Dcb
         return { &t, mBytes, mOffset + t.GetSizeInBytes() * index };
     }
 
-    Buffer::Buffer(const Struct& pLayout)
-        : mLayout(&pLayout), mBytes(pLayout.GetOffsetEnd())
+    Buffer::Buffer(std::shared_ptr<Struct> pLayout)
+        : mLayout(pLayout), mBytes(pLayout->GetOffsetEnd())
     {
     }
 
     ElementRef Buffer::operator[](const wchar_t* key) noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes.data(), 0u };
+    }
+
+    const std::byte* Buffer::GetData() const noexcept
+    {
+        return mBytes.data();
+    }
+
+    size_t Buffer::GetSizeInBytes() const noexcept
+    {
+        return mBytes.size();
+    }
+
+    const LayoutElement& Buffer::GetLayout() const noexcept
+    {
+        return *mLayout;
     }
 }

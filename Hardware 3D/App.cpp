@@ -8,7 +8,8 @@ using namespace DirectX;
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	Dcb::Struct s(0);
+	auto ps = std::make_shared<Dcb::Struct>(0);
+	Dcb::Struct& s = *ps;
 	s.Add<Dcb::Struct>(L"butts");
 	s[L"butts"].Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
 	s.Add<Dcb::Float>(L"woot").Add<Dcb::Array>(L"arr");
@@ -20,7 +21,7 @@ App::App(const std::wstring& commandLine)
 	s[L"arr"].T()[L"meta"].Set<Dcb::Array>(6);
 	s[L"arr"].T()[L"meta"].T().Set<Dcb::Matrix>(4);
 
-	Dcb::Buffer b(std::move(s));
+	Dcb::Buffer b(std::move(ps));
 	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
 	b[L"butts"][L"dank"] = 420.0f;
 	b[L"woot"] = 42.0f;
@@ -135,7 +136,7 @@ void App::DoFrame(float dt)
 	//mNano.Draw(gfx);
 	//mGobber.Draw(gfx);
 	mLight.Draw(gfx);
-	//mSponza.Draw(gfx);
+	mSponza.Draw(gfx);
 	//mBluePlane.Draw(gfx);
 	//mRedPlane.Draw(gfx);
 
@@ -153,7 +154,7 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mPlane.SpawnControlWindow(gfx);
 	//mNano.ShowWindow(gfx, "Nano");
 	//mGobber.ShowWindow(gfx, "Gobber");
-	//mSponza.ShowWindow(gfx, "Sponza");
+	mSponza.ShowWindow(gfx, "Sponza");
 	//mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
 	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
 }
