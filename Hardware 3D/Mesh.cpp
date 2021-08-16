@@ -367,7 +367,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		Dcb::Buffer cbuf{ layout };
 		cbuf[L"SpecularColor"] = specularColor;
 		cbuf[L"SpecularPower"] = shininess;
-		cbuf[L"NormalMapEnabled"] = TRUE;
+		cbuf[L"NormalMapEnabled"] = true;
 		bindablePtrs.push_back(std::make_shared<PixelConstantBufferEx>(gfx, cbuf));
 
 		if (!loaded)
