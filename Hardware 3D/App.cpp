@@ -8,8 +8,7 @@ using namespace DirectX;
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	auto ps = std::make_shared<Dcb::Struct>(0);
-	Dcb::Struct& s = *ps;
+	Dcb::Layout s;
 	s.Add<Dcb::Struct>(L"butts");
 	s[L"butts"].Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
 	s.Add<Dcb::Float>(L"woot").Add<Dcb::Array>(L"arr");
@@ -21,7 +20,7 @@ App::App(const std::wstring& commandLine)
 	s[L"arr"].T()[L"meta"].Set<Dcb::Array>(6);
 	s[L"arr"].T()[L"meta"].T().Set<Dcb::Matrix>(4);
 
-	Dcb::Buffer b(std::move(ps));
+	Dcb::Buffer b(s);
 	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
 	b[L"butts"][L"dank"] = 420.0f;
 	b[L"woot"] = 42.0f;

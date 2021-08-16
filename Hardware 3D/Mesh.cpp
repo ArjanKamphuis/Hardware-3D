@@ -348,13 +348,13 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		bindablePtrs.push_back(std::move(pVS));
 		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSNormalMap.cso"));
 
-		auto layout = std::make_shared<Dcb::Struct>(0u);
-		layout->Add<Dcb::Float3>(L"SpecularColor");
-		layout->Add<Dcb::Float>(L"SpecularPower");
-		layout->Add<Dcb::Bool>(L"NormalMapEnabled");
-		layout->Add<Dcb::Float3>(L"Padding");
+		Dcb::Layout layout;
+		layout.Add<Dcb::Float3>(L"SpecularColor");
+		layout.Add<Dcb::Float>(L"SpecularPower");
+		layout.Add<Dcb::Bool>(L"NormalMapEnabled");
+		layout.Add<Dcb::Float3>(L"Padding");
 
-		Dcb::Buffer cbuf{ std::move(layout) };
+		Dcb::Buffer cbuf{ layout };
 		cbuf[L"SpecularColor"] = specularColor;
 		cbuf[L"SpecularPower"] = shininess;
 		cbuf[L"NormalMapEnabled"] = TRUE;

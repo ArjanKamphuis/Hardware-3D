@@ -123,13 +123,30 @@ namespace Dcb
 		std::unique_ptr<LayoutElement> mElement;
 	};
 
+	class Layout
+	{
+	public:
+		Layout();
+
+		LayoutElement& operator[](const wchar_t* key);
+		size_t GetSizeInBytes() const noexcept;
+
+		template<typename T>
+		LayoutElement& Add(const wchar_t* key);
+		std::shared_ptr<LayoutElement> Finalize();
+
+	private:
+		bool mFinalized = false;
+		std::shared_ptr<LayoutElement> mLayout;
+	};
+
 	class ElementRef
 	{
 	public:
-		class ElementPtr
+		class Ptr
 		{
 		public:
-			ElementPtr(ElementRef& ref);
+			Ptr(ElementRef& ref);
 
 			PTR_CONVERSION(Matrix);
 			PTR_CONVERSION(Float4);
@@ -147,7 +164,7 @@ namespace Dcb
 		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
 		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
-		ElementPtr operator&() noexcept(!IS_DEBUG);
+		Ptr operator&() noexcept(!IS_DEBUG);
 		
 		REF_CONVERSION(Matrix);
 		REF_CONVERSION(Float4);
@@ -165,7 +182,7 @@ namespace Dcb
 	class Buffer
 	{
 	public:
-		Buffer(std::shared_ptr<Struct> pLayout);
+		Buffer(Layout& layout);
 		ElementRef operator[](const wchar_t* key) noexcept(!IS_DEBUG);
 
 		const std::byte* GetData() const noexcept;
@@ -209,5 +226,12 @@ namespace Dcb
 		mElement = std::make_unique<T>(GetOffsetBegin());
 		mSize = size;
 		return *this;
+	}
+
+	template<typename T>
+	inline LayoutElement& Layout::Add(const wchar_t* key)
+	{
+		assert(!mFinalized && "Cannot modify finalized layout");
+		return mLayout->Add<T>(key);
 	}
 }

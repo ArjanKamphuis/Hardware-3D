@@ -78,7 +78,29 @@ namespace Dcb
         return GetOffsetBegin() + mElement->GetSizeInBytes() * mSize;
     }
 
-    ElementRef::ElementPtr::ElementPtr(ElementRef& ref)
+    Layout::Layout()
+        : mLayout(std::make_shared<Struct>(0u))
+    {
+    }
+
+    LayoutElement& Layout::operator[](const wchar_t* key)
+    {
+        assert(!mFinalized && "Cannot modify finalized layout");
+        return (*mLayout)[key];
+    }
+
+    size_t Layout::GetSizeInBytes() const noexcept
+    {
+        return mLayout->GetSizeInBytes();
+    }
+
+    std::shared_ptr<LayoutElement> Layout::Finalize()
+    {
+        mFinalized = true;
+        return mLayout;
+    }
+
+    ElementRef::Ptr::Ptr(ElementRef& ref)
         : mRef(ref)
     {
     }
@@ -99,13 +121,13 @@ namespace Dcb
         return { &t, mBytes, mOffset + t.GetSizeInBytes() * index };
     }
 
-    ElementRef::ElementPtr ElementRef::operator&() noexcept(!IS_DEBUG)
+    ElementRef::Ptr ElementRef::operator&() noexcept(!IS_DEBUG)
     {
         return { *this };
     }
 
-    Buffer::Buffer(std::shared_ptr<Struct> pLayout)
-        : mLayout(pLayout), mBytes(pLayout->GetOffsetEnd())
+    Buffer::Buffer(Layout& layout)
+        : mLayout(std::static_pointer_cast<Struct>(layout.Finalize())), mBytes(mLayout->GetOffsetEnd())
     {
     }
 
