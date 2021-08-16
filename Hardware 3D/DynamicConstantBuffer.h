@@ -25,13 +25,17 @@ public: \
 	} \
 	size_t GetOffsetEnd() const noexcept override final \
 	{ \
-		return GetOffsetBegin() + sizeof(systype); \
+		return GetOffsetBegin() + ComputeSize(); \
 	} \
 protected: \
 	size_t Finalize(size_t offset) override \
 	{ \
 		mOffset = offset; \
-		return offset + sizeof(systype); \
+		return offset + ComputeSize(); \
+	} \
+	size_t ComputeSize() const noexcept(!IS_DEBUG) override final \
+	{ \
+		return sizeof(SystemType); \
 	} \
 };
 
@@ -80,6 +84,8 @@ namespace Dcb
 		template<typename T>
 		Array& Set(size_t size) noexcept(!IS_DEBUG);
 
+		static size_t GetNextBoundaryOffset(size_t offset);
+
 		RESOLVE_BASE(Matrix);
 		RESOLVE_BASE(Float4);
 		RESOLVE_BASE(Float3);
@@ -89,6 +95,7 @@ namespace Dcb
 
 	protected:
 		virtual size_t Finalize(size_t offset) = 0;
+		virtual size_t ComputeSize() const noexcept(!IS_DEBUG) = 0;
 
 	protected:
 		size_t mOffset = 0u;
@@ -112,7 +119,11 @@ namespace Dcb
 		Struct& Add(const std::wstring& name) noexcept(!IS_DEBUG);
 
 	protected:
-		size_t Finalize(size_t offset) override;
+		size_t Finalize(size_t offset) override final;
+		size_t ComputeSize() const noexcept(!IS_DEBUG) override final;
+
+	private:
+		static size_t CalculatePaddingBeforeElement(size_t offset, size_t size) noexcept;
 
 	private:
 		std::unordered_map<std::wstring, LayoutElement*> mMap;
@@ -130,7 +141,8 @@ namespace Dcb
 		Array& Set(size_t size) noexcept(!IS_DEBUG);
 
 	protected:
-		size_t Finalize(size_t offset) override;
+		size_t Finalize(size_t offset) override final;
+		size_t ComputeSize() const noexcept(!IS_DEBUG) override final;
 
 	private:
 		size_t mSize = 0u;

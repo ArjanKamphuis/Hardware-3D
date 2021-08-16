@@ -352,7 +352,6 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		layout.Add<Dcb::Float3>(L"SpecularColor");
 		layout.Add<Dcb::Float>(L"SpecularPower");
 		layout.Add<Dcb::Bool>(L"NormalMapEnabled");
-		layout.Add<Dcb::Float3>(L"Padding");
 
 		Dcb::Buffer cbuf{ layout };
 		cbuf[L"SpecularColor"] = specularColor;

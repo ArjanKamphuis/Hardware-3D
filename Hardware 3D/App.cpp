@@ -5,34 +5,88 @@
 
 using namespace DirectX;
 
+void TestDynamicConstant()
+{
+	// data roundtrip tests
+	{
+		Dcb::Layout s;
+		s.Add<Dcb::Struct>(L"butts");
+		s[L"butts"].Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
+		s.Add<Dcb::Float>(L"woot").Add<Dcb::Array>(L"arr");
+		s[L"arr"].Set<Dcb::Struct>(4);
+		s[L"arr"].T().Add<Dcb::Float3>(L"twerk");
+		s[L"arr"].T().Add<Dcb::Array>(L"werk");
+		s[L"arr"].T()[L"werk"].Set<Dcb::Float>(6);
+		s[L"arr"].T().Add<Dcb::Array>(L"meta");
+		s[L"arr"].T()[L"meta"].Set<Dcb::Array>(6);
+		s[L"arr"].T()[L"meta"].T().Set<Dcb::Matrix>(4);
+		Dcb::Buffer b(s);
+
+		{
+			float exp = 420.0f;
+			b[L"butts"][L"dank"] = exp;
+			float act = b[L"butts"][L"dank"];
+			assert(act == exp);
+		}
+		{
+			float exp = 111.0f;
+			b[L"arr"][2][L"werk"][5] = exp;
+			float act = b[L"arr"][2][L"werk"][5];
+			assert(act == exp);
+		}
+		{
+			XMFLOAT3 exp = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
+			b[L"butts"][L"pubes"] = exp;
+			XMFLOAT3 act = b[L"butts"][L"pubes"];
+			assert(!std::memcmp(&exp, &act, sizeof(XMFLOAT3)));
+		}
+		{
+			XMFLOAT4X4 exp;
+			XMStoreFloat4x4(&exp, XMMatrixIdentity());
+			b[L"arr"][2][L"meta"][5][3] = exp;
+			XMFLOAT4X4 act = b[L"arr"][2][L"meta"][5][3];
+			assert(!std::memcmp(&exp, &act, sizeof(XMFLOAT4X4)));
+		}
+	}
+	// size test array of arrays
+	{
+		Dcb::Layout s;
+		s.Add<Dcb::Array>(L"arr");
+		s[L"arr"].Set<Dcb::Array>(6);
+		s[L"arr"].T().Set<Dcb::Matrix>(4);
+		Dcb::Buffer b(s);
+
+		size_t act = b.GetSizeInBytes();
+		assert(act == 16u * 4u * 4u * 6u);
+	}
+	// size test array of structs with padding
+	{
+		Dcb::Layout s;
+		s.Add<Dcb::Array>(L"arr");
+		s[L"arr"].Set<Dcb::Struct>(6);
+		s[L"arr"].T().Add<Dcb::Float2>(L"a");
+		s[L"arr"].T().Add<Dcb::Float3>(L"b");
+		Dcb::Buffer b(s);
+
+		size_t act = b.GetSizeInBytes();
+		assert(act == 16u * 2u * 6u);
+	}
+	// size test array of primitive that needs padding
+	{
+		Dcb::Layout s;
+		s.Add<Dcb::Array>(L"arr");
+		s[L"arr"].Set<Dcb::Float3>(6);
+		Dcb::Buffer b(s);
+
+		size_t act = b.GetSizeInBytes();
+		assert(act == 16u * 6u);
+	}
+}
+
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	Dcb::Layout s;
-	s.Add<Dcb::Struct>(L"butts");
-	s[L"butts"].Add<Dcb::Float3>(L"pubes").Add<Dcb::Float>(L"dank");
-	s.Add<Dcb::Float>(L"woot").Add<Dcb::Array>(L"arr");
-	s[L"arr"].Set<Dcb::Struct>(4);
-	s[L"arr"].T().Add<Dcb::Float3>(L"twerk");
-	s[L"arr"].T().Add<Dcb::Array>(L"werk");
-	s[L"arr"].T()[L"werk"].Set<Dcb::Float>(6);
-	s[L"arr"].T().Add<Dcb::Array>(L"meta");
-	s[L"arr"].T()[L"meta"].Set<Dcb::Array>(6);
-	s[L"arr"].T()[L"meta"].T().Set<Dcb::Matrix>(4);
-
-	Dcb::Buffer b(s);
-	b[L"butts"][L"pubes"] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
-	b[L"butts"][L"dank"] = 420.0f;
-	b[L"woot"] = 42.0f;
-	b[L"arr"][2][L"werk"][5] = 111.0f;
-	XMStoreFloat4x4(&b[L"arr"][2][L"meta"][5][3], XMMatrixIdentity());
-
-	float k = b[L"woot"];
-	XMFLOAT3 v = b[L"butts"][L"pubes"];
-	float u = b[L"butts"][L"dank"];
-	float er = b[L"arr"][2][L"werk"][5];
-	XMFLOAT4X4 eq = b[L"arr"][2][L"meta"][5][3];
-
+	TestDynamicConstant();
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));

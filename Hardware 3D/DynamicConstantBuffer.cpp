@@ -42,6 +42,11 @@ namespace Dcb
         return GetOffsetEnd() - GetOffsetBegin();
     }
 
+    size_t LayoutElement::GetNextBoundaryOffset(size_t offset)
+    {
+        return offset + (16u - offset % 16) % 16;
+    }
+
     LayoutElement& Struct::operator[](const wchar_t* key)
     {
         return *mMap.at(key);
@@ -54,7 +59,7 @@ namespace Dcb
 
     size_t Struct::GetOffsetEnd() const noexcept
     {
-        return mElements.empty() ? GetOffsetBegin() : mElements.back()->GetOffsetEnd();
+        return LayoutElement::GetNextBoundaryOffset(mElements.back()->GetOffsetEnd());
     }
 
     size_t Struct::Finalize(size_t offset)
@@ -65,6 +70,22 @@ namespace Dcb
         for (auto& el : mElements)
             offsetNext = (*el).Finalize(offsetNext);
         return GetOffsetEnd();
+    }
+
+    size_t Struct::ComputeSize() const noexcept(!IS_DEBUG)
+    {
+        size_t offsetNext = 0u;
+        for (auto& el : mElements)
+        {
+            const size_t elSize = el->ComputeSize();
+            offsetNext += CalculatePaddingBeforeElement(offsetNext, elSize) + elSize;
+        }
+        return GetNextBoundaryOffset(offsetNext);
+    }
+
+    size_t Struct::CalculatePaddingBeforeElement(size_t offset, size_t size) noexcept
+    {
+        return offset / 16u != (offset + size - 1) / 16u ? GetNextBoundaryOffset(offset) - offset : offset;
     }
     
 
@@ -80,8 +101,7 @@ namespace Dcb
 
     size_t Array::GetOffsetEnd() const noexcept
     {
-        assert(mElement);
-        return GetOffsetBegin() + mElement->GetSizeInBytes() * mSize;
+        return GetOffsetBegin() + LayoutElement::GetNextBoundaryOffset(mElement->GetSizeInBytes()) * mSize;
     }
 
     size_t Array::Finalize(size_t offset)
@@ -89,7 +109,12 @@ namespace Dcb
         assert(mSize != 0u && mElement);
         mOffset = offset;
         mElement->Finalize(offset);
-        return offset + mElement->GetSizeInBytes() * mSize;
+        return GetOffsetEnd();
+    }
+
+    size_t Array::ComputeSize() const noexcept(!IS_DEBUG)
+    {
+        return LayoutElement::GetNextBoundaryOffset(mElement->ComputeSize()) * mSize;
     }
 
     Layout::Layout()
@@ -133,7 +158,8 @@ namespace Dcb
     ElementRef ElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
     {
         const LayoutElement& t = mLayout->T();
-        return { &t, mBytes, mOffset + t.GetSizeInBytes() * index };
+        const size_t elementSize = LayoutElement::GetNextBoundaryOffset(t.GetSizeInBytes());
+        return { &t, mBytes, mOffset + elementSize * index };
     }
 
     ElementRef::Ptr ElementRef::operator&() noexcept(!IS_DEBUG)
