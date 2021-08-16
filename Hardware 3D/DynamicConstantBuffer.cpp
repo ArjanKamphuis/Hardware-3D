@@ -9,6 +9,10 @@ namespace Dcb
     {
     }
 
+    LayoutElement::~LayoutElement()
+    {
+    }
+
     LayoutElement& LayoutElement::operator[](const wchar_t* key)
     {
         assert(false && "Cannot access member on non Struct");

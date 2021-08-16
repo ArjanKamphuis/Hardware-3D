@@ -55,6 +55,7 @@ namespace Dcb
 	{
 	public:
 		LayoutElement(size_t offset);
+		virtual ~LayoutElement();
 
 		virtual LayoutElement& operator[](const wchar_t* key);
 		virtual const LayoutElement& operator[](const wchar_t* key) const;
