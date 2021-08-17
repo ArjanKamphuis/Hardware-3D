@@ -18,6 +18,10 @@ size_t eltype::GetOffsetEnd() const noexcept \
 { \
 	return GetOffsetBegin() + ComputeSize(); \
 } \
+std::wstring eltype::GetSignature() const noexcept(!IS_DEBUG) \
+{ \
+    return L#eltype; \
+}\
 size_t eltype::Finalize(size_t offset) \
 { \
 	mOffset = offset; \
@@ -109,6 +113,11 @@ namespace Dcb
         {
             return false;
         }
+        std::wstring GetSignature() const noexcept(!IS_DEBUG) override final
+        {
+            assert(false);
+            return L"";
+        }
     protected:
         size_t Finalize(size_t offset) override final
         {
@@ -155,6 +164,23 @@ namespace Dcb
         return LayoutElement::GetNextBoundaryOffset(mElements.back()->GetOffsetEnd());
     }
 
+    std::wstring Struct::GetSignature() const noexcept(!IS_DEBUG)
+    {
+        using namespace std::string_literals;
+        std::wstring sig = L"Struct{"s;
+        for (const auto& el : mElements)
+        {
+            auto it = std::find_if(mMap.begin(), mMap.end(), 
+                [&el](const std::pair<std::wstring, LayoutElement*>& v)
+                {
+                    return &*el == v.second;
+                }
+            );
+            sig += it->first + L":"s + el->GetSignature() + L";"s;
+        }
+        return sig + L"}"s;
+    }
+
     size_t Struct::Finalize(size_t offset)
     {
         assert(mElements.size() != 0u);
@@ -190,12 +216,18 @@ namespace Dcb
 
     const LayoutElement& Array::T() const
     {
-        return *mElement;
+        return const_cast<Array*>(this)->T();
     }
 
     size_t Array::GetOffsetEnd() const noexcept
     {
         return GetOffsetBegin() + LayoutElement::GetNextBoundaryOffset(mElement->GetSizeInBytes()) * mSize;
+    }
+
+    std::wstring Array::GetSignature() const noexcept(!IS_DEBUG)
+    {
+        using namespace std::string_literals;
+        return L"Array:"s + std::to_wstring(mSize) + L"{"s + T().GetSignature() + L"}"s;
     }
 
     bool Array::IndexInBounds(size_t index) const noexcept
@@ -237,6 +269,11 @@ namespace Dcb
     size_t Layout::GetSizeInBytes() const noexcept
     {
         return mLayout->GetSizeInBytes();
+    }
+
+    std::wstring Layout::GetSignature() const noexcept(!IS_DEBUG)
+    {
+        return mLayout->GetSignature();
     }
 
     std::shared_ptr<LayoutElement> Layout::Finalize()
@@ -374,6 +411,11 @@ namespace Dcb
     size_t Buffer::GetSizeInBytes() const noexcept
     {
         return mBytes.size();
+    }
+
+    std::wstring Buffer::GetSignature() const noexcept(!IS_DEBUG)
+    {
+        return mLayout->GetSignature();
     }
 
     const LayoutElement& Buffer::GetLayout() const noexcept

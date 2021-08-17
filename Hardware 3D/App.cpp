@@ -24,6 +24,8 @@ void TestDynamicConstant()
 		s[L"arr"s].T().Add<Dcb::Bool>(L"booler"s);
 		Dcb::Buffer b(s);
 
+		const std::wstring sig = b.GetSignature();
+
 		{
 			float exp = 42.0f;
 			b[L"woot"s] = exp;

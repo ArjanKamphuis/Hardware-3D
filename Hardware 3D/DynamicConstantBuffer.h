@@ -2,7 +2,6 @@
 
 #include <DirectXMath.h>
 #include <memory>
-#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -18,6 +17,7 @@ public: \
 	using SystemType = systype; \
 	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final; \
 	size_t GetOffsetEnd() const noexcept override final; \
+	std::wstring GetSignature() const noexcept(!IS_DEBUG) override final; \
 protected: \
 	size_t Finalize(size_t offset) override; \
 	size_t ComputeSize() const noexcept(!IS_DEBUG) override final; \
@@ -55,6 +55,7 @@ namespace Dcb
 		size_t GetOffsetBegin() const noexcept;
 		virtual size_t GetOffsetEnd() const noexcept = 0;
 		size_t GetSizeInBytes() const noexcept;
+		virtual std::wstring GetSignature() const noexcept(!IS_DEBUG) = 0;
 
 		template<typename T>
 		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
@@ -91,6 +92,7 @@ namespace Dcb
 		LayoutElement& operator[](const std::wstring& key) override final;
 		const LayoutElement& operator[](const std::wstring& key) const override final;
 		size_t GetOffsetEnd() const noexcept override final;
+		std::wstring GetSignature() const noexcept(!IS_DEBUG) override final;
 
 		template<typename T>
 		void Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG);
@@ -113,6 +115,7 @@ namespace Dcb
 		LayoutElement& T() override final;
 		const LayoutElement& T() const override final;
 		size_t GetOffsetEnd() const noexcept override final;
+		std::wstring GetSignature() const noexcept(!IS_DEBUG) override final;
 
 		template<typename T>
 		void Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG);
@@ -135,6 +138,7 @@ namespace Dcb
 
 		LayoutElement& operator[](const std::wstring& key);
 		size_t GetSizeInBytes() const noexcept;
+		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 
 		template<typename T>
 		LayoutElement& Add(const std::wstring& key);
@@ -235,6 +239,7 @@ namespace Dcb
 
 		const std::byte* GetData() const noexcept;
 		size_t GetSizeInBytes() const noexcept;
+		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 		const LayoutElement& GetLayout() const noexcept;
 		std::shared_ptr<LayoutElement> CloneLayout() const;
 
