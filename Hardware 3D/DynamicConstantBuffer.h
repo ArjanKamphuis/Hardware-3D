@@ -7,64 +7,34 @@
 #include <vector>
 #include "ChiliWin.h"
 
-#define RESOLVE_BASE(eltype) \
-virtual size_t Resolve ## eltype() const noexcept(!IS_DEBUG) \
-{ \
-	assert(false && "Cannot resolve to " #eltype); \
-	return 0u; \
-}
+#define DCB_RESOLVE_BASE(eltype) \
+virtual size_t Resolve ## eltype() const noexcept(!IS_DEBUG);
 
-#define LEAF_ELEMENT_IMPL(eltype, systype, hlslSize) \
+#define DCB_LEAF_ELEMENT_IMPL(eltype, systype, hlslSize) \
 class eltype : public LayoutElement \
 { \
 public: \
 	using SystemType = systype; \
-	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final \
-	{ \
-		return GetOffsetBegin(); \
-	} \
-	size_t GetOffsetEnd() const noexcept override final \
-	{ \
-		return GetOffsetBegin() + ComputeSize(); \
-	} \
+	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final; \
+	size_t GetOffsetEnd() const noexcept override final; \
 protected: \
-	size_t Finalize(size_t offset) override \
-	{ \
-		mOffset = offset; \
-		return offset + ComputeSize(); \
-	} \
-	size_t ComputeSize() const noexcept(!IS_DEBUG) override final \
-	{ \
-		return hlslSize; \
-	} \
+	size_t Finalize(size_t offset) override; \
+	size_t ComputeSize() const noexcept(!IS_DEBUG) override final; \
 };
-#define LEAF_ELEMENT(eltype, systype) LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
+#define DCB_LEAF_ELEMENT(eltype, systype) DCB_LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
 
-#define REF_CONVERSION(eltype, ...) \
-operator __VA_ARGS__ eltype::SystemType& () noexcept(!IS_DEBUG) \
-{ \
-	return *reinterpret_cast<eltype::SystemType*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
-}
-#define REF_ASSIGN(eltype) \
-eltype::SystemType& operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG) \
-{ \
-	return static_cast<eltype::SystemType&>(*this) = rhs; \
-}
-#define REF_NONCONST(eltype) REF_CONVERSION(eltype) REF_ASSIGN(eltype)
-#define REF_CONST(eltype) REF_CONVERSION(eltype)
+#define DCB_REF_CONVERSION(eltype, ...) \
+operator __VA_ARGS__ eltype::SystemType& () noexcept(!IS_DEBUG);
+#define DCB_REF_ASSIGN(eltype) \
+eltype::SystemType& operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG);
+#define DCB_REF_NONCONST(eltype) DCB_REF_CONVERSION(eltype) DCB_REF_ASSIGN(eltype)
+#define DCB_REF_CONST(eltype) DCB_REF_CONVERSION(eltype)
 
-#define PTR_CONVERSION(eltype, ...) \
-operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG) \
-{ \
-	return &static_cast<__VA_ARGS__ eltype::SystemType&>(mRef); \
-}
+#define DCB_PTR_CONVERSION(eltype, ...) \
+operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG);
 
 namespace Dcb
 {
-	class Struct;
-	class Array;
-	class Layout;
-
 	class LayoutElement
 	{
 		friend class Layout;
@@ -90,12 +60,12 @@ namespace Dcb
 
 		static size_t GetNextBoundaryOffset(size_t offset);
 
-		RESOLVE_BASE(Matrix);
-		RESOLVE_BASE(Float4);
-		RESOLVE_BASE(Float3);
-		RESOLVE_BASE(Float2);
-		RESOLVE_BASE(Float);
-		RESOLVE_BASE(Bool);
+		DCB_RESOLVE_BASE(Matrix);
+		DCB_RESOLVE_BASE(Float4);
+		DCB_RESOLVE_BASE(Float3);
+		DCB_RESOLVE_BASE(Float2);
+		DCB_RESOLVE_BASE(Float);
+		DCB_RESOLVE_BASE(Bool);
 
 	protected:
 		virtual size_t Finalize(size_t offset) = 0;
@@ -105,12 +75,12 @@ namespace Dcb
 		size_t mOffset = 0u;
 	};
 
-	LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
-	LEAF_ELEMENT(Float4, DirectX::XMFLOAT4);
-	LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
-	LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
-	LEAF_ELEMENT(Float, float);
-	LEAF_ELEMENT_IMPL(Bool, bool, 4u);
+	DCB_LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
+	DCB_LEAF_ELEMENT(Float4, DirectX::XMFLOAT4);
+	DCB_LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
+	DCB_LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
+	DCB_LEAF_ELEMENT(Float, float);
+	DCB_LEAF_ELEMENT_IMPL(Bool, bool, 4u);
 
 	class Struct : public LayoutElement
 	{
@@ -179,12 +149,12 @@ namespace Dcb
 		public:
 			Ptr(ConstElementRef& ref);
 
-			PTR_CONVERSION(Matrix, const);
-			PTR_CONVERSION(Float4, const);
-			PTR_CONVERSION(Float3, const);
-			PTR_CONVERSION(Float2, const);
-			PTR_CONVERSION(Float, const);
-			PTR_CONVERSION(Bool, const);
+			DCB_PTR_CONVERSION(Matrix, const);
+			DCB_PTR_CONVERSION(Float4, const);
+			DCB_PTR_CONVERSION(Float3, const);
+			DCB_PTR_CONVERSION(Float2, const);
+			DCB_PTR_CONVERSION(Float, const);
+			DCB_PTR_CONVERSION(Bool, const);
 
 		private:
 			ConstElementRef& mRef;
@@ -197,12 +167,12 @@ namespace Dcb
 
 		Ptr operator&() noexcept(!IS_DEBUG);
 
-		REF_CONST(Matrix);
-		REF_CONST(Float4);
-		REF_CONST(Float3);
-		REF_CONST(Float2);
-		REF_CONST(Float);
-		REF_CONST(Bool);
+		DCB_REF_CONST(Matrix);
+		DCB_REF_CONST(Float4);
+		DCB_REF_CONST(Float3);
+		DCB_REF_CONST(Float2);
+		DCB_REF_CONST(Float);
+		DCB_REF_CONST(Bool);
 
 	private:
 		const LayoutElement* mLayout;
@@ -218,12 +188,12 @@ namespace Dcb
 		public:
 			Ptr(ElementRef& ref);
 
-			PTR_CONVERSION(Matrix);
-			PTR_CONVERSION(Float4);
-			PTR_CONVERSION(Float3);
-			PTR_CONVERSION(Float2);
-			PTR_CONVERSION(Float);
-			PTR_CONVERSION(Bool);
+			DCB_PTR_CONVERSION(Matrix);
+			DCB_PTR_CONVERSION(Float4);
+			DCB_PTR_CONVERSION(Float3);
+			DCB_PTR_CONVERSION(Float2);
+			DCB_PTR_CONVERSION(Float);
+			DCB_PTR_CONVERSION(Bool);
 
 		private:
 			ElementRef& mRef;
@@ -236,13 +206,13 @@ namespace Dcb
 
 		Ptr operator&() noexcept(!IS_DEBUG);
 		operator ConstElementRef() const noexcept;
-		
-		REF_NONCONST(Matrix);
-		REF_NONCONST(Float4);
-		REF_NONCONST(Float3);
-		REF_NONCONST(Float2);
-		REF_NONCONST(Float);
-		REF_NONCONST(Bool);
+
+		DCB_REF_NONCONST(Matrix);
+		DCB_REF_NONCONST(Float4);
+		DCB_REF_NONCONST(Float3);
+		DCB_REF_NONCONST(Float2);
+		DCB_REF_NONCONST(Float);
+		DCB_REF_NONCONST(Bool);
 
 	private:
 		const LayoutElement* mLayout;
@@ -307,3 +277,12 @@ namespace Dcb
 		return mLayout->Add<T>(key);
 	}
 }
+
+#undef DCB_RESOLVE_BASE
+#undef DCB_LEAF_ELEMENT_IMPL
+#undef DCB_LEAF_ELEMENT
+#undef DCB_REF_CONVERSION
+#undef DCB_REF_ASSIGN
+#undef DCB_REF_NONCONST
+#undef DCB_REF_CONST
+#undef DCB_PTR_CONVERSION

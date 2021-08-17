@@ -2,6 +2,52 @@
 
 using namespace DirectX;
 
+#define DCB_RESOLVE_BASE(eltype) \
+size_t LayoutElement::Resolve ## eltype() const noexcept(!IS_DEBUG) \
+{ \
+	assert(false && "Cannot resolve to " #eltype); \
+	return 0u; \
+}
+
+#define DCB_LEAF_ELEMENT_IMPL(eltype, systype, hlslSize) \
+size_t eltype::Resolve ## eltype() const noexcept(!IS_DEBUG) \
+{ \
+	return GetOffsetBegin(); \
+} \
+size_t eltype::GetOffsetEnd() const noexcept \
+{ \
+	return GetOffsetBegin() + ComputeSize(); \
+} \
+size_t eltype::Finalize(size_t offset) \
+{ \
+	mOffset = offset; \
+	return offset + ComputeSize(); \
+} \
+size_t eltype::ComputeSize() const noexcept(!IS_DEBUG) \
+{ \
+	return hlslSize; \
+}
+#define DCB_LEAF_ELEMENT(eltype, systype) DCB_LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
+
+#define DCB_REF_CONVERSION(reftype, eltype, ...) \
+reftype::operator __VA_ARGS__ eltype::SystemType& () noexcept(!IS_DEBUG) \
+{ \
+	return *reinterpret_cast<eltype::SystemType*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
+}
+#define DCB_REF_ASSIGN(reftype, eltype) \
+eltype::SystemType& reftype::operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG) \
+{ \
+	return static_cast<eltype::SystemType&>(*this) = rhs; \
+}
+#define DCB_REF_NONCONST(reftype, eltype) DCB_REF_CONVERSION(reftype, eltype) DCB_REF_ASSIGN(reftype, eltype)
+#define DCB_REF_CONST(reftype, eltype) DCB_REF_CONVERSION(reftype, eltype)
+
+#define DCB_PTR_CONVERSION(reftype, eltype, ...) \
+reftype::Ptr::operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG) \
+{ \
+	return &static_cast<__VA_ARGS__ eltype::SystemType&>(mRef); \
+}
+
 namespace Dcb
 {
     LayoutElement::~LayoutElement()
@@ -47,6 +93,24 @@ namespace Dcb
         return offset + (16u - offset % 16) % 16;
     }
 
+
+
+    DCB_RESOLVE_BASE(Matrix);
+    DCB_RESOLVE_BASE(Float4);
+    DCB_RESOLVE_BASE(Float3);
+    DCB_RESOLVE_BASE(Float2);
+    DCB_RESOLVE_BASE(Float);
+    DCB_RESOLVE_BASE(Bool);
+
+    DCB_LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
+    DCB_LEAF_ELEMENT(Float4, DirectX::XMFLOAT4);
+    DCB_LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
+    DCB_LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
+    DCB_LEAF_ELEMENT(Float, float);
+    DCB_LEAF_ELEMENT_IMPL(Bool, bool, 4u);
+
+
+
     LayoutElement& Struct::operator[](const std::wstring& key)
     {
         return *mMap.at(key);
@@ -89,6 +153,7 @@ namespace Dcb
     }
     
 
+
     LayoutElement& Array::T()
     {
         return *mElement;
@@ -116,6 +181,8 @@ namespace Dcb
     {
         return LayoutElement::GetNextBoundaryOffset(mElement->ComputeSize()) * mSize;
     }
+
+
 
     Layout::Layout()
         : mLayout(std::make_shared<Struct>())
@@ -145,10 +212,19 @@ namespace Dcb
         return mLayout;
     }
 
+
+
     ConstElementRef::Ptr::Ptr(ConstElementRef& ref)
         : mRef(ref)
     {
     }
+
+    DCB_PTR_CONVERSION(ConstElementRef, Matrix, const);
+    DCB_PTR_CONVERSION(ConstElementRef, Float4, const);
+    DCB_PTR_CONVERSION(ConstElementRef, Float3, const);
+    DCB_PTR_CONVERSION(ConstElementRef, Float2, const);
+    DCB_PTR_CONVERSION(ConstElementRef, Float, const);
+    DCB_PTR_CONVERSION(ConstElementRef, Bool, const);
 
     ConstElementRef::ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
@@ -172,10 +248,26 @@ namespace Dcb
         return { *this };
     }
 
+    DCB_REF_CONST(ConstElementRef, Matrix);
+    DCB_REF_CONST(ConstElementRef, Float4);
+    DCB_REF_CONST(ConstElementRef, Float3);
+    DCB_REF_CONST(ConstElementRef, Float2);
+    DCB_REF_CONST(ConstElementRef, Float);
+    DCB_REF_CONST(ConstElementRef, Bool);
+
+
+
     ElementRef::Ptr::Ptr(ElementRef& ref)
         : mRef(ref)
     {
     }
+
+    DCB_PTR_CONVERSION(ElementRef, Matrix);
+    DCB_PTR_CONVERSION(ElementRef, Float4);
+    DCB_PTR_CONVERSION(ElementRef, Float3);
+    DCB_PTR_CONVERSION(ElementRef, Float2);
+    DCB_PTR_CONVERSION(ElementRef, Float);
+    DCB_PTR_CONVERSION(ElementRef, Bool);
 
     ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
@@ -203,6 +295,15 @@ namespace Dcb
     {
         return { mLayout, mBytes, mOffset };
     }
+
+    DCB_REF_NONCONST(ElementRef, Matrix);
+    DCB_REF_NONCONST(ElementRef, Float4);
+    DCB_REF_NONCONST(ElementRef, Float3);
+    DCB_REF_NONCONST(ElementRef, Float2);
+    DCB_REF_NONCONST(ElementRef, Float);
+    DCB_REF_NONCONST(ElementRef, Bool);
+
+
 
     Buffer::Buffer(Layout& layout)
         : mLayout(std::static_pointer_cast<Struct>(layout.Finalize())), mBytes(mLayout->GetOffsetEnd())
