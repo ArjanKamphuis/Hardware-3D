@@ -26,7 +26,7 @@ void TestDynamicConstant()
 		//s.Add<Dcb::Bool>(L"arr"s);
 		//s.Add<Dcb::Bool>(L"69man"s);
 
-		Dcb::Buffer b(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(s);
 		const std::wstring sig = b.GetSignature();
 
 		{
@@ -96,7 +96,7 @@ void TestDynamicConstant()
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Array>(6);
 		s[L"arr"s].T().Set<Dcb::Matrix>(4);
-		Dcb::Buffer b(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(s);
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 4u * 4u * 6u);
@@ -108,7 +108,7 @@ void TestDynamicConstant()
 		s[L"arr"s].Set<Dcb::Struct>(6);
 		s[L"arr"s].T().Add<Dcb::Float2>(L"a"s);
 		s[L"arr"s].T().Add<Dcb::Float3>(L"b"s);
-		Dcb::Buffer b(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(s);
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 2u * 6u);
@@ -118,7 +118,7 @@ void TestDynamicConstant()
 		Dcb::Layout s;
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Float3>(6);
-		Dcb::Buffer b(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(s);
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 6u);

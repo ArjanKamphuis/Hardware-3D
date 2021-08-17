@@ -350,28 +350,15 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		bindablePtrs.push_back(PixelShader::Resolve(gfx, L"PhongPSNormalMap.cso"));
 
 		Dcb::Layout layout;
-		bool loaded = false;
-		std::wstring tag = L"diff&nrm";
-		if (LayoutCodex::Has(tag))
-		{
-			layout = LayoutCodex::Load(tag);
-			loaded = true;
-		}
-		else
-		{
-			layout.Add<Dcb::Float3>(L"SpecularColor");
-			layout.Add<Dcb::Float>(L"SpecularPower");
-			layout.Add<Dcb::Bool>(L"NormalMapEnabled");
-		}
+		layout.Add<Dcb::Float3>(L"SpecularColor");
+		layout.Add<Dcb::Float>(L"SpecularPower");
+		layout.Add<Dcb::Bool>(L"NormalMapEnabled");
 
-		Dcb::Buffer cbuf{ layout };
+		Dcb::Buffer cbuf = Dcb::Buffer::Make(layout);
 		cbuf[L"SpecularColor"] = specularColor;
 		cbuf[L"SpecularPower"] = shininess;
 		cbuf[L"NormalMapEnabled"] = true;
 		bindablePtrs.push_back(std::make_shared<PixelConstantBufferEx>(gfx, cbuf));
-
-		if (!loaded)
-			LayoutCodex::Store(tag, layout);
 	}
 	else if (hasDiffuseMap && !hasNormalMap && hasSpecularMap)
 	{

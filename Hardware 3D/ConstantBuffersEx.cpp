@@ -10,7 +10,7 @@ namespace Bind
 	}
 
 	PixelConstantBufferEx::PixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot)
-		: PixelConstantBufferEx(gfx, buffer.CloneLayout(), slot, &buffer)
+		: PixelConstantBufferEx(gfx, buffer.ShareLayout(), slot, &buffer)
 	{
 	}
 

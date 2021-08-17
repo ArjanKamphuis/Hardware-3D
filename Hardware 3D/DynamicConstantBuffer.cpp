@@ -1,5 +1,7 @@
 #include "DynamicConstantBuffer.h"
 
+#include "LayoutCodex.h"
+
 using namespace DirectX;
 
 #define DCB_RESOLVE_BASE(eltype) \
@@ -256,7 +258,7 @@ namespace Dcb
     }
 
     Layout::Layout(std::shared_ptr<LayoutElement> pLayout)
-        : mLayout(std::move(pLayout))
+        : mLayout(std::move(pLayout)), mFinalized(true)
     {
     }
 
@@ -273,13 +275,23 @@ namespace Dcb
 
     std::wstring Layout::GetSignature() const noexcept(!IS_DEBUG)
     {
+        assert(mFinalized);
         return mLayout->GetSignature();
     }
 
-    std::shared_ptr<LayoutElement> Layout::Finalize()
+    void Layout::Finalize()
     {
         mLayout->Finalize(0u);
         mFinalized = true;
+    }
+
+    bool Layout::IsFinalized() const noexcept
+    {
+        return mFinalized;
+    }
+
+    std::shared_ptr<LayoutElement> Layout::ShareRoot() const noexcept
+    {
         return mLayout;
     }
 
@@ -387,10 +399,11 @@ namespace Dcb
     DCB_REF_NONCONST(ElementRef, Bool);
 
 
+    
 
-    Buffer::Buffer(Layout& layout)
-        : mLayout(std::static_pointer_cast<Struct>(layout.Finalize())), mBytes(mLayout->GetOffsetEnd())
+    Buffer Buffer::Make(Layout& layout) noexcept(!IS_DEBUG)
     {
+        return { LayoutCodex::Resolve(layout) };
     }
 
     ElementRef Buffer::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
@@ -423,9 +436,19 @@ namespace Dcb
         return *mLayout;
     }
 
-    std::shared_ptr<LayoutElement> Buffer::CloneLayout() const
+    std::shared_ptr<LayoutElement> Buffer::ShareLayout() const
     {
         return mLayout;
+    }
+
+    Buffer::Buffer(Layout& layout)
+        : mLayout(layout.ShareRoot()), mBytes(mLayout->GetOffsetEnd())
+    {
+    }
+
+    Buffer::Buffer(Layout&& layout)
+        : Buffer(layout)
+    {
     }
 
     // temporary

@@ -37,6 +37,8 @@ operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG);
 
 namespace Dcb
 {
+	class LayoutCodex;
+
 	class LayoutElement
 	{
 		friend class Layout;
@@ -133,6 +135,9 @@ namespace Dcb
 
 	class Layout
 	{
+		friend LayoutCodex;
+		friend class Buffer;
+
 	public:
 		Layout();
 		Layout(std::shared_ptr<LayoutElement> pLayout);
@@ -143,7 +148,11 @@ namespace Dcb
 
 		template<typename T>
 		LayoutElement& Add(const std::wstring& key);
-		std::shared_ptr<LayoutElement> Finalize();
+		void Finalize();
+		bool IsFinalized() const noexcept;
+
+	private:
+		std::shared_ptr<LayoutElement> ShareRoot() const noexcept;
 
 	private:
 		bool mFinalized = false;
@@ -234,7 +243,7 @@ namespace Dcb
 	class Buffer
 	{
 	public:
-		Buffer(Layout& layout);
+		static Buffer Make(Layout& layout) noexcept(!IS_DEBUG);
 		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ConstElementRef operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
 
@@ -242,10 +251,14 @@ namespace Dcb
 		size_t GetSizeInBytes() const noexcept;
 		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 		const LayoutElement& GetLayout() const noexcept;
-		std::shared_ptr<LayoutElement> CloneLayout() const;
+		std::shared_ptr<LayoutElement> ShareLayout() const;
 
 	private:
-		std::shared_ptr<Struct> mLayout;
+		Buffer(Layout& layout);
+		Buffer(Layout&& layout);
+
+	private:
+		std::shared_ptr<LayoutElement> mLayout;
 		std::vector<std::byte> mBytes;
 	};
 

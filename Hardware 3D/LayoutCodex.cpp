@@ -1,38 +1,20 @@
 #include "LayoutCodex.h"
 
-bool LayoutCodex::Has(const std::wstring& tag)
+namespace Dcb
 {
-    return Get_().Has_(tag);
-}
+    Layout LayoutCodex::Resolve(Layout& layout) noexcept(!IS_DEBUG)
+    {
+        layout.Finalize();
+        std::wstring sig = layout.GetSignature();
+        auto& map = Get_().mMap;
 
-Dcb::Layout LayoutCodex::Load(const std::wstring& tag)
-{
-    return Get_().Load_(tag);
-}
+        const auto it = map.find(sig);
+        return it != map.end() ? it->second : map.insert({ std::move(sig), layout.ShareRoot() }).first->second;
+    }
 
-void LayoutCodex::Store(const std::wstring& tag, Dcb::Layout& layout)
-{
-    Get_().Store_(tag, layout);
-}
-
-LayoutCodex& LayoutCodex::Get_()
-{
-    static LayoutCodex codex;
-    return codex;
-}
-
-bool LayoutCodex::Has_(const std::wstring& tag) const
-{
-    return mMap.find(tag) != mMap.end();
-}
-
-Dcb::Layout LayoutCodex::Load_(const std::wstring& tag) const
-{
-    return { mMap.find(tag)->second };
-}
-
-void LayoutCodex::Store_(const std::wstring& tag, Dcb::Layout& layout)
-{
-    auto r = mMap.insert({ tag, layout.Finalize() });
-    assert(r.second);
+    LayoutCodex& LayoutCodex::Get_()
+    {
+        static LayoutCodex codex;
+        return codex;
+    }
 }
