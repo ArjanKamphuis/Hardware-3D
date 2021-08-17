@@ -170,7 +170,7 @@ namespace Dcb
 		ConstElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
 		Ptr operator&() noexcept(!IS_DEBUG);
-		std::optional<ConstElementRef> Exists() const noexcept;
+		bool Exists() const noexcept;
 
 		DCB_REF_CONST(Matrix);
 		DCB_REF_CONST(Float4);
@@ -211,7 +211,7 @@ namespace Dcb
 
 		Ptr operator&() noexcept(!IS_DEBUG);
 		operator ConstElementRef() const noexcept;
-		std::optional<ElementRef> Exists() const noexcept;
+		bool Exists() const noexcept;
 
 		DCB_REF_NONCONST(Matrix);
 		DCB_REF_NONCONST(Float4);

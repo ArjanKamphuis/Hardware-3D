@@ -283,11 +283,9 @@ namespace Dcb
         return { *this };
     }
 
-    std::optional<ConstElementRef> ConstElementRef::Exists() const noexcept
+    bool ConstElementRef::Exists() const noexcept
     {
-        if (mLayout->Exists())
-            return ConstElementRef{ mLayout, mBytes, mOffset };
-        return std::nullopt;
+        return mLayout->Exists();
     }
 
     DCB_REF_CONST(ConstElementRef, Matrix);
@@ -339,11 +337,9 @@ namespace Dcb
         return { mLayout, mBytes, mOffset };
     }
 
-    std::optional<ElementRef> ElementRef::Exists() const noexcept
+    bool ElementRef::Exists() const noexcept
     {
-        if (mLayout->Exists())
-            return ElementRef{ mLayout, mBytes, mOffset };
-        return std::nullopt;
+        return mLayout->Exists();
     }
 
     DCB_REF_NONCONST(ElementRef, Matrix);

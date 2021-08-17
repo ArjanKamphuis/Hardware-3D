@@ -70,9 +70,8 @@ void TestDynamicConstant()
 		{
 			assert(b[L"butts"s][L"pubes"s].Exists());
 			assert(!b[L"butts"s][L"fubar"s].Exists());
-			if (auto opt = b[L"butts"s][L"pubes"s].Exists())
+			if (auto ref = b[L"butts"s][L"pubes"s]; ref.Exists())
 			{
-				Dcb::ElementRef& ref = *opt;
 				XMFLOAT3 f = ref;
 				assert(f.x == 69.0f);
 			}
