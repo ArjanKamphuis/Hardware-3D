@@ -7,7 +7,7 @@ namespace Dcb
 	class LayoutCodex
 	{
 	public:
-		static Layout Resolve(Layout& layout) noexcept(!IS_DEBUG);
+		static CookedLayout Resolve(RawLayout&& layout) noexcept(!IS_DEBUG);
 	private:
 		static LayoutCodex& Get_();
 	private:

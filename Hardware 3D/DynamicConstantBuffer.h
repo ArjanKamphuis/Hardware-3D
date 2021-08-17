@@ -40,7 +40,7 @@ namespace Dcb
 {
 	class LayoutElement
 	{
-		friend class Layout;
+		friend class RawLayout;
 		friend class Array;
 		friend class Struct;
 
@@ -143,24 +143,45 @@ namespace Dcb
 		friend class Buffer;
 
 	public:
-		Layout() noexcept;
-		Layout(std::shared_ptr<LayoutElement> pLayout) noexcept;
-
-		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		size_t GetSizeInBytes() const noexcept;
 		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 
+	protected:
+		Layout() noexcept;
+		Layout(std::shared_ptr<LayoutElement> pRoot) noexcept;
+
+	protected:
+		std::shared_ptr<LayoutElement> mRoot;
+	};
+
+	class RawLayout : public Layout
+	{
+		friend class LayoutCodex;
+
+	public:
+		RawLayout() = default;
+
+		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
+
 		template<typename T>
 		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
-		void Finalize() noexcept(!IS_DEBUG);
-		bool IsFinalized() const noexcept;
 
 	private:
+		std::shared_ptr<LayoutElement> DeliverRoot() noexcept;
+		void ClearRoot() noexcept;
+	};
+
+	class CookedLayout : public Layout
+	{
+		friend class LayoutCodex;
+		friend class Buffer;
+
+	public:
+		const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
+
+	private:
+		CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept;
 		std::shared_ptr<LayoutElement> ShareRoot() const noexcept;
-
-	private:
-		bool mFinalized = false;
-		std::shared_ptr<LayoutElement> mLayout;
 	};
 
 	class ConstElementRef
@@ -261,19 +282,18 @@ namespace Dcb
 	class Buffer
 	{
 	public:
-		static Buffer Make(Layout& layout) noexcept(!IS_DEBUG);
+		static Buffer Make(RawLayout&& layout) noexcept(!IS_DEBUG);
+		static Buffer Make(const CookedLayout& layout) noexcept(!IS_DEBUG);
 		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ConstElementRef operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
 
 		const std::byte* GetData() const noexcept;
 		size_t GetSizeInBytes() const noexcept;
-		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 		const LayoutElement& GetLayout() const noexcept;
 		std::shared_ptr<LayoutElement> ShareLayout() const noexcept;
 
 	private:
-		Buffer(Layout& layout);
-		Buffer(Layout&& layout);
+		Buffer(const CookedLayout& layout) noexcept;
 
 	private:
 		std::shared_ptr<LayoutElement> mLayout;
@@ -320,10 +340,9 @@ namespace Dcb
 	}
 
 	template<typename T>
-	inline LayoutElement& Layout::Add(const std::wstring& key) noexcept(!IS_DEBUG)
+	inline LayoutElement& RawLayout::Add(const std::wstring& key) noexcept(!IS_DEBUG)
 	{
-		assert(!mFinalized && "Cannot modify finalized layout");
-		return mLayout->Add<T>(key);
+		return mRoot->Add<T>(key);
 	}
 }
 

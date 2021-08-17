@@ -252,48 +252,60 @@ namespace Dcb
 
 
 
-    Layout::Layout() noexcept
-    {
-        struct Enabler : public Struct {};
-        mLayout = std::make_shared<Enabler>();
-    }
-
-    Layout::Layout(std::shared_ptr<LayoutElement> pLayout) noexcept
-        : mLayout(std::move(pLayout)), mFinalized(true)
-    {
-    }
-
-    LayoutElement& Layout::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
-    {
-        assert(!mFinalized && "Cannot modify finalized layout");
-        return (*mLayout)[key];
-    }
-
     size_t Layout::GetSizeInBytes() const noexcept
     {
-        return mLayout->GetSizeInBytes();
+        return mRoot->GetSizeInBytes();
     }
 
     std::wstring Layout::GetSignature() const noexcept(!IS_DEBUG)
     {
-        assert(mFinalized);
-        return mLayout->GetSignature();
+        return mRoot->GetSignature();
     }
 
-    void Layout::Finalize()
+    Layout::Layout() noexcept
     {
-        mLayout->Finalize(0u);
-        mFinalized = true;
+        struct Enabler : public Struct {};
+        mRoot = std::make_shared<Enabler>();
     }
 
-    bool Layout::IsFinalized() const noexcept
+    Layout::Layout(std::shared_ptr<LayoutElement> pRoot) noexcept
+        : mRoot(std::move(pRoot))
     {
-        return mFinalized;
     }
 
-    std::shared_ptr<LayoutElement> Layout::ShareRoot() const noexcept
+
+    LayoutElement& RawLayout::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
-        return mLayout;
+        return (*mRoot)[key];
+    }
+
+    std::shared_ptr<LayoutElement> RawLayout::DeliverRoot() noexcept
+    {
+        auto temp = std::move(mRoot);
+        temp->Finalize(0u);
+        ClearRoot();
+        return std::move(temp);
+    }
+
+    void RawLayout::ClearRoot() noexcept
+    {
+        *this = RawLayout();
+    }
+
+
+    const LayoutElement& CookedLayout::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
+    {
+        return (*mRoot)[key];
+    }
+
+    CookedLayout::CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept
+        : Layout(std::move(pRoot))
+    {
+    }
+
+    std::shared_ptr<LayoutElement> CookedLayout::ShareRoot() const noexcept
+    {
+        return mRoot;
     }
 
 
@@ -402,9 +414,14 @@ namespace Dcb
 
     
 
-    Buffer Buffer::Make(Layout& layout) noexcept(!IS_DEBUG)
+    Buffer Buffer::Make(RawLayout&& layout) noexcept(!IS_DEBUG)
     {
-        return { LayoutCodex::Resolve(layout) };
+        return { LayoutCodex::Resolve(std::move(layout)) };
+    }
+
+    Buffer Buffer::Make(const CookedLayout& layout) noexcept(!IS_DEBUG)
+    {
+        return { layout.ShareRoot() };
     }
 
     ElementRef Buffer::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
@@ -427,11 +444,6 @@ namespace Dcb
         return mBytes.size();
     }
 
-    std::wstring Buffer::GetSignature() const noexcept(!IS_DEBUG)
-    {
-        return mLayout->GetSignature();
-    }
-
     const LayoutElement& Buffer::GetLayout() const noexcept
     {
         return *mLayout;
@@ -442,13 +454,8 @@ namespace Dcb
         return mLayout;
     }
 
-    Buffer::Buffer(Layout& layout)
+    Buffer::Buffer(const CookedLayout& layout) noexcept
         : mLayout(layout.ShareRoot()), mBytes(mLayout->GetOffsetEnd())
-    {
-    }
-
-    Buffer::Buffer(Layout&& layout)
-        : Buffer(layout)
     {
     }
 

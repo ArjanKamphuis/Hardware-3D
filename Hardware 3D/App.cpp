@@ -2,6 +2,7 @@
 
 #include "ChiliUtil.h"
 #include "DynamicConstantBuffer.h"
+#include "LayoutCodex.h"
 
 using namespace DirectX;
 
@@ -10,7 +11,7 @@ void TestDynamicConstant()
 	using namespace std::string_literals;
 	// data roundtrip tests
 	{
-		Dcb::Layout s;
+		Dcb::RawLayout s;
 		s.Add<Dcb::Struct>(L"butts"s);
 		s[L"butts"s].Add<Dcb::Float3>(L"pubes"s).Add<Dcb::Float>(L"dank"s);
 		s.Add<Dcb::Float>(L"woot"s).Add<Dcb::Array>(L"arr"s);
@@ -26,8 +27,8 @@ void TestDynamicConstant()
 		//s.Add<Dcb::Bool>(L"arr"s);
 		//s.Add<Dcb::Bool>(L"69man"s);
 
-		Dcb::Buffer b = Dcb::Buffer::Make(s);
-		const std::wstring sig = b.GetSignature();
+		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
+		const std::wstring sig = b.GetLayout().GetSignature();
 
 		{
 			float exp = 42.0f;
@@ -92,36 +93,55 @@ void TestDynamicConstant()
 	}
 	// size test array of arrays
 	{
-		Dcb::Layout s;
+		Dcb::RawLayout s;
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Array>(6);
 		s[L"arr"s].T().Set<Dcb::Matrix>(4);
-		Dcb::Buffer b = Dcb::Buffer::Make(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 4u * 4u * 6u);
 	}
 	// size test array of structs with padding
 	{
-		Dcb::Layout s;
+		Dcb::RawLayout s;
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Struct>(6);
 		s[L"arr"s].T().Add<Dcb::Float2>(L"a"s);
 		s[L"arr"s].T().Add<Dcb::Float3>(L"b"s);
-		Dcb::Buffer b = Dcb::Buffer::Make(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 2u * 6u);
 	}
 	// size test array of primitive that needs padding
 	{
-		Dcb::Layout s;
+		Dcb::RawLayout s;
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Float3>(6);
-		Dcb::Buffer b = Dcb::Buffer::Make(s);
+		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 6u);
+	}
+	// testing CookedLayout
+	{
+		Dcb::RawLayout s;
+		s.Add<Dcb::Array>(L"arr"s);
+		s[L"arr"s].Set<Dcb::Float3>(6);
+		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(s));
+
+		s.Add<Dcb::Float>(L"arr"s);
+		//cooked[L"arr"s].Add<Dcb::Float>(L"buttman"s);
+
+		Dcb::Buffer b1 = Dcb::Buffer::Make(cooked);
+		b1[L"arr"s][0] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
+
+		Dcb::Buffer b2 = Dcb::Buffer::Make(cooked);
+		b2[L"arr"s][0] = XMFLOAT3{ 420.0f, 0.0f, 0.0f };
+
+		assert(static_cast<XMFLOAT3>(b1[L"arr"s][0]).x == 69.0f);
+		assert(static_cast<XMFLOAT3>(b2[L"arr"s][0]).x == 420.0f);
 	}
 }
 
