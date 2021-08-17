@@ -78,6 +78,11 @@ namespace Dcb
         return *this;
     }
 
+    bool LayoutElement::Exists() const noexcept
+    {
+        return true;
+    }
+
     size_t LayoutElement::GetOffsetBegin() const noexcept
     {
         return mOffset;
@@ -93,7 +98,30 @@ namespace Dcb
         return offset + (16u - offset % 16) % 16;
     }
 
-
+    class Empty : public LayoutElement
+    {
+    public:
+        size_t GetOffsetEnd() const noexcept override final
+        {
+            return 0u;
+        }
+        bool Exists() const noexcept override final
+        {
+            return false;
+        }
+    protected:
+        size_t Finalize(size_t offset) override final
+        {
+            return 0u;
+        }
+        size_t ComputeSize() const noexcept(!IS_DEBUG) override final
+        {
+            return 0u;
+        }
+    private:
+        size_t mSize = 0u;
+        std::unique_ptr<LayoutElement> mElement;
+    } EmptyLayoutElement;
 
     DCB_RESOLVE_BASE(Matrix);
     DCB_RESOLVE_BASE(Float4);
@@ -113,12 +141,13 @@ namespace Dcb
 
     LayoutElement& Struct::operator[](const std::wstring& key)
     {
-        return *mMap.at(key);
+        const auto it = mMap.find(key);
+        return it == mMap.end() ? EmptyLayoutElement : *it->second;
     }
 
     const LayoutElement& Struct::operator[](const std::wstring& key) const
     {
-        return *mMap.at(key);
+        return const_cast<Struct&>(*this)[key];
     }
 
     size_t Struct::GetOffsetEnd() const noexcept
@@ -248,6 +277,13 @@ namespace Dcb
         return { *this };
     }
 
+    std::optional<ConstElementRef> ConstElementRef::Exists() const noexcept
+    {
+        if (mLayout->Exists())
+            return ConstElementRef{ mLayout, mBytes, mOffset };
+        return std::nullopt;
+    }
+
     DCB_REF_CONST(ConstElementRef, Matrix);
     DCB_REF_CONST(ConstElementRef, Float4);
     DCB_REF_CONST(ConstElementRef, Float3);
@@ -294,6 +330,13 @@ namespace Dcb
     ElementRef::operator ConstElementRef() const noexcept
     {
         return { mLayout, mBytes, mOffset };
+    }
+
+    std::optional<ElementRef> ElementRef::Exists() const noexcept
+    {
+        if (mLayout->Exists())
+            return ElementRef{ mLayout, mBytes, mOffset };
+        return std::nullopt;
     }
 
     DCB_REF_NONCONST(ElementRef, Matrix);

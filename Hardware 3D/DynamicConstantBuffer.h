@@ -2,6 +2,7 @@
 
 #include <DirectXMath.h>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -48,6 +49,8 @@ namespace Dcb
 		virtual const LayoutElement& operator[](const std::wstring& key) const;
 		virtual LayoutElement& T();
 		virtual const LayoutElement& T() const;
+
+		virtual bool Exists() const noexcept;
 
 		size_t GetOffsetBegin() const noexcept;
 		virtual size_t GetOffsetEnd() const noexcept = 0;
@@ -166,6 +169,7 @@ namespace Dcb
 		ConstElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
 		Ptr operator&() noexcept(!IS_DEBUG);
+		std::optional<ConstElementRef> Exists() const noexcept;
 
 		DCB_REF_CONST(Matrix);
 		DCB_REF_CONST(Float4);
@@ -206,6 +210,7 @@ namespace Dcb
 
 		Ptr operator&() noexcept(!IS_DEBUG);
 		operator ConstElementRef() const noexcept;
+		std::optional<ElementRef> Exists() const noexcept;
 
 		DCB_REF_NONCONST(Matrix);
 		DCB_REF_NONCONST(Float4);
