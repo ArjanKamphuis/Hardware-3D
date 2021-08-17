@@ -427,4 +427,10 @@ namespace Dcb
     {
         return mLayout;
     }
+
+    // temporary
+    bool ValidateSymbolName(const std::wstring& name) noexcept
+    {
+        return !name.empty() && !std::isdigit(name.front()) && std::all_of(name.begin(), name.end(), [](wchar_t c) { return std::isalnum(c) || c == L'_'; });
+    }
 }

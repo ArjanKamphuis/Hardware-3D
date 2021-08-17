@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <DirectXMath.h>
 #include <memory>
 #include <string>
@@ -266,12 +267,16 @@ namespace Dcb
 		return *this;
 	}
 
+	// temporary
+	bool ValidateSymbolName(const std::wstring& name) noexcept;
+
 	template<typename T>
 	inline void Struct::Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG)
 	{
+		assert(ValidateSymbolName(name) && "Invalid symbol name in struct");
 		mElements.push_back(std::move(pElement));
 		if (!mMap.emplace(name, mElements.back().get()).second)
-			assert(false);
+			assert(false && "Duplicate symbol name in struct");
 	}
 
 	template<typename T>

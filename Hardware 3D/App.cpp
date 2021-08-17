@@ -22,8 +22,11 @@ void TestDynamicConstant()
 		s[L"arr"s].T()[L"meta"s].Set<Dcb::Array>(6);
 		s[L"arr"s].T()[L"meta"s].T().Set<Dcb::Matrix>(4);
 		s[L"arr"s].T().Add<Dcb::Bool>(L"booler"s);
-		Dcb::Buffer b(s);
 
+		//s.Add<Dcb::Bool>(L"arr"s);
+		//s.Add<Dcb::Bool>(L"69man"s);
+
+		Dcb::Buffer b(s);
 		const std::wstring sig = b.GetSignature();
 
 		{
