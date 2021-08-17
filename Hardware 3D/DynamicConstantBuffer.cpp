@@ -24,7 +24,7 @@ std::wstring eltype::GetSignature() const noexcept(!IS_DEBUG) \
 { \
     return L#eltype; \
 }\
-size_t eltype::Finalize(size_t offset) \
+size_t eltype::Finalize(size_t offset) noexcept(!IS_DEBUG) \
 { \
 	mOffset = offset; \
 	return offset + ComputeSize(); \
@@ -60,25 +60,25 @@ namespace Dcb
     {
     }
 
-    LayoutElement& LayoutElement::operator[](const std::wstring& key)
+    LayoutElement& LayoutElement::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         assert(false && "Cannot access member on non Struct");
         return *this;
     }
 
-    const LayoutElement& LayoutElement::operator[](const std::wstring& key) const
+    const LayoutElement& LayoutElement::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
     {
         assert(false && "Cannot access member on non Struct");
         return *this;
     }
 
-    LayoutElement& LayoutElement::T()
+    LayoutElement& LayoutElement::T() noexcept(!IS_DEBUG)
     {
         assert(false);
         return *this;
     }
 
-    const LayoutElement& LayoutElement::T() const
+    const LayoutElement& LayoutElement::T() const noexcept(!IS_DEBUG)
     {
         assert(false);
         return *this;
@@ -99,7 +99,7 @@ namespace Dcb
         return GetOffsetEnd() - GetOffsetBegin();
     }
 
-    size_t LayoutElement::GetNextBoundaryOffset(size_t offset)
+    size_t LayoutElement::GetNextBoundaryOffset(size_t offset) noexcept
     {
         return offset + (16u - offset % 16) % 16;
     }
@@ -107,25 +107,25 @@ namespace Dcb
     class Empty : public LayoutElement
     {
     public:
-        size_t GetOffsetEnd() const noexcept override final
+        size_t GetOffsetEnd() const noexcept final
         {
             return 0u;
         }
-        bool Exists() const noexcept override final
+        bool Exists() const noexcept final
         {
             return false;
         }
-        std::wstring GetSignature() const noexcept(!IS_DEBUG) override final
+        std::wstring GetSignature() const noexcept(!IS_DEBUG) final
         {
             assert(false);
             return L"";
         }
     protected:
-        size_t Finalize(size_t offset) override final
+        size_t Finalize(size_t offset) final
         {
             return 0u;
         }
-        size_t ComputeSize() const noexcept(!IS_DEBUG) override final
+        size_t ComputeSize() const noexcept(!IS_DEBUG) final
         {
             return 0u;
         }
@@ -150,13 +150,13 @@ namespace Dcb
 
 
 
-    LayoutElement& Struct::operator[](const std::wstring& key)
+    LayoutElement& Struct::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         const auto it = mMap.find(key);
         return it == mMap.end() ? EmptyLayoutElement : *it->second;
     }
 
-    const LayoutElement& Struct::operator[](const std::wstring& key) const
+    const LayoutElement& Struct::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
     {
         return const_cast<Struct&>(*this)[key];
     }
@@ -183,7 +183,7 @@ namespace Dcb
         return sig + L"}"s;
     }
 
-    size_t Struct::Finalize(size_t offset)
+    size_t Struct::Finalize(size_t offset) noexcept(!IS_DEBUG)
     {
         assert(mElements.size() != 0u);
         mOffset = offset;
@@ -211,12 +211,12 @@ namespace Dcb
     
 
 
-    LayoutElement& Array::T()
+    LayoutElement& Array::T() noexcept(!IS_DEBUG)
     {
         return *mElement;
     }
 
-    const LayoutElement& Array::T() const
+    const LayoutElement& Array::T() const noexcept(!IS_DEBUG)
     {
         return const_cast<Array*>(this)->T();
     }
@@ -237,7 +237,7 @@ namespace Dcb
         return index < mSize;
     }
 
-    size_t Array::Finalize(size_t offset)
+    size_t Array::Finalize(size_t offset) noexcept(!IS_DEBUG)
     {
         assert(mSize != 0u && mElement);
         mOffset = offset;
@@ -252,18 +252,18 @@ namespace Dcb
 
 
 
-    Layout::Layout()
+    Layout::Layout() noexcept
     {
         struct Enabler : public Struct {};
         mLayout = std::make_shared<Enabler>();
     }
 
-    Layout::Layout(std::shared_ptr<LayoutElement> pLayout)
+    Layout::Layout(std::shared_ptr<LayoutElement> pLayout) noexcept
         : mLayout(std::move(pLayout)), mFinalized(true)
     {
     }
 
-    LayoutElement& Layout::operator[](const std::wstring& key)
+    LayoutElement& Layout::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         assert(!mFinalized && "Cannot modify finalized layout");
         return (*mLayout)[key];
@@ -298,7 +298,7 @@ namespace Dcb
 
 
 
-    ConstElementRef::Ptr::Ptr(ConstElementRef& ref)
+    ConstElementRef::Ptr::Ptr(ConstElementRef& ref) noexcept
         : mRef(ref)
     {
     }
@@ -310,7 +310,7 @@ namespace Dcb
     DCB_PTR_CONVERSION(ConstElementRef, Float, const);
     DCB_PTR_CONVERSION(ConstElementRef, Bool, const);
 
-    ConstElementRef::ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
+    ConstElementRef::ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
     {
     }
@@ -347,7 +347,7 @@ namespace Dcb
 
 
 
-    ElementRef::Ptr::Ptr(ElementRef& ref)
+    ElementRef::Ptr::Ptr(ElementRef& ref) noexcept
         : mRef(ref)
     {
     }
@@ -359,7 +359,7 @@ namespace Dcb
     DCB_PTR_CONVERSION(ElementRef, Float);
     DCB_PTR_CONVERSION(ElementRef, Bool);
 
-    ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset)
+    ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
     {
     }
@@ -437,7 +437,7 @@ namespace Dcb
         return *mLayout;
     }
 
-    std::shared_ptr<LayoutElement> Buffer::ShareLayout() const
+    std::shared_ptr<LayoutElement> Buffer::ShareLayout() const noexcept
     {
         return mLayout;
     }

@@ -17,12 +17,12 @@ class eltype : public LayoutElement \
 	friend LayoutElement; \
 public: \
 	using SystemType = systype; \
-	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final; \
-	size_t GetOffsetEnd() const noexcept override final; \
-	std::wstring GetSignature() const noexcept(!IS_DEBUG) override final; \
+	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) final; \
+	size_t GetOffsetEnd() const noexcept final; \
+	std::wstring GetSignature() const noexcept(!IS_DEBUG) final; \
 protected: \
-	size_t Finalize(size_t offset) override; \
-	size_t ComputeSize() const noexcept(!IS_DEBUG) override final; \
+	size_t Finalize(size_t offset) noexcept(!IS_DEBUG) override; \
+	size_t ComputeSize() const noexcept(!IS_DEBUG) final; \
 };
 #define DCB_LEAF_ELEMENT(eltype, systype) DCB_LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
 
@@ -47,10 +47,10 @@ namespace Dcb
 	public:
 		virtual ~LayoutElement();
 
-		virtual LayoutElement& operator[](const std::wstring& key);
-		virtual const LayoutElement& operator[](const std::wstring& key) const;
-		virtual LayoutElement& T();
-		virtual const LayoutElement& T() const;
+		virtual LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
+		virtual const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
+		virtual LayoutElement& T() noexcept(!IS_DEBUG);
+		virtual const LayoutElement& T() const noexcept(!IS_DEBUG);
 
 		virtual bool Exists() const noexcept;
 
@@ -64,7 +64,7 @@ namespace Dcb
 		template<typename T>
 		LayoutElement& Set(size_t size) noexcept(!IS_DEBUG);
 
-		static size_t GetNextBoundaryOffset(size_t offset);
+		static size_t GetNextBoundaryOffset(size_t offset) noexcept;
 
 		DCB_RESOLVE_BASE(Matrix);
 		DCB_RESOLVE_BASE(Float4);
@@ -74,7 +74,7 @@ namespace Dcb
 		DCB_RESOLVE_BASE(Bool);
 
 	protected:
-		virtual size_t Finalize(size_t offset) = 0;
+		virtual size_t Finalize(size_t offset) noexcept(!IS_DEBUG) = 0;
 		virtual size_t ComputeSize() const noexcept(!IS_DEBUG) = 0;
 
 	protected:
@@ -92,18 +92,18 @@ namespace Dcb
 	{
 		friend LayoutElement;
 	public:
-		LayoutElement& operator[](const std::wstring& key) override final;
-		const LayoutElement& operator[](const std::wstring& key) const override final;
-		size_t GetOffsetEnd() const noexcept override final;
-		std::wstring GetSignature() const noexcept(!IS_DEBUG) override final;
+		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG) final;
+		const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG) final;
+		size_t GetOffsetEnd() const noexcept final;
+		std::wstring GetSignature() const noexcept(!IS_DEBUG) final;
 
 		template<typename T>
 		void Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG);
 
 	protected:
 		Struct() = default;
-		size_t Finalize(size_t offset) override final;
-		size_t ComputeSize() const noexcept(!IS_DEBUG) override final;
+		size_t Finalize(size_t offset) noexcept(!IS_DEBUG) final;
+		size_t ComputeSize() const noexcept(!IS_DEBUG) final;
 
 	private:
 		static size_t CalculatePaddingBeforeElement(size_t offset, size_t size) noexcept;
@@ -118,10 +118,10 @@ namespace Dcb
 		friend LayoutElement;
 		
 	public:
-		LayoutElement& T() override final;
-		const LayoutElement& T() const override final;
-		size_t GetOffsetEnd() const noexcept override final;
-		std::wstring GetSignature() const noexcept(!IS_DEBUG) override final;
+		LayoutElement& T() noexcept(!IS_DEBUG) final;
+		const LayoutElement& T() const noexcept(!IS_DEBUG) final;
+		size_t GetOffsetEnd() const noexcept final;
+		std::wstring GetSignature() const noexcept(!IS_DEBUG) final;
 
 		template<typename T>
 		void Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG);
@@ -129,8 +129,8 @@ namespace Dcb
 
 	protected:
 		Array() = default;
-		size_t Finalize(size_t offset) override final;
-		size_t ComputeSize() const noexcept(!IS_DEBUG) override final;
+		size_t Finalize(size_t offset) noexcept(!IS_DEBUG) final;
+		size_t ComputeSize() const noexcept(!IS_DEBUG) final;
 
 	private:
 		size_t mSize = 0u;
@@ -143,16 +143,16 @@ namespace Dcb
 		friend class Buffer;
 
 	public:
-		Layout();
-		Layout(std::shared_ptr<LayoutElement> pLayout);
+		Layout() noexcept;
+		Layout(std::shared_ptr<LayoutElement> pLayout) noexcept;
 
-		LayoutElement& operator[](const std::wstring& key);
+		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		size_t GetSizeInBytes() const noexcept;
 		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 
 		template<typename T>
-		LayoutElement& Add(const std::wstring& key);
-		void Finalize();
+		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
+		void Finalize() noexcept(!IS_DEBUG);
 		bool IsFinalized() const noexcept;
 
 	private:
@@ -182,7 +182,7 @@ namespace Dcb
 			DCB_PTR_CONVERSION(Bool, const);
 
 		private:
-			Ptr(ConstElementRef& ref);
+			Ptr(ConstElementRef& ref) noexcept;
 
 		private:
 			ConstElementRef& mRef;
@@ -203,7 +203,7 @@ namespace Dcb
 		DCB_REF_CONST(Bool);
 
 	private:
-		ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
+		ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept;
 
 	private:
 		const LayoutElement* mLayout;
@@ -228,7 +228,7 @@ namespace Dcb
 			DCB_PTR_CONVERSION(Bool);
 
 		private:
-			Ptr(ElementRef& ref);
+			Ptr(ElementRef& ref) noexcept;
 
 		private:
 			ElementRef& mRef;
@@ -250,7 +250,7 @@ namespace Dcb
 		DCB_REF_NONCONST(Bool);
 
 	private:
-		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
+		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept;
 
 	private:
 		const LayoutElement* mLayout;
@@ -269,7 +269,7 @@ namespace Dcb
 		size_t GetSizeInBytes() const noexcept;
 		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 		const LayoutElement& GetLayout() const noexcept;
-		std::shared_ptr<LayoutElement> ShareLayout() const;
+		std::shared_ptr<LayoutElement> ShareLayout() const noexcept;
 
 	private:
 		Buffer(Layout& layout);
@@ -320,7 +320,7 @@ namespace Dcb
 	}
 
 	template<typename T>
-	inline LayoutElement& Layout::Add(const std::wstring& key)
+	inline LayoutElement& Layout::Add(const std::wstring& key) noexcept(!IS_DEBUG)
 	{
 		assert(!mFinalized && "Cannot modify finalized layout");
 		return mLayout->Add<T>(key);
