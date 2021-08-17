@@ -253,8 +253,9 @@ namespace Dcb
 
 
     Layout::Layout()
-        : mLayout(std::make_shared<Struct>())
     {
+        struct Enabler : public Struct {};
+        mLayout = std::make_shared<Enabler>();
     }
 
     Layout::Layout(std::shared_ptr<LayoutElement> pLayout)

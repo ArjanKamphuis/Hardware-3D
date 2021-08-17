@@ -14,6 +14,7 @@ virtual size_t Resolve ## eltype() const noexcept(!IS_DEBUG);
 #define DCB_LEAF_ELEMENT_IMPL(eltype, systype, hlslSize) \
 class eltype : public LayoutElement \
 { \
+	friend LayoutElement; \
 public: \
 	using SystemType = systype; \
 	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) override final; \
@@ -37,8 +38,6 @@ operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG);
 
 namespace Dcb
 {
-	class LayoutCodex;
-
 	class LayoutElement
 	{
 		friend class Layout;
@@ -91,6 +90,7 @@ namespace Dcb
 
 	class Struct : public LayoutElement
 	{
+		friend LayoutElement;
 	public:
 		LayoutElement& operator[](const std::wstring& key) override final;
 		const LayoutElement& operator[](const std::wstring& key) const override final;
@@ -101,6 +101,7 @@ namespace Dcb
 		void Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG);
 
 	protected:
+		Struct() = default;
 		size_t Finalize(size_t offset) override final;
 		size_t ComputeSize() const noexcept(!IS_DEBUG) override final;
 
@@ -114,6 +115,8 @@ namespace Dcb
 
 	class Array : public LayoutElement
 	{
+		friend LayoutElement;
+		
 	public:
 		LayoutElement& T() override final;
 		const LayoutElement& T() const override final;
@@ -125,6 +128,7 @@ namespace Dcb
 		bool IndexInBounds(size_t index) const noexcept;
 
 	protected:
+		Array() = default;
 		size_t Finalize(size_t offset) override final;
 		size_t ComputeSize() const noexcept(!IS_DEBUG) override final;
 
@@ -135,7 +139,7 @@ namespace Dcb
 
 	class Layout
 	{
-		friend LayoutCodex;
+		friend class LayoutCodex;
 		friend class Buffer;
 
 	public:
@@ -161,12 +165,15 @@ namespace Dcb
 
 	class ConstElementRef
 	{
+		friend class ElementRef;
+		friend class Buffer;
+
 	public:
 		class Ptr
 		{
-		public:
-			Ptr(ConstElementRef& ref);
+			friend ConstElementRef;
 
+		public:
 			DCB_PTR_CONVERSION(Matrix, const);
 			DCB_PTR_CONVERSION(Float4, const);
 			DCB_PTR_CONVERSION(Float3, const);
@@ -175,11 +182,13 @@ namespace Dcb
 			DCB_PTR_CONVERSION(Bool, const);
 
 		private:
+			Ptr(ConstElementRef& ref);
+
+		private:
 			ConstElementRef& mRef;
 		};
 
 	public:
-		ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
 		ConstElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ConstElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
@@ -194,6 +203,9 @@ namespace Dcb
 		DCB_REF_CONST(Bool);
 
 	private:
+		ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
+
+	private:
 		const LayoutElement* mLayout;
 		std::byte* mBytes;
 		size_t mOffset;
@@ -201,12 +213,13 @@ namespace Dcb
 
 	class ElementRef
 	{
+		friend class Buffer;
+
 	public:
 		class Ptr
 		{
+			friend ElementRef;
 		public:
-			Ptr(ElementRef& ref);
-
 			DCB_PTR_CONVERSION(Matrix);
 			DCB_PTR_CONVERSION(Float4);
 			DCB_PTR_CONVERSION(Float3);
@@ -215,11 +228,13 @@ namespace Dcb
 			DCB_PTR_CONVERSION(Bool);
 
 		private:
+			Ptr(ElementRef& ref);
+
+		private:
 			ElementRef& mRef;
 		};
 
 	public:
-		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
 		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
 
@@ -233,6 +248,9 @@ namespace Dcb
 		DCB_REF_NONCONST(Float2);
 		DCB_REF_NONCONST(Float);
 		DCB_REF_NONCONST(Bool);
+
+	private:
+		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset);
 
 	private:
 		const LayoutElement* mLayout;
@@ -267,7 +285,8 @@ namespace Dcb
 	{
 		Struct* ps = dynamic_cast<Struct*>(this);
 		assert(ps != nullptr);
-		ps->Add<T>(key, std::make_unique<T>());
+		struct Enabler : public T {};
+		ps->Add<T>(key, std::make_unique<Enabler>());
 		return *this;
 	}
 
@@ -276,7 +295,8 @@ namespace Dcb
 	{
 		Array* pa = dynamic_cast<Array*>(this);
 		assert(pa != nullptr);
-		pa->Set<T>(std::make_unique<T>(), size);
+		struct Enabler : public T {};
+		pa->Set<T>(std::make_unique<Enabler>(), size);
 		return *this;
 	}
 
