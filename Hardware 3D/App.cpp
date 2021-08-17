@@ -83,6 +83,7 @@ void TestDynamicConstant()
 			XMFLOAT4X4 act = cb[L"arr"s][2][L"meta"s][5][3];
 			assert(act._11 == 1.0f);
 			//cb[L"arr"s][2][L"booler"s] = true;
+			//cb[L"arr"s][200];
 		}
 	}
 	// size test array of arrays

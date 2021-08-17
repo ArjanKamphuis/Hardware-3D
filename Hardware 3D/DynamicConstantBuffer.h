@@ -116,6 +116,7 @@ namespace Dcb
 
 		template<typename T>
 		void Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG);
+		bool IndexInBounds(size_t index) const noexcept;
 
 	protected:
 		size_t Finalize(size_t offset) override final;

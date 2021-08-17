@@ -198,6 +198,11 @@ namespace Dcb
         return GetOffsetBegin() + LayoutElement::GetNextBoundaryOffset(mElement->GetSizeInBytes()) * mSize;
     }
 
+    bool Array::IndexInBounds(size_t index) const noexcept
+    {
+        return index < mSize;
+    }
+
     size_t Array::Finalize(size_t offset)
     {
         assert(mSize != 0u && mElement);
@@ -268,6 +273,7 @@ namespace Dcb
     ConstElementRef ConstElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
     {
         const LayoutElement& t = mLayout->T();
+        assert(static_cast<const Array&>(*mLayout).IndexInBounds(index));
         const size_t elementSize = LayoutElement::GetNextBoundaryOffset(t.GetSizeInBytes());
         return { &t, mBytes, mOffset + elementSize * index };
     }
@@ -318,6 +324,7 @@ namespace Dcb
     ElementRef ElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
     {
         const LayoutElement& t = mLayout->T();
+        assert(static_cast<const Array&>(*mLayout).IndexInBounds(index));
         const size_t elementSize = LayoutElement::GetNextBoundaryOffset(t.GetSizeInBytes());
         return { &t, mBytes, mOffset + elementSize * index };
     }
