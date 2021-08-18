@@ -3,7 +3,7 @@ cbuffer ObjectBuffer : register(b0)
 	bool gNormalMapEnabled;
 	bool gSpecularMapEnabled;
 	bool gHasGloss;
-	float gSpecularPowerConst;
+	float gSpecularPower;
 	float3 gSpecularColor;
 	float gSpecularMapWeight;
 }
@@ -33,7 +33,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	float3 specularReflectionColor;
-	float specularPower = gSpecularPowerConst;
+	float specularPower = gSpecularPower;
 	
 	if (gSpecularMapEnabled)
 	{

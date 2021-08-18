@@ -151,7 +151,7 @@ void TestDynamicConstant()
 		assert(static_cast<XMFLOAT3>(b1[L"arr"s][0]).x == 69.0f);
 		assert(static_cast<XMFLOAT3>(b2[L"arr"s][0]).x == 420.0f);
 	}
-	// specific testing scenario
+	// specific testing scenario (packing error)
 	{
 		Dcb::RawLayout pscLayout;
 		pscLayout.Add<Dcb::Type::Float3>(L"MaterialColor"s);
@@ -194,5 +194,17 @@ void TestDynamicConstant()
 		const float exp2 = 42.424242f;
 		*static_cast<float*>(&b[L"butts"s][L"dank"s]) = exp2;
 		assert(static_cast<float&>(b[L"butts"s][L"dank"s]) == exp2);
+	}
+	// specific testing scenario (packing error)
+	{
+		Dcb::RawLayout pscLayout;
+		pscLayout.Add<Dcb::Type::Bool>(L"NormalMapEnabled"s);
+		pscLayout.Add<Dcb::Type::Bool>(L"SpecularMapEnabled"s);
+		pscLayout.Add<Dcb::Type::Bool>(L"HasGlossMap"s);
+		pscLayout.Add<Dcb::Type::Float>(L"SpecularPower"s);
+		pscLayout.Add<Dcb::Type::Float3>(L"SpecularColor"s);
+		pscLayout.Add<Dcb::Type::Float>(L"SpecularMapWeight"s);
+		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
+		assert(cooked.GetSizeInBytes() == 32u);
 	}
 }

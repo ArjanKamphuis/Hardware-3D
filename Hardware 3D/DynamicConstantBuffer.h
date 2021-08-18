@@ -70,7 +70,7 @@ namespace Dcb
 	template<> struct Map<Type::Bool>
 	{
 		using SysType = bool;
-		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr size_t HlslSize = 4u;
 		static constexpr const wchar_t* Code = L"BL";
 		static constexpr bool Valid = true;
 	};

@@ -205,7 +205,7 @@ namespace Dcb
         const size_t end = offset + size;
         const size_t pageStart = offset / 16u;
         const size_t pageEnd = end / 16u;
-        return (pageStart != pageEnd && pageEnd % 16u != 0u) || size > 16u;
+        return (pageStart != pageEnd && end % 16u != 0u) || size > 16u;
     }
 
     size_t LayoutElement::AdvanceIfCrossesBoundary(size_t offset, size_t size) noexcept
