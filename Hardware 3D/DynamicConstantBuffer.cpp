@@ -55,7 +55,7 @@ namespace Dcb
 
     bool LayoutElement::Exists() const noexcept
     {
-        return mType != Empty;
+        return mType != Type::Empty;
     }
 
     size_t LayoutElement::GetOffsetBegin() const noexcept(!IS_DEBUG)
@@ -67,7 +67,7 @@ namespace Dcb
     {
         switch (mType)
         {
-            #define X(el) case Type::el : return *mOffset + Map<el>::HlslSize;
+            #define X(el) case Type::el : return *mOffset + Map<Type::el>::HlslSize;
             LEAF_ELEMENT_TYPES
             #undef X
             case Type::Struct:
@@ -95,7 +95,7 @@ namespace Dcb
     {
         switch (mType)
         {
-            #define X(el) case Type::el : return Map<el>::Code;
+            #define X(el) case Type::el : return Map<Type::el>::Code;
             LEAF_ELEMENT_TYPES
             #undef X
             case Type::Struct: return GetSignatureForStruct();
@@ -131,7 +131,7 @@ namespace Dcb
     LayoutElement::LayoutElement(Type type) noexcept
         : mType(type)
     {
-        assert(type != Empty);
+        assert(type != Type::Empty);
         if (type == Type::Struct)
             mExtraData = std::unique_ptr<ExtraData::Struct>{ new ExtraData::Struct() };
         else if (type == Type::Array)
@@ -158,7 +158,7 @@ namespace Dcb
     {
         switch(mType)
         {
-            #define X(el) case Type::el: mOffset = AdvanceIfCrossesBoundary(offset, Map<el>::HlslSize); return *mOffset + Map<el>::HlslSize;
+            #define X(el) case Type::el: mOffset = AdvanceIfCrossesBoundary(offset, Map<Type::el>::HlslSize); return *mOffset + Map<Type::el>::HlslSize;
             LEAF_ELEMENT_TYPES
             #undef X
             case Type::Struct: return FinalizeForStruct(offset);

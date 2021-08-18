@@ -17,7 +17,7 @@
 
 namespace Dcb
 {
-	enum Type
+	enum class Type
 	{
 		#define X(el) el,
 		LEAF_ELEMENT_TYPES
@@ -32,42 +32,42 @@ namespace Dcb
 	{
 		static constexpr bool Valid = false;
 	};
-	template<> struct Map<Float>
+	template<> struct Map<Type::Float>
 	{
 		using SysType = float;
 		static constexpr size_t HlslSize = sizeof(SysType);
 		static constexpr const wchar_t* Code = L"F1";
 		static constexpr bool Valid = true;
 	};
-	template<> struct Map<Float2>
+	template<> struct Map<Type::Float2>
 	{
 		using SysType = DirectX::XMFLOAT2;
 		static constexpr size_t HlslSize = sizeof(SysType);
 		static constexpr const wchar_t* Code = L"F2";
 		static constexpr bool Valid = true;
 	};
-	template<> struct Map<Float3>
+	template<> struct Map<Type::Float3>
 	{
 		using SysType = DirectX::XMFLOAT3;
 		static constexpr size_t HlslSize = sizeof(SysType);
 		static constexpr const wchar_t* Code = L"F3";
 		static constexpr bool Valid = true;
 	};
-	template<> struct Map<Float4>
+	template<> struct Map<Type::Float4>
 	{
 		using SysType = DirectX::XMFLOAT4;
 		static constexpr size_t HlslSize = sizeof(SysType);
 		static constexpr const wchar_t* Code = L"F4";
 		static constexpr bool Valid = true;
 	};
-	template<> struct Map<Matrix>
+	template<> struct Map<Type::Matrix>
 	{
 		using SysType = DirectX::XMFLOAT4X4;
 		static constexpr size_t HlslSize = sizeof(SysType);
 		static constexpr const wchar_t* Code = L"M4";
 		static constexpr bool Valid = true;
 	};
-	template<> struct Map<Bool>
+	template<> struct Map<Type::Bool>
 	{
 		using SysType = bool;
 		static constexpr size_t HlslSize = sizeof(SysType);
@@ -75,7 +75,7 @@ namespace Dcb
 		static constexpr bool Valid = true;
 	};
 
-#define X(el) static_assert(Map<el>::Valid, "Missing map implementation for " #el);
+#define X(el) static_assert(Map<Type::el>::Valid, "Missing map implementation for " #el);
 	LEAF_ELEMENT_TYPES
 #undef X
 
@@ -85,9 +85,9 @@ namespace Dcb
 		static constexpr bool Valid = false;
 	};
 #define X(el) \
-	template<> struct ReverseMap<typename Map<el>::SysType> \
+	template<> struct ReverseMap<typename Map<Type::el>::SysType> \
 	{ \
-		static constexpr Type Type = el; \
+		static constexpr Type Type = Type::el; \
 		static constexpr bool Valid = true; \
 	};
 	LEAF_ELEMENT_TYPES
@@ -149,7 +149,7 @@ namespace Dcb
 
 	private:
 		std::optional<size_t> mOffset;
-		Type mType = Empty;
+		Type mType = Type::Empty;
 		std::unique_ptr<ExtraDataBase> mExtraData;
 	};
 
@@ -322,7 +322,7 @@ namespace Dcb
 	{
 		switch (mType)
 		{
-			#define X(el) case el: assert(typeid(Map<el>::SysType) == typeid(T)); return *mOffset;
+			#define X(el) case Type::el: assert(typeid(Map<Type::el>::SysType) == typeid(T)); return *mOffset;
 			LEAF_ELEMENT_TYPES
 			#undef X
 			default:
