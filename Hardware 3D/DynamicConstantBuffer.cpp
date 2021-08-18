@@ -298,14 +298,14 @@ namespace Dcb
         return (*mRoot)[key];
     }
 
-    CookedLayout::CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept
-        : Layout(std::move(pRoot))
-    {
-    }
-
     std::shared_ptr<LayoutElement> CookedLayout::ShareRoot() const noexcept
     {
         return mRoot;
+    }
+
+    CookedLayout::CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept
+        : Layout(std::move(pRoot))
+    {
     }
 
 
@@ -424,6 +424,11 @@ namespace Dcb
         return { layout.ShareRoot() };
     }
 
+    Buffer::Buffer(const Buffer& rhs) noexcept
+        : mLayout(rhs.ShareLayout()), mBytes(rhs.mBytes)
+    {
+    }
+
     ElementRef Buffer::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes.data(), 0u };
@@ -452,6 +457,12 @@ namespace Dcb
     std::shared_ptr<LayoutElement> Buffer::ShareLayout() const noexcept
     {
         return mLayout;
+    }
+
+    void Buffer::CopyFrom(const Buffer& other) noexcept(!IS_DEBUG)
+    {
+        assert(&GetLayout() == &other.GetLayout());
+        std::copy(other.mBytes.begin(), other.mBytes.end(), mBytes.begin());
     }
 
     Buffer::Buffer(const CookedLayout& layout) noexcept

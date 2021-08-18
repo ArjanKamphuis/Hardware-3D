@@ -9,6 +9,7 @@
 #include <optional>
 #include "BindableCommon.h"
 #include "Drawable.h"
+#include "DynamicConstantBuffer.h"
 #include "Vertex.h"
 
 class Mesh : public Drawable
@@ -34,54 +35,8 @@ public:
 	void ShowTree(Node*& pSelectedNode) const noexcept;
 	int GetId() const noexcept;
 
-	/*template<class PSMaterial>
-	bool ShowExtraControls(const Graphics& gfx, PSMaterial& material)
-	{
-		if (mMeshPtrs.empty()) return false;
-
-		if constexpr(std::is_same<PSMaterial, PSMaterialNormSpec>::value)
-		{
-			if (auto pcb = mMeshPtrs.front()->QueryBindable<Bind::PixelConstantBuffer<PSMaterial>>())
-			{
-				ImGui::Text("Material");
-
-				bool normalMapEnabled = static_cast<bool>(material.NormalMapEnabled);
-				ImGui::Checkbox("Normal Map", &normalMapEnabled);
-				material.NormalMapEnabled = normalMapEnabled ? TRUE : FALSE;
-
-				bool specularMapEnabled = static_cast<bool>(material.SpecularMapEnabled);
-				ImGui::Checkbox("Specular Map", &specularMapEnabled);
-				material.SpecularMapEnabled = specularMapEnabled ? TRUE : FALSE;
-
-				bool hasGlossMap = static_cast<bool>(material.HasGlossMap);
-				ImGui::Checkbox("Gloss Map", &hasGlossMap);
-				material.HasGlossMap = hasGlossMap ? TRUE : FALSE;
-
-				ImGui::SliderFloat("Specular Weight", &material.SpecularMapWeight, 0.0f, 2.0f);
-				ImGui::SliderFloat("Specular Power", &material.SpecularPower, 0.0f, 1000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-				ImGui::ColorPicker3("Specular Color", reinterpret_cast<float*>(&material.SpecularColor));
-
-				pcb->Update(gfx, material);
-				return true;
-			}
-		}
-		else if constexpr(std::is_same<PSMaterial, PSMaterialNoTexture>::value)
-		{
-			if (auto pcb = mMeshPtrs.front()->QueryBindable<Bind::PixelConstantBuffer<PSMaterial>>())
-			{
-				ImGui::Text("Material");
-
-				ImGui::ColorPicker3("Specular Color", reinterpret_cast<float*>(&material.SpecularColor));
-				ImGui::SliderFloat("Specular Power", &material.SpecularPower, 0.0f, 1000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-				ImGui::ColorPicker3("Diffuse Color", reinterpret_cast<float*>(&material.MaterialColor));
-
-				pcb->Update(gfx, material);
-				return true;
-			}
-		}
-
-		return false;
-	}*/
+	const Dcb::Buffer* GetMaterialConstants() const noexcept(!IS_DEBUG);
+	void SetMaterialConstants(const Dcb::Buffer& buffer) noexcept(!IS_DEBUG);
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);

@@ -178,10 +178,10 @@ namespace Dcb
 
 	public:
 		const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
+		std::shared_ptr<LayoutElement> ShareRoot() const noexcept;
 
 	private:
 		CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept;
-		std::shared_ptr<LayoutElement> ShareRoot() const noexcept;
 	};
 
 	class ConstElementRef
@@ -284,6 +284,7 @@ namespace Dcb
 	public:
 		static Buffer Make(RawLayout&& layout) noexcept(!IS_DEBUG);
 		static Buffer Make(const CookedLayout& layout) noexcept(!IS_DEBUG);
+		Buffer(const Buffer& rhs) noexcept;
 		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ConstElementRef operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
 
@@ -291,6 +292,8 @@ namespace Dcb
 		size_t GetSizeInBytes() const noexcept;
 		const LayoutElement& GetLayout() const noexcept;
 		std::shared_ptr<LayoutElement> ShareLayout() const noexcept;
+
+		void CopyFrom(const Buffer& other) noexcept(!IS_DEBUG);
 
 	private:
 		Buffer(const CookedLayout& layout) noexcept;

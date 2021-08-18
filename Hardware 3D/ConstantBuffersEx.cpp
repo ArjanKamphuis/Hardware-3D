@@ -4,19 +4,9 @@
 
 namespace Bind
 {
-	PixelConstantBufferEx::PixelConstantBufferEx(const Graphics& gfx, std::shared_ptr<Dcb::LayoutElement> pLayout, UINT slot)
-		: PixelConstantBufferEx(gfx, std::move(pLayout), slot, nullptr)
-	{
-	}
-
-	PixelConstantBufferEx::PixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot)
-		: PixelConstantBufferEx(gfx, buffer.ShareLayout(), slot, &buffer)
-	{
-	}
-
 	void PixelConstantBufferEx::Update(const Graphics& gfx, const Dcb::Buffer& buffer)
 	{
-		assert(&buffer.GetLayout() == &*mLayout);
+		assert(&buffer.GetLayout() == &GetLayout());
 
 		INFOMAN(gfx);
 		D3D11_MAPPED_SUBRESOURCE msr;
@@ -30,19 +20,14 @@ namespace Bind
 		GetDeviceContext(gfx)->PSSetConstantBuffers(mSlot, 1u, mConstantBuffer.GetAddressOf());
 	}
 
-	const Dcb::LayoutElement& PixelConstantBufferEx::GetLayout() const noexcept
-	{
-		return *mLayout;
-	}
-
-	PixelConstantBufferEx::PixelConstantBufferEx(const Graphics& gfx, std::shared_ptr<Dcb::LayoutElement> pLayout, UINT slot, const Dcb::Buffer* pBuffer)
-		: mLayout(std::move(pLayout)), mSlot(slot)
+	PixelConstantBufferEx::PixelConstantBufferEx(const Graphics& gfx, const Dcb::LayoutElement& layoutRoot, UINT slot, const Dcb::Buffer* pBuffer)
+		: mSlot(slot)
 	{
 		INFOMAN(gfx);
 
 		D3D11_BUFFER_DESC cbd = {};
 		cbd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		cbd.ByteWidth = static_cast<UINT>(mLayout->GetSizeInBytes());
+		cbd.ByteWidth = static_cast<UINT>(layoutRoot.GetSizeInBytes());
 		cbd.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 		cbd.Usage = D3D11_USAGE_DYNAMIC;
 
@@ -54,5 +39,56 @@ namespace Bind
 		}
 		else
 			GFX_THROW_INFO(GetDevice(gfx)->CreateBuffer(&cbd, nullptr, &mConstantBuffer));
+	}
+
+	CachingPixelConstantBufferEx::CachingPixelConstantBufferEx(const Graphics& gfx, const Dcb::CookedLayout& layout, UINT slot)
+		: PixelConstantBufferEx(gfx, *layout.ShareRoot(), slot, nullptr), mBuffer(Dcb::Buffer::Make(layout))
+	{
+	}
+
+	CachingPixelConstantBufferEx::CachingPixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot)
+		: PixelConstantBufferEx(gfx, buffer.GetLayout(),  slot, &buffer), mBuffer(buffer)
+	{
+	}
+
+	const Dcb::LayoutElement& CachingPixelConstantBufferEx::GetLayout() const noexcept
+	{
+		return mBuffer.GetLayout();
+	}
+
+	const Dcb::Buffer& CachingPixelConstantBufferEx::GetBuffer() const noexcept
+	{
+		return mBuffer;
+	}
+
+	void CachingPixelConstantBufferEx::SetBuffer(const Dcb::Buffer& buffer)
+	{
+		mBuffer.CopyFrom(buffer);
+		mDirty = true;
+	}
+
+	void CachingPixelConstantBufferEx::Bind(const Graphics& gfx) noexcept
+	{
+		if (mDirty)
+		{
+			Update(gfx, mBuffer);
+			mDirty = false;
+		}
+		PixelConstantBufferEx::Bind(gfx);
+	}
+
+	NoCachePixelConstantBufferEx::NoCachePixelConstantBufferEx(const Graphics& gfx, const Dcb::CookedLayout& layout, UINT slot)
+		: PixelConstantBufferEx(gfx, *layout.ShareRoot(), slot, nullptr), mLayoutRoot(layout.ShareRoot())
+	{
+	}
+
+	NoCachePixelConstantBufferEx::NoCachePixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot)
+		: PixelConstantBufferEx(gfx, buffer.GetLayout(), slot, &buffer), mLayoutRoot(buffer.ShareLayout())
+	{
+	}
+
+	const Dcb::LayoutElement& NoCachePixelConstantBufferEx::GetLayout() const noexcept
+	{
+		return *mLayoutRoot;
 	}
 }
