@@ -120,7 +120,9 @@ private:
 	struct NodeData
 	{
 		TransformParameters TransformParams;
+		bool TransformParamsDirty = false;
 		std::optional<Dcb::Buffer> MaterialCBuf;
+		bool MaterialCBufDirty = false;
 	};
 
 public:
@@ -151,58 +153,92 @@ public:
 					tp.Yaw = angles.y;
 					const Dcb::Buffer* pMatConst = mSelectedNode->GetMaterialConstants();
 					auto buf = pMatConst != nullptr ? std::optional<Dcb::Buffer>{ *pMatConst } : std::optional<Dcb::Buffer>{};
-					std::tie(it, std::ignore) = mTransforms.insert({ id, { tp, std::move(buf) } });
+					std::tie(it, std::ignore) = mTransforms.insert({ id, { tp, false, std::move(buf), false } });
 				}
 
-				TransformParameters& transform = it->second.TransformParams;
+				{
+					TransformParameters& transform = it->second.TransformParams;
+					bool& dirty = it->second.TransformParamsDirty;
+					const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
 
-				ImGui::Text("Orientation");
-				ImGui::SliderAngle("Roll", &transform.Roll, -180.0f, 180.0f);
-				ImGui::SliderAngle("Pitch", &transform.Pitch, -180.0f, 180.0f);
-				ImGui::SliderAngle("Yaw", &transform.Yaw, -180.0f, 180.0f);
+					ImGui::Text("Orientation");
+					dcheck(ImGui::SliderAngle("Roll", &transform.Roll, -180.0f, 180.0f));
+					dcheck(ImGui::SliderAngle("Pitch", &transform.Pitch, -180.0f, 180.0f));
+					dcheck(ImGui::SliderAngle("Yaw", &transform.Yaw, -180.0f, 180.0f));
 
-				ImGui::Text("Position");
-				ImGui::SliderFloat("X", &transform.Position.x, -20.0f, 20.0f);
-				ImGui::SliderFloat("Y", &transform.Position.y, -20.0f, 20.0f);
-				ImGui::SliderFloat("Z", &transform.Position.z, -20.0f, 20.0f);
-
-				if (ImGui::Button("Reset"))
-					transform = {};
+					ImGui::Text("Position");
+					dcheck(ImGui::SliderFloat("X", &transform.Position.x, -20.0f, 20.0f));
+					dcheck(ImGui::SliderFloat("Y", &transform.Position.y, -20.0f, 20.0f));
+					dcheck(ImGui::SliderFloat("Z", &transform.Position.z, -20.0f, 20.0f));
+				}
 
 				if (it->second.MaterialCBuf)
 				{
 					Dcb::Buffer& mat = *it->second.MaterialCBuf;
+					bool& dirty = it->second.MaterialCBufDirty;
+					const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
+
 					ImGui::Text("Material");
 
-					if (Dcb::ElementRef v = mat[L"NormalMapEnabled"s]; v.Exists()) ImGui::Checkbox("Norm Map", &v);
-					if (Dcb::ElementRef v = mat[L"SpecularMapEnabled"s]; v.Exists()) ImGui::Checkbox("Spec Map", &v);
-					if (Dcb::ElementRef v = mat[L"HasGlossMap"s]; v.Exists()) ImGui::Checkbox("Gloss Map", &v);
-					if (Dcb::ElementRef v = mat[L"MaterialColor"s]; v.Exists()) ImGui::ColorPicker3("Diff Color", reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v)));
-					if (Dcb::ElementRef v = mat[L"SpecularPower"s]; v.Exists()) ImGui::SliderFloat("Spec Power", &v, 0.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic);
-					if (Dcb::ElementRef v = mat[L"SpecularColor"s]; v.Exists()) ImGui::ColorPicker3("Spec Color", reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v)));
-					if (Dcb::ElementRef v = mat[L"SpecularMapWeight"s]; v.Exists()) ImGui::SliderFloat("Spec Weight", &v, 0.0f, 4.0f);
-					if (Dcb::ElementRef v = mat[L"SpecularIntensity"s]; v.Exists()) ImGui::SliderFloat("Spec Intens", &v, 0.0f, 1.0f);
-					
+					if (Dcb::ElementRef v = mat[L"NormalMapEnabled"s]; v.Exists()) dcheck(ImGui::Checkbox("Norm Map", &v));
+					if (Dcb::ElementRef v = mat[L"SpecularMapEnabled"s]; v.Exists()) dcheck(ImGui::Checkbox("Spec Map", &v));
+					if (Dcb::ElementRef v = mat[L"HasGlossMap"s]; v.Exists()) dcheck(ImGui::Checkbox("Gloss Map", &v));
+					if (Dcb::ElementRef v = mat[L"SpecularPower"s]; v.Exists()) dcheck(ImGui::SliderFloat("Spec Power", &v, 0.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
+					if (Dcb::ElementRef v = mat[L"SpecularMapWeight"s]; v.Exists()) dcheck(ImGui::SliderFloat("Spec Weight", &v, 0.0f, 4.0f));
+					if (Dcb::ElementRef v = mat[L"SpecularIntensity"s]; v.Exists()) dcheck(ImGui::SliderFloat("Spec Intens", &v, 0.0f, 1.0f));
+					if (Dcb::ElementRef v = mat[L"MaterialColor"s]; v.Exists()) dcheck(ImGui::ColorPicker3("Diff Color", reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
+					if (Dcb::ElementRef v = mat[L"SpecularColor"s]; v.Exists()) dcheck(ImGui::ColorPicker3("Spec Color", reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
 				}
 			}
 		}
 		ImGui::End();
 	}
+	void ApplyParameters() noexcept(!IS_DEBUG)
+	{
+		if (TransformDirty())
+		{
+			mSelectedNode->SetAppliedTransform(GetTransform());
+			ResetTransformDirty();
+		}
+		if (MaterialDirty())
+		{
+			mSelectedNode->SetMaterialConstants(GetMaterial());
+			ResetMaterialDirty();
+		}
+	}
+private:
 	XMMATRIX XM_CALLCONV GetTransform() const noexcept
 	{
 		assert(mSelectedNode != nullptr);
 		const TransformParameters& transform = mTransforms.at(mSelectedNode->GetId()).TransformParams;
 		return XMMatrixRotationRollPitchYaw(transform.Pitch, transform.Yaw, transform.Roll) * XMMatrixTranslationFromVector(XMLoadFloat3(&transform.Position));
 	}
-	const Dcb::Buffer* GetMaterial() const noexcept
+	const Dcb::Buffer& GetMaterial() const noexcept(!IS_DEBUG)
 	{
 		assert(mSelectedNode != nullptr);
 		const auto& mat = mTransforms.at(mSelectedNode->GetId()).MaterialCBuf;
-		return mat ? &*mat : nullptr;
+		assert(mat);
+		return *mat;
 	}
-	Node* GetSelectedNode() const noexcept
+	void ResetTransformDirty() noexcept(!IS_DEBUG)
 	{
-		return mSelectedNode;
+		mTransforms.at(mSelectedNode->GetId()).TransformParamsDirty = false;
+	}
+	void ResetMaterialDirty() noexcept(!IS_DEBUG)
+	{
+		mTransforms.at(mSelectedNode->GetId()).MaterialCBufDirty = false;
+	}
+	bool TransformDirty() const noexcept(!IS_DEBUG)
+	{
+		return mSelectedNode && mTransforms.at(mSelectedNode->GetId()).TransformParamsDirty;
+	}
+	bool MaterialDirty() const noexcept(!IS_DEBUG)
+	{
+		return mSelectedNode && mTransforms.at(mSelectedNode->GetId()).MaterialCBufDirty;
+	}
+	bool IsDirty() const noexcept(!IS_DEBUG)
+	{
+		return TransformDirty() || MaterialDirty();
 	}
 
 private:
@@ -231,12 +267,7 @@ Model::~Model() noexcept
 
 void Model::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
-	if (Node* node = mWindow->GetSelectedNode())
-	{
-		node->SetAppliedTransform(mWindow->GetTransform());
-		if (const Dcb::Buffer* mat = mWindow->GetMaterial())
-			node->SetMaterialConstants(*mat);
-	}
+	mWindow->ApplyParameters();
 	mRoot->Draw(gfx, XMMatrixIdentity());
 }
 
