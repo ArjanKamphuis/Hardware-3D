@@ -267,6 +267,8 @@ namespace Dcb
 		Ptr operator&() const noexcept(!IS_DEBUG);
 		operator ConstElementRef() const noexcept;
 		bool Exists() const noexcept;
+		template<typename S>
+		bool SetIfExists(const S& val) noexcept(!IS_DEBUG);
 
 		template<typename T>
 		operator T& () const noexcept(!IS_DEBUG);
@@ -356,6 +358,17 @@ namespace Dcb
 	{
 		static_assert(ReverseMap<std::remove_const_t<T>>::Valid, "Unsupported SysType used in pointer conversion");
 		return &static_cast<T&>(*mRef);
+	}
+
+	template<typename S>
+	inline bool Dcb::ElementRef::SetIfExists(const S& val) noexcept(!IS_DEBUG)
+	{
+		if (Exists())
+		{
+			*this = val;
+			return true;
+		}
+		return false;
 	}
 
 	template<typename T>

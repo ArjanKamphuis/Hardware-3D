@@ -82,6 +82,13 @@ void TestDynamicConstant()
 				assert(f.x == 69.0f);
 			}
 		}
+		// set if exists
+		{
+			assert(b[L"butts"s][L"pubes"s].SetIfExists(XMFLOAT3{ 1.0f, 2.0f, 3.0f }));
+			const XMFLOAT3& f3 = static_cast<const XMFLOAT3&>(b[L"butts"s][L"pubes"s]);
+			assert(f3.x == 1.0f && f3.y == 2.0f && f3.z == 3.0f);
+			assert(!b[L"butts"s][L"phubar"s].SetIfExists(XMFLOAT3{ 2.0f, 2.0f, 7.0f }));
+		}
 
 		const Dcb::Buffer& cb = b;
 		{
