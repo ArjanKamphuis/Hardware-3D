@@ -1,253 +1,227 @@
+#define DCB_IMPL_SOURCE
 #include "DynamicConstantBuffer.h"
 
 #include "LayoutCodex.h"
 
 using namespace DirectX;
 
-#define DCB_RESOLVE_BASE(eltype) \
-size_t LayoutElement::Resolve ## eltype() const noexcept(!IS_DEBUG) \
-{ \
-	assert(false && "Cannot resolve to " #eltype); \
-	return 0u; \
-}
-
-#define DCB_LEAF_ELEMENT_IMPL(eltype, systype, hlslSize) \
-size_t eltype::Resolve ## eltype() const noexcept(!IS_DEBUG) \
-{ \
-	return GetOffsetBegin(); \
-} \
-size_t eltype::GetOffsetEnd() const noexcept \
-{ \
-	return GetOffsetBegin() + ComputeSize(); \
-} \
-std::wstring eltype::GetSignature() const noexcept(!IS_DEBUG) \
-{ \
-    return L#eltype; \
-}\
-size_t eltype::Finalize(size_t offset) noexcept(!IS_DEBUG) \
-{ \
-	mOffset = offset; \
-	return offset + ComputeSize(); \
-} \
-size_t eltype::ComputeSize() const noexcept(!IS_DEBUG) \
-{ \
-	return hlslSize; \
-}
-#define DCB_LEAF_ELEMENT(eltype, systype) DCB_LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
-
-#define DCB_REF_CONVERSION(reftype, eltype, ...) \
-reftype::operator __VA_ARGS__ eltype::SystemType& () noexcept(!IS_DEBUG) \
-{ \
-	return *reinterpret_cast<eltype::SystemType*>(mBytes + mOffset + mLayout->Resolve ## eltype()); \
-}
-#define DCB_REF_ASSIGN(reftype, eltype) \
-eltype::SystemType& reftype::operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG) \
-{ \
-	return static_cast<eltype::SystemType&>(*this) = rhs; \
-}
-#define DCB_REF_NONCONST(reftype, eltype) DCB_REF_CONVERSION(reftype, eltype) DCB_REF_ASSIGN(reftype, eltype)
-#define DCB_REF_CONST(reftype, eltype) DCB_REF_CONVERSION(reftype, eltype)
-
-#define DCB_PTR_CONVERSION(reftype, eltype, ...) \
-reftype::Ptr::operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG) \
-{ \
-	return &static_cast<__VA_ARGS__ eltype::SystemType&>(mRef); \
-}
-
 namespace Dcb
 {
-    LayoutElement::~LayoutElement()
+    struct ExtraData
     {
+        struct Struct : public LayoutElement::ExtraDataBase
+        {
+            std::vector<std::pair<std::wstring, LayoutElement>> LayoutElements;
+        };
+        struct Array : public LayoutElement::ExtraDataBase
+        {
+            std::optional<LayoutElement> LayoutElement;
+            size_t Size = 0u;
+        };
+    };
+
+    std::pair<size_t, const LayoutElement*> LayoutElement::CalculateIndexingOffset(size_t offset, size_t index) const noexcept(!IS_DEBUG)
+    {
+        assert("Indexing into non-array" && mType == Type::Array);
+        const Dcb::ExtraData::Array& data = static_cast<ExtraData::Array&>(*mExtraData);
+        assert(index < data.Size);
+        return { offset + data.LayoutElement->GetSizeInBytes() * index, &*data.LayoutElement };
     }
 
     LayoutElement& LayoutElement::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
-        assert(false && "Cannot access member on non Struct");
-        return *this;
+        assert("Keying into non-struct" && mType == Type::Struct);
+        for (auto& mem : static_cast<ExtraData::Struct&>(*mExtraData).LayoutElements)
+            if (mem.first == key)
+                return mem.second;
+        return GetEmptyElement();
     }
 
     const LayoutElement& LayoutElement::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
     {
-        assert(false && "Cannot access member on non Struct");
-        return *this;
+        return const_cast<LayoutElement&>(*this)[key];
     }
 
     LayoutElement& LayoutElement::T() noexcept(!IS_DEBUG)
     {
-        assert(false);
-        return *this;
+        assert("Accessing T of non-array" && mType == Type::Array);
+        return *static_cast<ExtraData::Array&>(*mExtraData).LayoutElement;
     }
 
     const LayoutElement& LayoutElement::T() const noexcept(!IS_DEBUG)
     {
-        assert(false);
-        return *this;
+        return const_cast<LayoutElement&>(*this).T();
     }
 
     bool LayoutElement::Exists() const noexcept
     {
-        return true;
+        return mType != Empty;
     }
 
-    size_t LayoutElement::GetOffsetBegin() const noexcept
+    size_t LayoutElement::GetOffsetBegin() const noexcept(!IS_DEBUG)
     {
-        return mOffset;
+        return *mOffset;
     }
 
-    size_t LayoutElement::GetSizeInBytes() const noexcept
+    size_t LayoutElement::GetOffsetEnd() const noexcept(!IS_DEBUG)
+    {
+        switch (mType)
+        {
+            #define X(el) case Type::el : return *mOffset + Map<el>::HlslSize;
+            LEAF_ELEMENT_TYPES
+            #undef X
+            case Type::Struct:
+            {
+                const ExtraData::Struct& data = static_cast<ExtraData::Struct&>(*mExtraData);
+                return AdvanceToBoundary(data.LayoutElements.back().second.GetOffsetEnd());
+            }
+            case Type::Array:
+            {
+                const ExtraData::Array& data = static_cast<ExtraData::Array&>(*mExtraData);
+                return *mOffset + AdvanceToBoundary(data.LayoutElement->GetSizeInBytes()) * data.Size;
+            }
+            default:
+                assert("Tried to get offset of empty or invalid element" && false);
+                return 0u;
+        }
+    }
+
+    size_t LayoutElement::GetSizeInBytes() const noexcept(!IS_DEBUG)
     {
         return GetOffsetEnd() - GetOffsetBegin();
     }
 
-    size_t LayoutElement::GetNextBoundaryOffset(size_t offset) noexcept
+    std::wstring LayoutElement::GetSignature() const noexcept(!IS_DEBUG)
     {
-        return offset + (16u - offset % 16) % 16;
+        switch (mType)
+        {
+            #define X(el) case Type::el : return Map<el>::Code;
+            LEAF_ELEMENT_TYPES
+            #undef X
+            case Type::Struct: return GetSignatureForStruct();
+            case Type::Array: return GetSignatureForArray();
+            default:
+                assert("Bad type in signature generation" && false);
+                return L"???";
+        }
     }
 
-    class Empty : public LayoutElement
+    LayoutElement& LayoutElement::Add(Type addedType, std::wstring name) noexcept(!IS_DEBUG)
     {
-    public:
-        size_t GetOffsetEnd() const noexcept final
-        {
-            return 0u;
-        }
-        bool Exists() const noexcept final
-        {
-            return false;
-        }
-        std::wstring GetSignature() const noexcept(!IS_DEBUG) final
-        {
-            assert(false);
-            return L"";
-        }
-    protected:
-        size_t Finalize(size_t offset) final
-        {
-            return 0u;
-        }
-        size_t ComputeSize() const noexcept(!IS_DEBUG) final
-        {
-            return 0u;
-        }
-    private:
-        size_t mSize = 0u;
-        std::unique_ptr<LayoutElement> mElement;
-    } EmptyLayoutElement;
-
-    DCB_RESOLVE_BASE(Matrix);
-    DCB_RESOLVE_BASE(Float4);
-    DCB_RESOLVE_BASE(Float3);
-    DCB_RESOLVE_BASE(Float2);
-    DCB_RESOLVE_BASE(Float);
-    DCB_RESOLVE_BASE(Bool);
-
-    DCB_LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
-    DCB_LEAF_ELEMENT(Float4, DirectX::XMFLOAT4);
-    DCB_LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
-    DCB_LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
-    DCB_LEAF_ELEMENT(Float, float);
-    DCB_LEAF_ELEMENT_IMPL(Bool, bool, 4u);
-
-
-
-    LayoutElement& Struct::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
-    {
-        const auto it = mMap.find(key);
-        return it == mMap.end() ? EmptyLayoutElement : *it->second;
+        assert("Add to non-struct in layout" && mType == Type::Struct);
+        assert("Invalid symbol name in struct" && ValidateSymbolName(name));
+        ExtraData::Struct& structData = static_cast<ExtraData::Struct&>(*mExtraData);
+        for (auto& mem : structData.LayoutElements)
+            if (mem.first == name)
+                assert("Adding duplicate name to struct" && false);
+        structData.LayoutElements.emplace_back(std::move(name), LayoutElement{ addedType });
+        return *this;
     }
 
-    const LayoutElement& Struct::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
+    LayoutElement& LayoutElement::Set(Type addedType, size_t size) noexcept(!IS_DEBUG)
     {
-        return const_cast<Struct&>(*this)[key];
+        assert("Set on non-array in layout" && mType == Type::Array);
+        assert(size != 0u);
+        ExtraData::Array& arrayData = static_cast<ExtraData::Array&>(*mExtraData);
+        arrayData.LayoutElement = { addedType };
+        arrayData.Size = size;
+        return *this;
     }
 
-    size_t Struct::GetOffsetEnd() const noexcept
+    LayoutElement::LayoutElement(Type type) noexcept
+        : mType(type)
     {
-        return LayoutElement::GetNextBoundaryOffset(mElements.back()->GetOffsetEnd());
+        assert(type != Empty);
+        if (type == Type::Struct)
+            mExtraData = std::unique_ptr<ExtraData::Struct>{ new ExtraData::Struct() };
+        else if (type == Type::Array)
+            mExtraData = std::unique_ptr<ExtraData::Array>{ new ExtraData::Array() };
     }
 
-    std::wstring Struct::GetSignature() const noexcept(!IS_DEBUG)
+    std::wstring LayoutElement::GetSignatureForStruct() const noexcept(!IS_DEBUG)
     {
         using namespace std::string_literals;
-        std::wstring sig = L"Struct{"s;
-        for (const auto& el : mElements)
-        {
-            auto it = std::find_if(mMap.begin(), mMap.end(), 
-                [&el](const std::pair<std::wstring, LayoutElement*>& v)
-                {
-                    return &*el == v.second;
-                }
-            );
-            sig += it->first + L":"s + el->GetSignature() + L";"s;
-        }
+        auto sig = L"St{"s;
+        for (const auto& el : static_cast<ExtraData::Struct&>(*mExtraData).LayoutElements)
+            sig += el.first + L":"s + el.second.GetSignature() + L";"s;
         return sig + L"}"s;
     }
 
-    size_t Struct::Finalize(size_t offset) noexcept(!IS_DEBUG)
-    {
-        assert(mElements.size() != 0u);
-        mOffset = offset;
-        size_t offsetNext = offset;
-        for (auto& el : mElements)
-            offsetNext = (*el).Finalize(offsetNext);
-        return GetOffsetEnd();
-    }
-
-    size_t Struct::ComputeSize() const noexcept(!IS_DEBUG)
-    {
-        size_t offsetNext = 0u;
-        for (auto& el : mElements)
-        {
-            const size_t elSize = el->ComputeSize();
-            offsetNext += CalculatePaddingBeforeElement(offsetNext, elSize) + elSize;
-        }
-        return GetNextBoundaryOffset(offsetNext);
-    }
-
-    size_t Struct::CalculatePaddingBeforeElement(size_t offset, size_t size) noexcept
-    {
-        return offset / 16u != (offset + size - 1) / 16u ? GetNextBoundaryOffset(offset) - offset : offset;
-    }
-    
-
-
-    LayoutElement& Array::T() noexcept(!IS_DEBUG)
-    {
-        return *mElement;
-    }
-
-    const LayoutElement& Array::T() const noexcept(!IS_DEBUG)
-    {
-        return const_cast<Array*>(this)->T();
-    }
-
-    size_t Array::GetOffsetEnd() const noexcept
-    {
-        return GetOffsetBegin() + LayoutElement::GetNextBoundaryOffset(mElement->GetSizeInBytes()) * mSize;
-    }
-
-    std::wstring Array::GetSignature() const noexcept(!IS_DEBUG)
+    std::wstring LayoutElement::GetSignatureForArray() const noexcept(!IS_DEBUG)
     {
         using namespace std::string_literals;
-        return L"Array:"s + std::to_wstring(mSize) + L"{"s + T().GetSignature() + L"}"s;
+        const ExtraData::Array& data = static_cast<ExtraData::Array&>(*mExtraData);
+        return L"Ar:"s + std::to_wstring(data.Size) + L"{"s + data.LayoutElement->GetSignature() + L"}"s;
     }
 
-    bool Array::IndexInBounds(size_t index) const noexcept
+    size_t LayoutElement::Finalize(size_t offset) noexcept(!IS_DEBUG)
     {
-        return index < mSize;
+        switch(mType)
+        {
+            #define X(el) case Type::el: mOffset = AdvanceIfCrossesBoundary(offset, Map<el>::HlslSize); return *mOffset + Map<el>::HlslSize;
+            LEAF_ELEMENT_TYPES
+            #undef X
+            case Type::Struct: return FinalizeForStruct(offset);
+            case Type::Array: return FinalizeForArray(offset);
+            default:
+                assert("Bad type in size computation" && false);
+                return 0u;
+        }
     }
 
-    size_t Array::Finalize(size_t offset) noexcept(!IS_DEBUG)
+    size_t LayoutElement::FinalizeForStruct(size_t offset) noexcept(!IS_DEBUG)
     {
-        assert(mSize != 0u && mElement);
-        mOffset = offset;
-        mElement->Finalize(offset);
+        ExtraData::Struct& data = static_cast<ExtraData::Struct&>(*mExtraData);
+        assert(data.LayoutElements.size() != 0u);
+        mOffset = AdvanceToBoundary(offset);
+        size_t offsetNext = *mOffset;
+        for (auto& el : data.LayoutElements)
+            offsetNext = el.second.Finalize(offsetNext);
+        return offsetNext;
+    }
+
+    size_t LayoutElement::FinalizeForArray(size_t offset) noexcept(!IS_DEBUG)
+    {
+        ExtraData::Array& data = static_cast<ExtraData::Array&>(*mExtraData);
+        assert(data.Size != 0u);
+        mOffset = AdvanceToBoundary(offset);
+        data.LayoutElement->Finalize(*mOffset);
         return GetOffsetEnd();
     }
 
-    size_t Array::ComputeSize() const noexcept(!IS_DEBUG)
+    LayoutElement& LayoutElement::GetEmptyElement() noexcept
     {
-        return LayoutElement::GetNextBoundaryOffset(mElement->ComputeSize()) * mSize;
+        static LayoutElement empty{};
+        return empty;
+    }
+
+    size_t LayoutElement::AdvanceToBoundary(size_t offset) noexcept
+    {
+        return offset + (16u - offset % 16u) % 16u;
+    }
+
+    bool LayoutElement::CrossesBoundary(size_t offset, size_t size) noexcept
+    {
+        const size_t end = offset + size;
+        const size_t pageStart = offset / 16u;
+        const size_t pageEnd = end / 16u;
+        return (pageStart != pageEnd && pageEnd % 16u != 0u) || size > 16u;
+    }
+
+    size_t LayoutElement::AdvanceIfCrossesBoundary(size_t offset, size_t size) noexcept
+    {
+        return CrossesBoundary(offset, size) ? AdvanceToBoundary(offset) : offset;
+    }
+
+    bool LayoutElement::ValidateSymbolName(const std::wstring& name) noexcept
+    {
+        return !name.empty() && !std::isdigit(name.front()) &&
+            std::all_of(name.begin(), name.end(),
+                [](wchar_t c)
+                {
+                    return std::isalnum(c) || c == L'_';
+                }
+        );
     }
 
 
@@ -262,17 +236,16 @@ namespace Dcb
         return mRoot->GetSignature();
     }
 
-    Layout::Layout() noexcept
-    {
-        struct Enabler : public Struct {};
-        mRoot = std::make_shared<Enabler>();
-    }
-
     Layout::Layout(std::shared_ptr<LayoutElement> pRoot) noexcept
-        : mRoot(std::move(pRoot))
+        : mRoot{ std::move(pRoot) }
     {
     }
 
+
+    RawLayout::RawLayout() noexcept
+        : Layout(std::shared_ptr<LayoutElement>{ new LayoutElement(Type::Struct) })
+    {
+    }
 
     LayoutElement& RawLayout::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
@@ -315,19 +288,12 @@ namespace Dcb
 
 
 
-    ConstElementRef::Ptr::Ptr(ConstElementRef& ref) noexcept
+    ConstElementRef::Ptr::Ptr(const ConstElementRef* ref) noexcept
         : mRef(ref)
     {
     }
 
-    DCB_PTR_CONVERSION(ConstElementRef, Matrix, const);
-    DCB_PTR_CONVERSION(ConstElementRef, Float4, const);
-    DCB_PTR_CONVERSION(ConstElementRef, Float3, const);
-    DCB_PTR_CONVERSION(ConstElementRef, Float2, const);
-    DCB_PTR_CONVERSION(ConstElementRef, Float, const);
-    DCB_PTR_CONVERSION(ConstElementRef, Bool, const);
-
-    ConstElementRef::ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept
+    ConstElementRef::ConstElementRef(const LayoutElement* pLayout, const std::byte* pBytes, size_t offset) noexcept
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
     {
     }
@@ -339,15 +305,13 @@ namespace Dcb
 
     ConstElementRef ConstElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
     {
-        const LayoutElement& t = mLayout->T();
-        assert(static_cast<const Array&>(*mLayout).IndexInBounds(index));
-        const size_t elementSize = LayoutElement::GetNextBoundaryOffset(t.GetSizeInBytes());
-        return { &t, mBytes, mOffset + elementSize * index };
+        const auto indexingData = mLayout->CalculateIndexingOffset(mOffset, index);
+        return { indexingData.second, mBytes, indexingData.first };
     }
 
     ConstElementRef::Ptr ConstElementRef::operator&() noexcept(!IS_DEBUG)
     {
-        return { *this };
+        return Ptr{ this };
     }
 
     bool ConstElementRef::Exists() const noexcept
@@ -355,48 +319,32 @@ namespace Dcb
         return mLayout->Exists();
     }
 
-    DCB_REF_CONST(ConstElementRef, Matrix);
-    DCB_REF_CONST(ConstElementRef, Float4);
-    DCB_REF_CONST(ConstElementRef, Float3);
-    DCB_REF_CONST(ConstElementRef, Float2);
-    DCB_REF_CONST(ConstElementRef, Float);
-    DCB_REF_CONST(ConstElementRef, Bool);
 
 
-
-    ElementRef::Ptr::Ptr(ElementRef& ref) noexcept
+    ElementRef::Ptr::Ptr(ElementRef* ref) noexcept
         : mRef(ref)
     {
     }
-
-    DCB_PTR_CONVERSION(ElementRef, Matrix);
-    DCB_PTR_CONVERSION(ElementRef, Float4);
-    DCB_PTR_CONVERSION(ElementRef, Float3);
-    DCB_PTR_CONVERSION(ElementRef, Float2);
-    DCB_PTR_CONVERSION(ElementRef, Float);
-    DCB_PTR_CONVERSION(ElementRef, Bool);
 
     ElementRef::ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept
         : mLayout(pLayout), mBytes(pBytes), mOffset(offset)
     {
     }
 
-    ElementRef ElementRef::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
+    ElementRef ElementRef::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
     {
         return { &(*mLayout)[key], mBytes, mOffset };
     }
 
-    ElementRef ElementRef::operator[](size_t index) noexcept(!IS_DEBUG)
+    ElementRef ElementRef::operator[](size_t index) const noexcept(!IS_DEBUG)
     {
-        const LayoutElement& t = mLayout->T();
-        assert(static_cast<const Array&>(*mLayout).IndexInBounds(index));
-        const size_t elementSize = LayoutElement::GetNextBoundaryOffset(t.GetSizeInBytes());
-        return { &t, mBytes, mOffset + elementSize * index };
+        const auto indexingData = mLayout->CalculateIndexingOffset(mOffset, index);
+        return { indexingData.second, mBytes, indexingData.first };
     }
 
-    ElementRef::Ptr ElementRef::operator&() noexcept(!IS_DEBUG)
+    ElementRef::Ptr ElementRef::operator&() const noexcept(!IS_DEBUG)
     {
-        return { *this };
+        return Ptr{ const_cast<ElementRef*>(this) };
     }
 
     ElementRef::operator ConstElementRef() const noexcept
@@ -408,13 +356,6 @@ namespace Dcb
     {
         return mLayout->Exists();
     }
-
-    DCB_REF_NONCONST(ElementRef, Matrix);
-    DCB_REF_NONCONST(ElementRef, Float4);
-    DCB_REF_NONCONST(ElementRef, Float3);
-    DCB_REF_NONCONST(ElementRef, Float2);
-    DCB_REF_NONCONST(ElementRef, Float);
-    DCB_REF_NONCONST(ElementRef, Bool);
 
 
     
@@ -473,11 +414,5 @@ namespace Dcb
     {
         assert(&GetLayoutRootElement() == &other.GetLayoutRootElement());
         std::copy(other.mBytes.begin(), other.mBytes.end(), mBytes.begin());
-    }
-
-    // temporary
-    bool ValidateSymbolName(const std::wstring& name) noexcept
-    {
-        return !name.empty() && !std::isdigit(name.front()) && std::all_of(name.begin(), name.end(), [](wchar_t c) { return std::isalnum(c) || c == L'_'; });
     }
 }

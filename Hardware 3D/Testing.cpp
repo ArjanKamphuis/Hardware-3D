@@ -27,6 +27,7 @@ void TestDynamicConstant()
 		//s.Add<Dcb::Bool>(L"69man"s);
 
 		Dcb::Buffer b = Dcb::Buffer(std::move(s));
+		//b[L"woot"s] = L"#"s;
 		const std::wstring sig = b.GetLayoutRootElement().GetSignature();
 
 		{
@@ -87,6 +88,7 @@ void TestDynamicConstant()
 			XMFLOAT4X4 act = cb[L"arr"s][2][L"meta"s][5][3];
 			assert(act._11 == 1.0f);
 			//cb[L"arr"s][2][L"booler"s] = true;
+			//static_cast<bool&>(cb[L"arr"s][2][L"booler"s]) = true;
 			//cb[L"arr"s][200];
 		}
 	}
@@ -141,5 +143,33 @@ void TestDynamicConstant()
 
 		assert(static_cast<XMFLOAT3>(b1[L"arr"s][0]).x == 69.0f);
 		assert(static_cast<XMFLOAT3>(b2[L"arr"s][0]).x == 420.0f);
+	}
+	// specific testing scenario
+	{
+		Dcb::RawLayout pscLayout;
+		pscLayout.Add<Dcb::Float3>(L"MaterialColor"s);
+		pscLayout.Add<Dcb::Float3>(L"SpecularColor"s);
+		pscLayout.Add<Dcb::Float>(L"SpecularWeight"s);
+		pscLayout.Add<Dcb::Float>(L"SpecularGloss"s);
+		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
+		assert(cooked.GetSizeInBytes() == 48u);
+	}
+	// array non-packing
+	{
+		Dcb::RawLayout pscLayout;
+		pscLayout.Add<Dcb::Array>(L"arr"s);
+		pscLayout[L"arr"s].Set<Dcb::Float>(10u);
+		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
+		assert(cooked.GetSizeInBytes() == 160u);
+	}
+	// array of struct w/ padding
+	{
+		Dcb::RawLayout pscLayout;
+		pscLayout.Add<Dcb::Array>(L"arr"s);
+		pscLayout[L"arr"s].Set<Dcb::Struct>(10u);
+		pscLayout[L"arr"s].T().Add<Dcb::Float3>(L"x"s);
+		pscLayout[L"arr"s].T().Add<Dcb::Float2>(L"y"s);
+		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
+		assert(cooked.GetSizeInBytes() == 320u);
 	}
 }

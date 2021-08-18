@@ -3,138 +3,154 @@
 #include <algorithm>
 #include <DirectXMath.h>
 #include <memory>
+#include <optional>
 #include <string>
-#include <unordered_map>
 #include <vector>
-#include "ChiliWin.h"
 
-#define DCB_RESOLVE_BASE(eltype) \
-virtual size_t Resolve ## eltype() const noexcept(!IS_DEBUG);
-
-#define DCB_LEAF_ELEMENT_IMPL(eltype, systype, hlslSize) \
-class eltype : public LayoutElement \
-{ \
-	friend LayoutElement; \
-public: \
-	using SystemType = systype; \
-	size_t Resolve ## eltype() const noexcept(!IS_DEBUG) final; \
-	size_t GetOffsetEnd() const noexcept final; \
-	std::wstring GetSignature() const noexcept(!IS_DEBUG) final; \
-protected: \
-	size_t Finalize(size_t offset) noexcept(!IS_DEBUG) override; \
-	size_t ComputeSize() const noexcept(!IS_DEBUG) final; \
-};
-#define DCB_LEAF_ELEMENT(eltype, systype) DCB_LEAF_ELEMENT_IMPL(eltype, systype, sizeof(systype))
-
-#define DCB_REF_CONVERSION(eltype, ...) \
-operator __VA_ARGS__ eltype::SystemType& () noexcept(!IS_DEBUG);
-#define DCB_REF_ASSIGN(eltype) \
-eltype::SystemType& operator=(const eltype::SystemType& rhs) noexcept(!IS_DEBUG);
-#define DCB_REF_NONCONST(eltype) DCB_REF_CONVERSION(eltype) DCB_REF_ASSIGN(eltype)
-#define DCB_REF_CONST(eltype) DCB_REF_CONVERSION(eltype)
-
-#define DCB_PTR_CONVERSION(eltype, ...) \
-operator __VA_ARGS__ eltype::SystemType*() noexcept(!IS_DEBUG);
+#define LEAF_ELEMENT_TYPES \
+	X(Float) \
+	X(Float2) \
+	X(Float3) \
+	X(Float4) \
+	X(Matrix) \
+	X(Bool)
 
 namespace Dcb
 {
+	enum Type
+	{
+		#define X(el) el,
+		LEAF_ELEMENT_TYPES
+		#undef X
+		Struct,
+		Array,
+		Empty
+	};
+
+	template<Type type>
+	struct Map
+	{
+		static constexpr bool Valid = false;
+	};
+	template<> struct Map<Float>
+	{
+		using SysType = float;
+		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr const wchar_t* Code = L"F1";
+		static constexpr bool Valid = true;
+	};
+	template<> struct Map<Float2>
+	{
+		using SysType = DirectX::XMFLOAT2;
+		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr const wchar_t* Code = L"F2";
+		static constexpr bool Valid = true;
+	};
+	template<> struct Map<Float3>
+	{
+		using SysType = DirectX::XMFLOAT3;
+		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr const wchar_t* Code = L"F3";
+		static constexpr bool Valid = true;
+	};
+	template<> struct Map<Float4>
+	{
+		using SysType = DirectX::XMFLOAT4;
+		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr const wchar_t* Code = L"F4";
+		static constexpr bool Valid = true;
+	};
+	template<> struct Map<Matrix>
+	{
+		using SysType = DirectX::XMFLOAT4X4;
+		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr const wchar_t* Code = L"M4";
+		static constexpr bool Valid = true;
+	};
+	template<> struct Map<Bool>
+	{
+		using SysType = bool;
+		static constexpr size_t HlslSize = sizeof(SysType);
+		static constexpr const wchar_t* Code = L"BL";
+		static constexpr bool Valid = true;
+	};
+
+#define X(el) static_assert(Map<el>::Valid, "Missing map implementation for " #el);
+	LEAF_ELEMENT_TYPES
+#undef X
+
+	template<typename T>
+	struct ReverseMap
+	{
+		static constexpr bool Valid = false;
+	};
+#define X(el) \
+	template<> struct ReverseMap<typename Map<el>::SysType> \
+	{ \
+		static constexpr Type Type = el; \
+		static constexpr bool Valid = true; \
+	};
+	LEAF_ELEMENT_TYPES
+#undef X
+
 	class LayoutElement
 	{
+	private:
+		struct ExtraDataBase
+		{
+			virtual ~ExtraDataBase() = default;
+		};
+
 		friend class RawLayout;
-		friend class Array;
-		friend class Struct;
+		friend struct ExtraData;
 
 	public:
-		virtual ~LayoutElement();
+		std::pair<size_t, const LayoutElement*> CalculateIndexingOffset(size_t offset, size_t index) const noexcept(!IS_DEBUG);
 
-		virtual LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
-		virtual const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
-		virtual LayoutElement& T() noexcept(!IS_DEBUG);
-		virtual const LayoutElement& T() const noexcept(!IS_DEBUG);
+		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
+		const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
+		LayoutElement& T() noexcept(!IS_DEBUG);
+		const LayoutElement& T() const noexcept(!IS_DEBUG);
 
-		virtual bool Exists() const noexcept;
+		bool Exists() const noexcept;
 
-		size_t GetOffsetBegin() const noexcept;
-		virtual size_t GetOffsetEnd() const noexcept = 0;
-		size_t GetSizeInBytes() const noexcept;
-		virtual std::wstring GetSignature() const noexcept(!IS_DEBUG) = 0;
+		size_t GetOffsetBegin() const noexcept(!IS_DEBUG);
+		size_t GetOffsetEnd() const noexcept(!IS_DEBUG);
+		size_t GetSizeInBytes() const noexcept(!IS_DEBUG);
+		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 
-		template<typename T>
-		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
-		template<typename T>
+		LayoutElement& Add(Type addedType, std::wstring name) noexcept(!IS_DEBUG);
+		template<Type addedType>
+		LayoutElement& Add(std::wstring key) noexcept(!IS_DEBUG);
+
+		LayoutElement& Set(Type addedType, size_t size) noexcept(!IS_DEBUG);
+		template<Type addedType>
 		LayoutElement& Set(size_t size) noexcept(!IS_DEBUG);
 
-		static size_t GetNextBoundaryOffset(size_t offset) noexcept;
-
-		DCB_RESOLVE_BASE(Matrix);
-		DCB_RESOLVE_BASE(Float4);
-		DCB_RESOLVE_BASE(Float3);
-		DCB_RESOLVE_BASE(Float2);
-		DCB_RESOLVE_BASE(Float);
-		DCB_RESOLVE_BASE(Bool);
-
-	protected:
-		virtual size_t Finalize(size_t offset) noexcept(!IS_DEBUG) = 0;
-		virtual size_t ComputeSize() const noexcept(!IS_DEBUG) = 0;
-
-	protected:
-		size_t mOffset = 0u;
-	};
-
-	DCB_LEAF_ELEMENT(Matrix, DirectX::XMFLOAT4X4);
-	DCB_LEAF_ELEMENT(Float4, DirectX::XMFLOAT4);
-	DCB_LEAF_ELEMENT(Float3, DirectX::XMFLOAT3);
-	DCB_LEAF_ELEMENT(Float2, DirectX::XMFLOAT2);
-	DCB_LEAF_ELEMENT(Float, float);
-	DCB_LEAF_ELEMENT_IMPL(Bool, bool, 4u);
-
-	class Struct : public LayoutElement
-	{
-		friend LayoutElement;
-	public:
-		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG) final;
-		const LayoutElement& operator[](const std::wstring& key) const noexcept(!IS_DEBUG) final;
-		size_t GetOffsetEnd() const noexcept final;
-		std::wstring GetSignature() const noexcept(!IS_DEBUG) final;
-
 		template<typename T>
-		void Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG);
-
-	protected:
-		Struct() = default;
-		size_t Finalize(size_t offset) noexcept(!IS_DEBUG) final;
-		size_t ComputeSize() const noexcept(!IS_DEBUG) final;
+		size_t Resolve() const noexcept(!IS_DEBUG);
 
 	private:
-		static size_t CalculatePaddingBeforeElement(size_t offset, size_t size) noexcept;
+		LayoutElement() noexcept = default;
+		LayoutElement(Type type) noexcept;
+
+		std::wstring GetSignatureForStruct() const noexcept(!IS_DEBUG);
+		std::wstring GetSignatureForArray() const noexcept(!IS_DEBUG);
+
+		size_t Finalize(size_t offset) noexcept(!IS_DEBUG);
+		size_t FinalizeForStruct(size_t offset) noexcept(!IS_DEBUG);
+		size_t FinalizeForArray(size_t offset) noexcept(!IS_DEBUG);
+
+		static LayoutElement& GetEmptyElement() noexcept;
+		static size_t AdvanceToBoundary(size_t offset) noexcept;
+		static bool CrossesBoundary(size_t offset, size_t size) noexcept;
+		static size_t AdvanceIfCrossesBoundary(size_t offset, size_t size) noexcept;
+		static bool ValidateSymbolName(const std::wstring& name) noexcept;
 
 	private:
-		std::unordered_map<std::wstring, LayoutElement*> mMap;
-		std::vector<std::unique_ptr<LayoutElement>> mElements;
-	};
-
-	class Array : public LayoutElement
-	{
-		friend LayoutElement;
-		
-	public:
-		LayoutElement& T() noexcept(!IS_DEBUG) final;
-		const LayoutElement& T() const noexcept(!IS_DEBUG) final;
-		size_t GetOffsetEnd() const noexcept final;
-		std::wstring GetSignature() const noexcept(!IS_DEBUG) final;
-
-		template<typename T>
-		void Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG);
-		bool IndexInBounds(size_t index) const noexcept;
-
-	protected:
-		Array() = default;
-		size_t Finalize(size_t offset) noexcept(!IS_DEBUG) final;
-		size_t ComputeSize() const noexcept(!IS_DEBUG) final;
-
-	private:
-		size_t mSize = 0u;
-		std::unique_ptr<LayoutElement> mElement;
+		std::optional<size_t> mOffset;
+		Type mType = Empty;
+		std::unique_ptr<ExtraDataBase> mExtraData;
 	};
 
 	class Layout
@@ -147,7 +163,6 @@ namespace Dcb
 		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 
 	protected:
-		Layout() noexcept;
 		Layout(std::shared_ptr<LayoutElement> pRoot) noexcept;
 
 	protected:
@@ -159,11 +174,11 @@ namespace Dcb
 		friend class LayoutCodex;
 
 	public:
-		RawLayout() = default;
+		RawLayout() noexcept;
 
 		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 
-		template<typename T>
+		template<Type type>
 		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
 
 	private:
@@ -196,18 +211,14 @@ namespace Dcb
 			friend ConstElementRef;
 
 		public:
-			DCB_PTR_CONVERSION(Matrix, const);
-			DCB_PTR_CONVERSION(Float4, const);
-			DCB_PTR_CONVERSION(Float3, const);
-			DCB_PTR_CONVERSION(Float2, const);
-			DCB_PTR_CONVERSION(Float, const);
-			DCB_PTR_CONVERSION(Bool, const);
+			template<typename T>
+			operator const T*() const noexcept(!IS_DEBUG);
 
 		private:
-			Ptr(ConstElementRef& ref) noexcept;
+			Ptr(const ConstElementRef* ref) noexcept;
 
 		private:
-			ConstElementRef& mRef;
+			const ConstElementRef* mRef;
 		};
 
 	public:
@@ -217,19 +228,15 @@ namespace Dcb
 		Ptr operator&() noexcept(!IS_DEBUG);
 		bool Exists() const noexcept;
 
-		DCB_REF_CONST(Matrix);
-		DCB_REF_CONST(Float4);
-		DCB_REF_CONST(Float3);
-		DCB_REF_CONST(Float2);
-		DCB_REF_CONST(Float);
-		DCB_REF_CONST(Bool);
+		template<typename T>
+		operator const T&() const noexcept(!IS_DEBUG);
 
 	private:
-		ConstElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept;
+		ConstElementRef(const LayoutElement* pLayout, const std::byte* pBytes, size_t offset) noexcept;
 
 	private:
 		const LayoutElement* mLayout;
-		std::byte* mBytes;
+		const std::byte* mBytes;
 		size_t mOffset;
 	};
 
@@ -241,35 +248,30 @@ namespace Dcb
 		class Ptr
 		{
 			friend ElementRef;
+
 		public:
-			DCB_PTR_CONVERSION(Matrix);
-			DCB_PTR_CONVERSION(Float4);
-			DCB_PTR_CONVERSION(Float3);
-			DCB_PTR_CONVERSION(Float2);
-			DCB_PTR_CONVERSION(Float);
-			DCB_PTR_CONVERSION(Bool);
+			template<typename T>
+			operator T* () const noexcept(!IS_DEBUG);
 
 		private:
-			Ptr(ElementRef& ref) noexcept;
+			Ptr(ElementRef* ref) noexcept;
 
 		private:
-			ElementRef& mRef;
+			ElementRef* mRef;
 		};
 
 	public:
-		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
-		ElementRef operator[](size_t index) noexcept(!IS_DEBUG);
+		ElementRef operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
+		ElementRef operator[](size_t index) const noexcept(!IS_DEBUG);
 
-		Ptr operator&() noexcept(!IS_DEBUG);
+		Ptr operator&() const noexcept(!IS_DEBUG);
 		operator ConstElementRef() const noexcept;
 		bool Exists() const noexcept;
 
-		DCB_REF_NONCONST(Matrix);
-		DCB_REF_NONCONST(Float4);
-		DCB_REF_NONCONST(Float3);
-		DCB_REF_NONCONST(Float2);
-		DCB_REF_NONCONST(Float);
-		DCB_REF_NONCONST(Bool);
+		template<typename T>
+		operator T& () const noexcept(!IS_DEBUG);
+		template<typename T>
+		T& operator=(const T& rhs) const noexcept(!IS_DEBUG);
 
 	private:
 		ElementRef(const LayoutElement* pLayout, std::byte* pBytes, size_t offset) noexcept;
@@ -303,57 +305,73 @@ namespace Dcb
 		std::vector<std::byte> mBytes;
 	};
 
-	template<typename T>
-	inline LayoutElement& LayoutElement::Add(const std::wstring& key) noexcept(!IS_DEBUG)
+	template<Type addedType>
+	inline LayoutElement& LayoutElement::Add(std::wstring key) noexcept(!IS_DEBUG)
 	{
-		Struct* ps = dynamic_cast<Struct*>(this);
-		assert(ps != nullptr);
-		struct Enabler : public T {};
-		ps->Add<T>(key, std::make_unique<Enabler>());
-		return *this;
+		return Add(addedType, std::move(key));
 	}
 
-	template<typename T>
+	template<Type addedType>
 	inline LayoutElement& LayoutElement::Set(size_t size) noexcept(!IS_DEBUG)
 	{
-		Array* pa = dynamic_cast<Array*>(this);
-		assert(pa != nullptr);
-		struct Enabler : public T {};
-		pa->Set<T>(std::make_unique<Enabler>(), size);
-		return *this;
+		return Set(addedType, size);
 	}
 
-	// temporary
-	bool ValidateSymbolName(const std::wstring& name) noexcept;
-
 	template<typename T>
-	inline void Struct::Add(const std::wstring& name, std::unique_ptr<LayoutElement> pElement) noexcept(!IS_DEBUG)
+	inline size_t LayoutElement::Resolve() const noexcept(!IS_DEBUG)
 	{
-		assert(ValidateSymbolName(name) && "Invalid symbol name in struct");
-		mElements.push_back(std::move(pElement));
-		if (!mMap.emplace(name, mElements.back().get()).second)
-			assert(false && "Duplicate symbol name in struct");
+		switch (mType)
+		{
+			#define X(el) case el: assert(typeid(Map<el>::SysType) == typeid(T)); return *mOffset;
+			LEAF_ELEMENT_TYPES
+			#undef X
+			default:
+				assert("Tried to resolve non-leaf element" && false);
+				return 0u;
+		}
 	}
 
-	template<typename T>
-	inline void Array::Set(std::unique_ptr<LayoutElement> pElement, size_t size) noexcept(!IS_DEBUG)
-	{
-		mElement = std::move(pElement);
-		mSize = size;
-	}
-
-	template<typename T>
+	template<Type type>
 	inline LayoutElement& RawLayout::Add(const std::wstring& key) noexcept(!IS_DEBUG)
 	{
-		return mRoot->Add<T>(key);
+		return mRoot->Add<type>(key);
+	}
+
+	template<typename T>
+	inline ConstElementRef::Ptr::operator const T* () const noexcept(!IS_DEBUG)
+	{
+		static_assert(ReverseMap<std::remove_const_t<T>>::Valid, "Unsupported SysType used in pointer conversion");
+		return &static_cast<const T&>(*mRef);
+	}
+
+	template<typename T>
+	inline ConstElementRef::operator const T&() const noexcept(!IS_DEBUG)
+	{
+		static_assert(ReverseMap<std::remove_const_t<T>>::Valid, "Unsupported SysType used in conversion");
+		return *reinterpret_cast<const T*>(mBytes + mOffset + mLayout->Resolve<T>());
+	}
+
+	template<typename T>
+	inline ElementRef::Ptr::operator T*() const noexcept(!IS_DEBUG)
+	{
+		static_assert(ReverseMap<std::remove_const_t<T>>::Valid, "Unsupported SysType used in pointer conversion");
+		return &static_cast<T&>(*mRef);
+	}
+
+	template<typename T>
+	inline ElementRef::operator T&() const noexcept(!IS_DEBUG)
+	{
+		static_assert(ReverseMap<std::remove_const_t<T>>::Valid, "Unsupported SysType used in conversion");
+		return *reinterpret_cast<T*>(mBytes + mOffset + mLayout->Resolve<T>());
+	}
+	template<typename T>
+	inline T& ElementRef::operator=(const T& rhs) const noexcept(!IS_DEBUG)
+	{
+		static_assert(ReverseMap<std::remove_const_t<T>>::Valid, "Unsupported SysType used in assignment");
+		return static_cast<T&>(*this) = rhs;
 	}
 }
 
-#undef DCB_RESOLVE_BASE
-#undef DCB_LEAF_ELEMENT_IMPL
-#undef DCB_LEAF_ELEMENT
-#undef DCB_REF_CONVERSION
-#undef DCB_REF_ASSIGN
-#undef DCB_REF_NONCONST
-#undef DCB_REF_CONST
-#undef DCB_PTR_CONVERSION
+#ifndef DCB_IMPL_SOURCE
+#undef LEAF_ELEMENT_TYPES
+#endif
