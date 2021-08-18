@@ -12,7 +12,7 @@ namespace Bind
 		void Bind(const Graphics& gfx) noexcept override;
 
 	private:
-		virtual const Dcb::LayoutElement& GetLayout() const noexcept = 0;
+		virtual const Dcb::LayoutElement& GetLayoutRootElement() const noexcept = 0;
 
 	protected:
 		PixelConstantBufferEx(const Graphics& gfx, const Dcb::LayoutElement& layoutRoot, UINT slot, const Dcb::Buffer* pBuffer);
@@ -28,7 +28,7 @@ namespace Bind
 		CachingPixelConstantBufferEx(const Graphics& gfx, const Dcb::CookedLayout& layout, UINT slot = 0u);
 		CachingPixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot = 0u);
 
-		const Dcb::LayoutElement& GetLayout() const noexcept override;
+		const Dcb::LayoutElement& GetLayoutRootElement() const noexcept override;
 		const Dcb::Buffer& GetBuffer() const noexcept;
 		void SetBuffer(const Dcb::Buffer& buffer);
 		void Bind(const Graphics& gfx) noexcept override;
@@ -44,7 +44,7 @@ namespace Bind
 		NoCachePixelConstantBufferEx(const Graphics& gfx, const Dcb::CookedLayout& layout, UINT slot = 0u);
 		NoCachePixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot = 0u);
 
-		const Dcb::LayoutElement& GetLayout() const noexcept override;
+		const Dcb::LayoutElement& GetLayoutRootElement() const noexcept override;
 
 	private:
 		std::shared_ptr<Dcb::LayoutElement> mLayoutRoot;

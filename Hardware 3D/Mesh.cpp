@@ -354,7 +354,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		layout.Add<Dcb::Float>(L"SpecularPower"s);
 		layout.Add<Dcb::Float3>(L"SpecularColor"s);
 		layout.Add<Dcb::Float>(L"SpecularMapWeight"s);
-		Dcb::Buffer cbuf = Dcb::Buffer::Make(std::move(layout));
+		Dcb::Buffer cbuf = Dcb::Buffer(std::move(layout));
 		cbuf[L"NormalMapEnabled"s] = true;
 		cbuf[L"SpecularMapEnabled"s] = true;
 		cbuf[L"HasGlossMap"s] = false;
@@ -405,7 +405,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		layout.Add<Dcb::Float3>(L"SpecularColor"s);
 		layout.Add<Dcb::Float>(L"SpecularPower"s);
 		layout.Add<Dcb::Bool>(L"NormalMapEnabled"s);
-		Dcb::Buffer cbuf = Dcb::Buffer::Make(std::move(layout));
+		Dcb::Buffer cbuf = Dcb::Buffer(std::move(layout));
 		cbuf[L"SpecularColor"s] = specularColor;
 		cbuf[L"SpecularPower"s] = shininess;
 		cbuf[L"NormalMapEnabled"s] = true;
@@ -449,7 +449,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		layout.Add<Dcb::Float>(L"HasGloss"s);
 		layout.Add<Dcb::Float>(L"SpecularPower"s);
 		layout.Add<Dcb::Float>(L"SpecularMapWeight"s);
-		Dcb::Buffer cbuf = Dcb::Buffer::Make(std::move(layout));
+		Dcb::Buffer cbuf = Dcb::Buffer(std::move(layout));
 		cbuf[L"hasGloss"s] = hasAlphaGloss;
 		cbuf[L"SpecularPower"s] = shininess;
 		cbuf[L"SpecularMapWeight"] = 1.0f;
@@ -492,7 +492,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		Dcb::RawLayout layout;
 		layout.Add<Dcb::Float3>(L"SpecularColor"s);
 		layout.Add<Dcb::Float>(L"SpecularPower"s);
-		Dcb::Buffer cbuf = Dcb::Buffer::Make(std::move(layout));
+		Dcb::Buffer cbuf = Dcb::Buffer(std::move(layout));
 		cbuf[L"SpecularColor"s] = specularColor;
 		cbuf[L"SpecularPower"] = shininess;
 		bindablePtrs.push_back(std::make_shared<CachingPixelConstantBufferEx>(gfx, cbuf));
@@ -533,7 +533,7 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 		layout.Add<Dcb::Float3>(L"MaterialColor"s);
 		layout.Add<Dcb::Float3>(L"SpecularColor"s);
 		layout.Add<Dcb::Float>(L"SpecularPower"s);
-		Dcb::Buffer cbuf = Dcb::Buffer::Make(std::move(layout));
+		Dcb::Buffer cbuf = Dcb::Buffer(std::move(layout));
 		cbuf[L"MaterialColor"s] = diffuseColor;
 		cbuf[L"SpecularColor"s] = specularColor;
 		cbuf[L"SpecularPower"s] = shininess;

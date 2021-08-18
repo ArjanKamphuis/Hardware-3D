@@ -167,8 +167,8 @@ namespace Dcb
 		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
 
 	private:
-		std::shared_ptr<LayoutElement> DeliverRoot() noexcept;
 		void ClearRoot() noexcept;
+		std::shared_ptr<LayoutElement> DeliverRoot() noexcept;
 	};
 
 	class CookedLayout : public Layout
@@ -182,6 +182,7 @@ namespace Dcb
 
 	private:
 		CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept;
+		std::shared_ptr<LayoutElement> RelinquishRoot() noexcept;
 	};
 
 	class ConstElementRef
@@ -282,24 +283,23 @@ namespace Dcb
 	class Buffer
 	{
 	public:
-		static Buffer Make(RawLayout&& layout) noexcept(!IS_DEBUG);
-		static Buffer Make(const CookedLayout& layout) noexcept(!IS_DEBUG);
+		Buffer(RawLayout&& layout) noexcept;
+		Buffer(const CookedLayout& layout) noexcept;
 		Buffer(const Buffer& rhs) noexcept;
+		Buffer(Buffer&& rhs) noexcept;
+
 		ElementRef operator[](const std::wstring& key) noexcept(!IS_DEBUG);
 		ConstElementRef operator[](const std::wstring& key) const noexcept(!IS_DEBUG);
 
 		const std::byte* GetData() const noexcept;
 		size_t GetSizeInBytes() const noexcept;
-		const LayoutElement& GetLayout() const noexcept;
-		std::shared_ptr<LayoutElement> ShareLayout() const noexcept;
+		const LayoutElement& GetLayoutRootElement() const noexcept;
+		std::shared_ptr<LayoutElement> ShareLayoutRoot() const noexcept;
 
 		void CopyFrom(const Buffer& other) noexcept(!IS_DEBUG);
 
 	private:
-		Buffer(const CookedLayout& layout) noexcept;
-
-	private:
-		std::shared_ptr<LayoutElement> mLayout;
+		std::shared_ptr<LayoutElement> mLayoutRoot;
 		std::vector<std::byte> mBytes;
 	};
 

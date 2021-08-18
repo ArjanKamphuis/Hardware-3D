@@ -26,8 +26,8 @@ void TestDynamicConstant()
 		//s.Add<Dcb::Bool>(L"arr"s);
 		//s.Add<Dcb::Bool>(L"69man"s);
 
-		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
-		const std::wstring sig = b.GetLayout().GetSignature();
+		Dcb::Buffer b = Dcb::Buffer(std::move(s));
+		const std::wstring sig = b.GetLayoutRootElement().GetSignature();
 
 		{
 			float exp = 42.0f;
@@ -96,7 +96,7 @@ void TestDynamicConstant()
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Array>(6);
 		s[L"arr"s].T().Set<Dcb::Matrix>(4);
-		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
+		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 4u * 4u * 6u);
@@ -108,7 +108,7 @@ void TestDynamicConstant()
 		s[L"arr"s].Set<Dcb::Struct>(6);
 		s[L"arr"s].T().Add<Dcb::Float2>(L"a"s);
 		s[L"arr"s].T().Add<Dcb::Float3>(L"b"s);
-		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
+		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 2u * 6u);
@@ -118,7 +118,7 @@ void TestDynamicConstant()
 		Dcb::RawLayout s;
 		s.Add<Dcb::Array>(L"arr"s);
 		s[L"arr"s].Set<Dcb::Float3>(6);
-		Dcb::Buffer b = Dcb::Buffer::Make(std::move(s));
+		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
 		assert(act == 16u * 6u);
@@ -133,10 +133,10 @@ void TestDynamicConstant()
 		s.Add<Dcb::Float>(L"arr"s);
 		//cooked[L"arr"s].Add<Dcb::Float>(L"buttman"s);
 
-		Dcb::Buffer b1 = Dcb::Buffer::Make(cooked);
+		Dcb::Buffer b1 = Dcb::Buffer(cooked);
 		b1[L"arr"s][0] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
 
-		Dcb::Buffer b2 = Dcb::Buffer::Make(cooked);
+		Dcb::Buffer b2 = Dcb::Buffer(cooked);
 		b2[L"arr"s][0] = XMFLOAT3{ 420.0f, 0.0f, 0.0f };
 
 		assert(static_cast<XMFLOAT3>(b1[L"arr"s][0]).x == 69.0f);

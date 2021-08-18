@@ -6,7 +6,7 @@ namespace Bind
 {
 	void PixelConstantBufferEx::Update(const Graphics& gfx, const Dcb::Buffer& buffer)
 	{
-		assert(&buffer.GetLayout() == &GetLayout());
+		assert(&buffer.GetLayoutRootElement() == &GetLayoutRootElement());
 
 		INFOMAN(gfx);
 		D3D11_MAPPED_SUBRESOURCE msr;
@@ -42,18 +42,18 @@ namespace Bind
 	}
 
 	CachingPixelConstantBufferEx::CachingPixelConstantBufferEx(const Graphics& gfx, const Dcb::CookedLayout& layout, UINT slot)
-		: PixelConstantBufferEx(gfx, *layout.ShareRoot(), slot, nullptr), mBuffer(Dcb::Buffer::Make(layout))
+		: PixelConstantBufferEx(gfx, *layout.ShareRoot(), slot, nullptr), mBuffer(Dcb::Buffer(layout))
 	{
 	}
 
 	CachingPixelConstantBufferEx::CachingPixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot)
-		: PixelConstantBufferEx(gfx, buffer.GetLayout(),  slot, &buffer), mBuffer(buffer)
+		: PixelConstantBufferEx(gfx, buffer.GetLayoutRootElement(),  slot, &buffer), mBuffer(buffer)
 	{
 	}
 
-	const Dcb::LayoutElement& CachingPixelConstantBufferEx::GetLayout() const noexcept
+	const Dcb::LayoutElement& CachingPixelConstantBufferEx::GetLayoutRootElement() const noexcept
 	{
-		return mBuffer.GetLayout();
+		return mBuffer.GetLayoutRootElement();
 	}
 
 	const Dcb::Buffer& CachingPixelConstantBufferEx::GetBuffer() const noexcept
@@ -83,11 +83,11 @@ namespace Bind
 	}
 
 	NoCachePixelConstantBufferEx::NoCachePixelConstantBufferEx(const Graphics& gfx, const Dcb::Buffer& buffer, UINT slot)
-		: PixelConstantBufferEx(gfx, buffer.GetLayout(), slot, &buffer), mLayoutRoot(buffer.ShareLayout())
+		: PixelConstantBufferEx(gfx, buffer.GetLayoutRootElement(), slot, &buffer), mLayoutRoot(buffer.ShareLayoutRoot())
 	{
 	}
 
-	const Dcb::LayoutElement& NoCachePixelConstantBufferEx::GetLayout() const noexcept
+	const Dcb::LayoutElement& NoCachePixelConstantBufferEx::GetLayoutRootElement() const noexcept
 	{
 		return *mLayoutRoot;
 	}

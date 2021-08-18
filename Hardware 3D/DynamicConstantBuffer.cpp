@@ -279,17 +279,17 @@ namespace Dcb
         return (*mRoot)[key];
     }
 
+    void RawLayout::ClearRoot() noexcept
+    {
+        *this = RawLayout();
+    }
+
     std::shared_ptr<LayoutElement> RawLayout::DeliverRoot() noexcept
     {
         auto temp = std::move(mRoot);
         temp->Finalize(0u);
         ClearRoot();
         return std::move(temp);
-    }
-
-    void RawLayout::ClearRoot() noexcept
-    {
-        *this = RawLayout();
     }
 
 
@@ -306,6 +306,11 @@ namespace Dcb
     CookedLayout::CookedLayout(std::shared_ptr<LayoutElement> pRoot) noexcept
         : Layout(std::move(pRoot))
     {
+    }
+
+    std::shared_ptr<LayoutElement> CookedLayout::RelinquishRoot() noexcept
+    {
+        return std::move(mRoot);
     }
 
 
@@ -414,24 +419,29 @@ namespace Dcb
 
     
 
-    Buffer Buffer::Make(RawLayout&& layout) noexcept(!IS_DEBUG)
+    Buffer::Buffer(RawLayout&& layout) noexcept
+        : Buffer(LayoutCodex::Resolve(std::move(layout)))
     {
-        return { LayoutCodex::Resolve(std::move(layout)) };
     }
 
-    Buffer Buffer::Make(const CookedLayout& layout) noexcept(!IS_DEBUG)
+    Buffer::Buffer(const CookedLayout& layout) noexcept
+        : mLayoutRoot(layout.ShareRoot()), mBytes(mLayoutRoot->GetOffsetEnd())
     {
-        return { layout.ShareRoot() };
     }
 
     Buffer::Buffer(const Buffer& rhs) noexcept
-        : mLayout(rhs.ShareLayout()), mBytes(rhs.mBytes)
+        : mLayoutRoot(rhs.mLayoutRoot), mBytes(rhs.mBytes)
+    {
+    }
+
+    Buffer::Buffer(Buffer&& rhs) noexcept
+        : mLayoutRoot(std::move(rhs.mLayoutRoot)), mBytes(std::move(rhs.mBytes))
     {
     }
 
     ElementRef Buffer::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
-        return { &(*mLayout)[key], mBytes.data(), 0u };
+        return { &GetLayoutRootElement()[key], mBytes.data(), 0u };
     }
 
     ConstElementRef Buffer::operator[](const std::wstring& key) const noexcept(!IS_DEBUG)
@@ -449,25 +459,20 @@ namespace Dcb
         return mBytes.size();
     }
 
-    const LayoutElement& Buffer::GetLayout() const noexcept
+    const LayoutElement& Buffer::GetLayoutRootElement() const noexcept
     {
-        return *mLayout;
+        return *mLayoutRoot;
     }
 
-    std::shared_ptr<LayoutElement> Buffer::ShareLayout() const noexcept
+    std::shared_ptr<LayoutElement> Buffer::ShareLayoutRoot() const noexcept
     {
-        return mLayout;
+        return mLayoutRoot;
     }
 
     void Buffer::CopyFrom(const Buffer& other) noexcept(!IS_DEBUG)
     {
-        assert(&GetLayout() == &other.GetLayout());
+        assert(&GetLayoutRootElement() == &other.GetLayoutRootElement());
         std::copy(other.mBytes.begin(), other.mBytes.end(), mBytes.begin());
-    }
-
-    Buffer::Buffer(const CookedLayout& layout) noexcept
-        : mLayout(layout.ShareRoot()), mBytes(mLayout->GetOffsetEnd())
-    {
     }
 
     // temporary
