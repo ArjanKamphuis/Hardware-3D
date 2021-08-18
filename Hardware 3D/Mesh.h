@@ -27,25 +27,6 @@ class Node
 	friend class Model;
 
 public:
-	struct PSMaterialNormSpec
-	{
-		BOOL  NormalMapEnabled = TRUE;
-		BOOL  SpecularMapEnabled = TRUE;
-		BOOL  HasGlossMap = FALSE;
-		float SpecularPower = 3.1f;
-		DirectX::XMFLOAT3 SpecularColor = { 0.75f, 0.75f, 0.75f };
-		float SpecularMapWeight = 0.309f;
-	};
-
-	struct PSMaterialNoTexture
-	{
-		DirectX::XMFLOAT3 MaterialColor = { 0.819608f, 0.576471f, 0.274510f };
-		float Padding = 0.0f;
-		DirectX::XMFLOAT3 SpecularColor = { 1.0f, 0.972549f, 0.423529f };
-		float SpecularPower = 3.25f;
-	};
-
-public:
 	Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
 	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	void XM_CALLCONV SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
@@ -53,7 +34,7 @@ public:
 	void ShowTree(Node*& pSelectedNode) const noexcept;
 	int GetId() const noexcept;
 
-	template<class PSMaterial>
+	/*template<class PSMaterial>
 	bool ShowExtraControls(const Graphics& gfx, PSMaterial& material)
 	{
 		if (mMeshPtrs.empty()) return false;
@@ -100,7 +81,7 @@ public:
 		}
 
 		return false;
-	}
+	}*/
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);

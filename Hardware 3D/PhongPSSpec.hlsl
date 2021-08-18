@@ -1,7 +1,7 @@
 cbuffer ObjectBuffer : register(b0)
 {
 	bool gHasGloss;
-	float gSpecularPowerConst;
+	float gSpecularPower;
 	float gSpecularMapWeight;
 	float gObjectPad;
 }
@@ -22,7 +22,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 	
 	const float4 specularSample = gSpecMap.Sample(gSampler, texC);
 	const float3 specularReflectionColor = specularSample.rgb * gSpecularMapWeight;
-	const float specularPower = gHasGloss ? pow(2.0f, specularSample.a * 13.0f) : gSpecularPowerConst;
+	const float specularPower = gHasGloss ? pow(2.0f, specularSample.a * 13.0f) : gSpecularPower;
 
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
 	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
