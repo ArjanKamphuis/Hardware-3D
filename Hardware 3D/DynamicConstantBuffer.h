@@ -119,13 +119,8 @@ namespace Dcb
 		size_t GetSizeInBytes() const noexcept(!IS_DEBUG);
 		std::wstring GetSignature() const noexcept(!IS_DEBUG);
 
-		LayoutElement& Add(Type addedType, std::wstring name) noexcept(!IS_DEBUG);
-		template<Type addedType>
-		LayoutElement& Add(std::wstring key) noexcept(!IS_DEBUG);
-
-		LayoutElement& Set(Type addedType, size_t size) noexcept(!IS_DEBUG);
-		template<Type addedType>
-		LayoutElement& Set(size_t size) noexcept(!IS_DEBUG);
+		LayoutElement& Add(Type type, std::wstring name) noexcept(!IS_DEBUG);
+		LayoutElement& Set(Type type, size_t size) noexcept(!IS_DEBUG);
 
 		template<typename T>
 		size_t Resolve() const noexcept(!IS_DEBUG);
@@ -175,11 +170,8 @@ namespace Dcb
 
 	public:
 		RawLayout() noexcept;
-
 		LayoutElement& operator[](const std::wstring& key) noexcept(!IS_DEBUG);
-
-		template<Type type>
-		LayoutElement& Add(const std::wstring& key) noexcept(!IS_DEBUG);
+		LayoutElement& Add(Type type, const std::wstring& key) noexcept(!IS_DEBUG);
 
 	private:
 		void ClearRoot() noexcept;
@@ -307,18 +299,6 @@ namespace Dcb
 		std::vector<std::byte> mBytes;
 	};
 
-	template<Type addedType>
-	inline LayoutElement& LayoutElement::Add(std::wstring key) noexcept(!IS_DEBUG)
-	{
-		return Add(addedType, std::move(key));
-	}
-
-	template<Type addedType>
-	inline LayoutElement& LayoutElement::Set(size_t size) noexcept(!IS_DEBUG)
-	{
-		return Set(addedType, size);
-	}
-
 	template<typename T>
 	inline size_t LayoutElement::Resolve() const noexcept(!IS_DEBUG)
 	{
@@ -331,12 +311,6 @@ namespace Dcb
 				assert("Tried to resolve non-leaf element" && false);
 				return 0u;
 		}
-	}
-
-	template<Type type>
-	inline LayoutElement& RawLayout::Add(const std::wstring& key) noexcept(!IS_DEBUG)
-	{
-		return mRoot->Add<type>(key);
 	}
 
 	template<typename T>

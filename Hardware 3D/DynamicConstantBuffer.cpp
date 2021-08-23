@@ -106,7 +106,7 @@ namespace Dcb
         }
     }
 
-    LayoutElement& LayoutElement::Add(Type addedType, std::wstring name) noexcept(!IS_DEBUG)
+    LayoutElement& LayoutElement::Add(Type type, std::wstring name) noexcept(!IS_DEBUG)
     {
         assert("Add to non-struct in layout" && mType == Type::Struct);
         assert("Invalid symbol name in struct" && ValidateSymbolName(name));
@@ -114,16 +114,16 @@ namespace Dcb
         for (auto& mem : structData.LayoutElements)
             if (mem.first == name)
                 assert("Adding duplicate name to struct" && false);
-        structData.LayoutElements.emplace_back(std::move(name), LayoutElement{ addedType });
+        structData.LayoutElements.emplace_back(std::move(name), LayoutElement{ type });
         return *this;
     }
 
-    LayoutElement& LayoutElement::Set(Type addedType, size_t size) noexcept(!IS_DEBUG)
+    LayoutElement& LayoutElement::Set(Type type, size_t size) noexcept(!IS_DEBUG)
     {
         assert("Set on non-array in layout" && mType == Type::Array);
         assert(size != 0u);
         ExtraData::Array& arrayData = static_cast<ExtraData::Array&>(*mExtraData);
-        arrayData.LayoutElement = { addedType };
+        arrayData.LayoutElement = { type };
         arrayData.Size = size;
         return *this;
     }
@@ -250,6 +250,11 @@ namespace Dcb
     LayoutElement& RawLayout::operator[](const std::wstring& key) noexcept(!IS_DEBUG)
     {
         return (*mRoot)[key];
+    }
+
+    LayoutElement& RawLayout::Add(Type type, const std::wstring& key) noexcept(!IS_DEBUG)
+    {
+        return mRoot->Add(type, key);
     }
 
     void RawLayout::ClearRoot() noexcept

@@ -11,20 +11,20 @@ void TestDynamicConstant()
 	// data roundtrip tests
 	{
 		Dcb::RawLayout s;
-		s.Add<Dcb::Type::Struct>(L"butts"s);
-		s[L"butts"s].Add<Dcb::Type::Float3>(L"pubes"s).Add<Dcb::Type::Float>(L"dank"s);
-		s.Add<Dcb::Type::Float>(L"woot"s).Add<Dcb::Type::Array>(L"arr"s);
-		s[L"arr"s].Set<Dcb::Type::Struct>(4);
-		s[L"arr"s].T().Add<Dcb::Type::Float3>(L"twerk"s);
-		s[L"arr"s].T().Add<Dcb::Type::Array>(L"werk"s);
-		s[L"arr"s].T()[L"werk"s].Set<Dcb::Type::Float>(6);
-		s[L"arr"s].T().Add<Dcb::Type::Array>(L"meta"s);
-		s[L"arr"s].T()[L"meta"s].Set<Dcb::Type::Array>(6);
-		s[L"arr"s].T()[L"meta"s].T().Set<Dcb::Type::Matrix>(4);
-		s[L"arr"s].T().Add<Dcb::Type::Bool>(L"booler"s);
+		s.Add(Dcb::Type::Struct, L"butts"s);
+		s[L"butts"s].Add(Dcb::Type::Float3, L"pubes"s).Add(Dcb::Type::Float, L"dank"s);
+		s.Add(Dcb::Type::Float, L"woot"s).Add(Dcb::Type::Array, L"arr"s);
+		s[L"arr"s].Set(Dcb::Type::Struct, 4);
+		s[L"arr"s].T().Add(Dcb::Type::Float3, L"twerk"s);
+		s[L"arr"s].T().Add(Dcb::Type::Array, L"werk"s);
+		s[L"arr"s].T()[L"werk"s].Set(Dcb::Type::Float, 6);
+		s[L"arr"s].T().Add(Dcb::Type::Array, L"meta"s);
+		s[L"arr"s].T()[L"meta"s].Set(Dcb::Type::Array, 6);
+		s[L"arr"s].T()[L"meta"s].T().Set(Dcb::Type::Matrix, 4);
+		s[L"arr"s].T().Add(Dcb::Type::Bool, L"booler"s);
 
-		//s.Add<Dcb::Type::Bool>(L"arr"s);
-		//s.Add<Dcb::Type::Bool>(L"69man"s);
+		//s.Add(Dcb::Type::Bool, L"arr"s);
+		//s.Add(Dcb::Type::Bool, L"69man"s);
 
 		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 		//b[L"woot"s] = L"#"s;
@@ -95,16 +95,16 @@ void TestDynamicConstant()
 			XMFLOAT4X4 act = cb[L"arr"s][2][L"meta"s][5][3];
 			assert(act._11 == 1.0f);
 			//cb[L"arr"s][2][L"booler"s] = true;
-			//static_cast<bool&>(cb[L"arr"s][2][L"booler"s]) = true;
+			//static_cast<bool&, cb[L"arr"s][2][L"booler"s]) = true;
 			//cb[L"arr"s][200];
 		}
 	}
 	// size test array of arrays
 	{
 		Dcb::RawLayout s;
-		s.Add<Dcb::Type::Array>(L"arr"s);
-		s[L"arr"s].Set<Dcb::Type::Array>(6);
-		s[L"arr"s].T().Set<Dcb::Type::Matrix>(4);
+		s.Add(Dcb::Type::Array, L"arr"s);
+		s[L"arr"s].Set(Dcb::Type::Array, 6);
+		s[L"arr"s].T().Set(Dcb::Type::Matrix, 4);
 		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
@@ -113,10 +113,10 @@ void TestDynamicConstant()
 	// size test array of structs with padding
 	{
 		Dcb::RawLayout s;
-		s.Add<Dcb::Type::Array>(L"arr"s);
-		s[L"arr"s].Set<Dcb::Type::Struct>(6);
-		s[L"arr"s].T().Add<Dcb::Type::Float2>(L"a"s);
-		s[L"arr"s].T().Add<Dcb::Type::Float3>(L"b"s);
+		s.Add(Dcb::Type::Array, L"arr"s);
+		s[L"arr"s].Set(Dcb::Type::Struct, 6);
+		s[L"arr"s].T().Add(Dcb::Type::Float2, L"a"s);
+		s[L"arr"s].T().Add(Dcb::Type::Float3, L"b"s);
 		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
@@ -125,8 +125,8 @@ void TestDynamicConstant()
 	// size test array of primitive that needs padding
 	{
 		Dcb::RawLayout s;
-		s.Add<Dcb::Type::Array>(L"arr"s);
-		s[L"arr"s].Set<Dcb::Type::Float3>(6);
+		s.Add(Dcb::Type::Array, L"arr"s);
+		s[L"arr"s].Set(Dcb::Type::Float3, 6);
 		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 
 		size_t act = b.GetSizeInBytes();
@@ -135,12 +135,12 @@ void TestDynamicConstant()
 	// testing CookedLayout
 	{
 		Dcb::RawLayout s;
-		s.Add<Dcb::Type::Array>(L"arr"s);
-		s[L"arr"s].Set<Dcb::Type::Float3>(6);
+		s.Add(Dcb::Type::Array, L"arr"s);
+		s[L"arr"s].Set(Dcb::Type::Float3, 6);
 		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(s));
 
-		s.Add<Dcb::Type::Float>(L"arr"s);
-		//cooked[L"arr"s].Add<Dcb::Type::Float>(L"buttman"s);
+		s.Add(Dcb::Type::Float, L"arr"s);
+		//cooked[L"arr"s].Add(Dcb::Type::Float, L"buttman"s);
 
 		Dcb::Buffer b1 = Dcb::Buffer(cooked);
 		b1[L"arr"s][0] = XMFLOAT3{ 69.0f, 0.0f, 0.0f };
@@ -154,37 +154,37 @@ void TestDynamicConstant()
 	// specific testing scenario (packing error)
 	{
 		Dcb::RawLayout pscLayout;
-		pscLayout.Add<Dcb::Type::Float3>(L"MaterialColor"s);
-		pscLayout.Add<Dcb::Type::Float3>(L"SpecularColor"s);
-		pscLayout.Add<Dcb::Type::Float>(L"SpecularWeight"s);
-		pscLayout.Add<Dcb::Type::Float>(L"SpecularGloss"s);
+		pscLayout.Add(Dcb::Type::Float3, L"MaterialColor"s);
+		pscLayout.Add(Dcb::Type::Float3, L"SpecularColor"s);
+		pscLayout.Add(Dcb::Type::Float, L"SpecularWeight"s);
+		pscLayout.Add(Dcb::Type::Float, L"SpecularGloss"s);
 		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
 		assert(cooked.GetSizeInBytes() == 48u);
 	}
 	// array non-packing
 	{
 		Dcb::RawLayout pscLayout;
-		pscLayout.Add<Dcb::Type::Array>(L"arr"s);
-		pscLayout[L"arr"s].Set<Dcb::Type::Float>(10u);
+		pscLayout.Add(Dcb::Type::Array, L"arr"s);
+		pscLayout[L"arr"s].Set(Dcb::Type::Float, 10u);
 		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
 		assert(cooked.GetSizeInBytes() == 160u);
 	}
 	// array of struct w/ padding
 	{
 		Dcb::RawLayout pscLayout;
-		pscLayout.Add<Dcb::Type::Array>(L"arr"s);
-		pscLayout[L"arr"s].Set<Dcb::Type::Struct>(10u);
-		pscLayout[L"arr"s].T().Add<Dcb::Type::Float3>(L"x"s);
-		pscLayout[L"arr"s].T().Add<Dcb::Type::Float2>(L"y"s);
+		pscLayout.Add(Dcb::Type::Array, L"arr"s);
+		pscLayout[L"arr"s].Set(Dcb::Type::Struct, 10u);
+		pscLayout[L"arr"s].T().Add(Dcb::Type::Float3, L"x"s);
+		pscLayout[L"arr"s].T().Add(Dcb::Type::Float2, L"y"s);
 		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
 		assert(cooked.GetSizeInBytes() == 320u);
 	}
 	// testing pointer stuff
 	{
 		Dcb::RawLayout s;
-		s.Add<Dcb::Type::Struct>(L"butts"s);
-		s[L"butts"s].Add<Dcb::Type::Float3>(L"pubes"s);
-		s[L"butts"s].Add<Dcb::Type::Float>(L"dank"s);
+		s.Add(Dcb::Type::Struct, L"butts"s);
+		s[L"butts"s].Add(Dcb::Type::Float3, L"pubes"s);
+		s[L"butts"s].Add(Dcb::Type::Float, L"dank"s);
 
 		Dcb::Buffer b = Dcb::Buffer(std::move(s));
 		const float exp = 696969.6969f;
@@ -198,12 +198,12 @@ void TestDynamicConstant()
 	// specific testing scenario (packing error)
 	{
 		Dcb::RawLayout pscLayout;
-		pscLayout.Add<Dcb::Type::Bool>(L"NormalMapEnabled"s);
-		pscLayout.Add<Dcb::Type::Bool>(L"SpecularMapEnabled"s);
-		pscLayout.Add<Dcb::Type::Bool>(L"HasGlossMap"s);
-		pscLayout.Add<Dcb::Type::Float>(L"SpecularPower"s);
-		pscLayout.Add<Dcb::Type::Float3>(L"SpecularColor"s);
-		pscLayout.Add<Dcb::Type::Float>(L"SpecularMapWeight"s);
+		pscLayout.Add(Dcb::Type::Bool, L"NormalMapEnabled"s);
+		pscLayout.Add(Dcb::Type::Bool, L"SpecularMapEnabled"s);
+		pscLayout.Add(Dcb::Type::Bool, L"HasGlossMap"s);
+		pscLayout.Add(Dcb::Type::Float, L"SpecularPower"s);
+		pscLayout.Add(Dcb::Type::Float3, L"SpecularColor"s);
+		pscLayout.Add(Dcb::Type::Float, L"SpecularMapWeight"s);
 		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
 		assert(cooked.GetSizeInBytes() == 32u);
 	}
