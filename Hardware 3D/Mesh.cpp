@@ -14,20 +14,10 @@ using namespace ChiliXM;
 using namespace std::string_literals;
 using ChiliUtil::ToWide;
 
-Mesh::Mesh(const Graphics& gfx, std::vector<std::shared_ptr<Bindable>> bindPtrs)
-{
-	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-
-	for (auto& pb : bindPtrs)
-		AddBind(std::move(pb));
-
-	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
-}
-
-void XM_CALLCONV Mesh::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
+void XM_CALLCONV Mesh::Submit(FrameCommander& frame, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 {
 	XMStoreFloat4x4(&mTransform, accumulatedTransform);
-	Drawable::Draw(gfx);
+	Drawable::Submit(frame);
 }
 
 XMMATRIX XM_CALLCONV Mesh::GetTransformMatrix() const noexcept
@@ -42,14 +32,14 @@ Node::Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, CXMMATR
 	XMStoreFloat4x4(&mAppliedTransform, XMMatrixIdentity());
 }
 
-void XM_CALLCONV Node::Draw(const Graphics& gfx, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
+void XM_CALLCONV Node::Submit(FrameCommander& frame, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 {
 	const XMMATRIX built = XMLoadFloat4x4(&mAppliedTransform) * XMLoadFloat4x4(&mTransform) * accumulatedTransform;
 
 	for (const Mesh* const pm : mMeshPtrs)
-		pm->Draw(gfx, built);
+		pm->Submit(frame, built);
 	for (const auto& pc : mChildPtrs)
-		pc->Draw(gfx, built);
+		pc->Submit(frame, built);
 }
 
 void XM_CALLCONV Node::SetAppliedTransform(FXMMATRIX transform) noexcept
@@ -88,17 +78,17 @@ int Node::GetId() const noexcept
 	return mId;
 }
 
-const Dcb::Buffer* Node::GetMaterialConstants() const noexcept(!IS_DEBUG)
-{
-	return mMeshPtrs.size() == 0 ? nullptr : &(mMeshPtrs.front()->QueryBindable<CachingPixelConstantBufferEx>()->GetBuffer());
-}
-
-void Node::SetMaterialConstants(const Dcb::Buffer& buffer) noexcept(!IS_DEBUG)
-{
-	auto pcb = mMeshPtrs.front()->QueryBindable<CachingPixelConstantBufferEx>();
-	assert(pcb != nullptr);
-	pcb->SetBuffer(buffer);
-}
+//const Dcb::Buffer* Node::GetMaterialConstants() const noexcept(!IS_DEBUG)
+//{
+//	return mMeshPtrs.size() == 0 ? nullptr : &(mMeshPtrs.front()->QueryBindable<CachingPixelConstantBufferEx>()->GetBuffer());
+//}
+//
+//void Node::SetMaterialConstants(const Dcb::Buffer& buffer) noexcept(!IS_DEBUG)
+//{
+//	auto pcb = mMeshPtrs.front()->QueryBindable<CachingPixelConstantBufferEx>();
+//	assert(pcb != nullptr);
+//	pcb->SetBuffer(buffer);
+//}
 
 void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)
 {
@@ -128,7 +118,7 @@ private:
 public:
 	void Show(const Graphics& gfx, const char* windowName, const Node& root) noexcept
 	{
-		windowName = windowName ? windowName : "Model";
+		/*windowName = windowName ? windowName : "Model";
 
 		if (ImGui::Begin(windowName))
 		{
@@ -191,11 +181,11 @@ public:
 				}
 			}
 		}
-		ImGui::End();
+		ImGui::End();*/
 	}
 	void ApplyParameters() noexcept(!IS_DEBUG)
 	{
-		if (TransformDirty())
+		/*if (TransformDirty())
 		{
 			mSelectedNode->SetAppliedTransform(GetTransform());
 			ResetTransformDirty();
@@ -204,7 +194,7 @@ public:
 		{
 			mSelectedNode->SetMaterialConstants(GetMaterial());
 			ResetMaterialDirty();
-		}
+		}*/
 	}
 private:
 	XMMATRIX XM_CALLCONV GetTransform() const noexcept
@@ -265,10 +255,10 @@ Model::~Model() noexcept
 {
 }
 
-void Model::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
+void Model::Submit(FrameCommander& frame) const noexcept(!IS_DEBUG)
 {
 	mWindow->ApplyParameters();
-	mRoot->Draw(gfx, XMMatrixIdentity());
+	mRoot->Submit(frame, XMMatrixIdentity());
 }
 
 void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
@@ -578,7 +568,8 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	bindablePtrs.push_back(Blender::Resolve(gfx, false));
 	bindablePtrs.push_back(Stencil::Resolve(gfx, Stencil::Mode::Off));
 
-	return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
+	//return std::make_unique<Mesh>(gfx, std::move(bindablePtrs));
+	return {};
 }
 
 std::unique_ptr<Node> Model::ParseNode(int& nextId, const aiNode& node) noexcept

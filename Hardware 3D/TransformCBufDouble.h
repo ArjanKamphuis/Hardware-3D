@@ -2,7 +2,7 @@
 
 #include "TransformCBuf.h"
 
-namespace Bind
+/*namespace Bind
 {
 	class TransformCBufDouble : public TransformCBuf
 	{
@@ -16,4 +16,4 @@ namespace Bind
 	private:
 		static std::unique_ptr<PixelConstantBuffer<Transforms>> mPCBuffer;
 	};
-}
+}*/

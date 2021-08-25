@@ -13,6 +13,8 @@ namespace Bind
 		VertexBuffer(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf);
 		void Bind(const Graphics& gfx) noexcept override;
 
+		const Dvtx::VertexLayout& GetLayout() const noexcept;
+
 		static std::shared_ptr<VertexBuffer> Resolve(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf);
 		template<typename ...Ignore>
 		static std::wstring GenerateUID(const std::wstring& tag, Ignore&& ...ignore)
@@ -29,5 +31,6 @@ namespace Bind
 		UINT mStride;
 		UINT mOffset = 0u;
 		Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
+		Dvtx::VertexLayout mLayout;
 	};
 }

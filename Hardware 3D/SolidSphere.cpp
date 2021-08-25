@@ -13,23 +13,26 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	model.Transform(XMMatrixScaling(mRadius, mRadius, mRadius));
 
 	const std::wstring geoTag = L"$sphere." + std::to_wstring(mRadius);
-	AddBind(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
-	AddBind(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
+	mVertexBuffer = VertexBuffer::Resolve(gfx, geoTag, model.Vertices);
+	mIndexBuffer = IndexBuffer::Resolve(gfx, geoTag, model.Indices);
+	mTopology = Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	AddBind(PixelShader::Resolve(gfx, L"SolidPS.cso"));
-	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
+	Technique solid;
+	Step only(0u);
 
 	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
-	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
-	AddBind(std::move(pVS));
+	only.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
+	only.AddBindable(std::move(pVS));
 
-	AddBind(std::make_shared<TransformCBuf>(gfx, *this));
+	only.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+	only.AddBindable(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
+	only.AddBindable(std::make_shared<TransformCBuf>(gfx));
 
-	AddBind(Blender::Resolve(gfx, false));
-	AddBind(Rasterizer::Resolve(gfx, false));
+	only.AddBindable(Blender::Resolve(gfx, false));
+	only.AddBindable(Rasterizer::Resolve(gfx, false));
 
-	AddBind(Stencil::Resolve(gfx, Stencil::Mode::Off));
+	solid.AddStep(std::move(only));
+	AddTechnique(std::move(solid));
 }
 
 void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept
@@ -40,7 +43,7 @@ void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept
 void XM_CALLCONV SolidSphere::SetColor(const Graphics& gfx, FXMVECTOR color) noexcept
 {
 	XMStoreFloat3(&mMaterial.Color, color);
-	QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);
+	//QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);
 }
 
 XMMATRIX XM_CALLCONV SolidSphere::GetTransformMatrix() const noexcept

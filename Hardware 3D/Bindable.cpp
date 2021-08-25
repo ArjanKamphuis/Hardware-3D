@@ -4,6 +4,9 @@
 
 namespace Bind
 {
+    void Bindable::InitializeParentReference(const Drawable& parent) noexcept
+    {
+    }
     std::wstring Bindable::GetUID() const noexcept
     {
         assert(false);

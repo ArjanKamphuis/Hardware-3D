@@ -11,6 +11,8 @@ App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
 	TestDynamicConstant();
+	mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
+	mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
@@ -112,19 +114,20 @@ void App::DoFrame(float dt)
 	//mPlane.Draw(gfx);
 	//mNano.Draw(gfx);
 	//mGobber.Draw(gfx);
-	mLight.Draw(gfx);
-	mSponza.Draw(gfx);
+	mLight.Submit(mFrameCommander);
+	//mSponza.Draw(gfx);
 	//mBluePlane.Draw(gfx);
 	//mRedPlane.Draw(gfx);
-	mCube.Draw(gfx);
-	mCube2.Draw(gfx);
-	mCube.DrawOutline(gfx);
-	mCube2.DrawOutline(gfx);
+	mCube.Submit(mFrameCommander);
+	mCube2.Submit(mFrameCommander);
+
+	mFrameCommander.Execute(gfx);
 
 	if (gfx.IsImguiEnabled())
 		DoImGui(gfx);
 	
 	gfx.EndFrame();
+	mFrameCommander.Reset();
 }
 
 void App::DoImGui(const Graphics& gfx) noexcept
@@ -135,7 +138,7 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mPlane.SpawnControlWindow(gfx);
 	//mNano.ShowWindow(gfx, "Nano");
 	//mGobber.ShowWindow(gfx, "Gobber");
-	mSponza.ShowWindow(gfx, "Sponza");
+	//mSponza.ShowWindow(gfx, "Sponza");
 	//mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
 	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
 	mCube.SpawnControlWindow(gfx, "Cube1");

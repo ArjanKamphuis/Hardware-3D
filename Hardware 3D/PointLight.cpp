@@ -1,5 +1,7 @@
 #include "PointLight.h"
+
 #include "imgui/imgui.h"
+#include "FrameCommander.h"
 
 using namespace DirectX;
 
@@ -46,11 +48,11 @@ void PointLight::Reset() noexcept
 	};
 }
 
-void PointLight::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
+void PointLight::Submit(FrameCommander& frame) const noexcept(!IS_DEBUG)
 {
 	mMesh.SetPosition(XMLoadFloat3(&mBufferData.LightPosition));
-	mMesh.SetColor(gfx, XMLoadFloat3(&mBufferData.DiffuseColor));
-	mMesh.Draw(gfx);
+	//mMesh.SetColor(gfx, XMLoadFloat3(&mBufferData.DiffuseColor));
+	mMesh.Submit(frame);
 }
 
 void PointLight::Bind(const Graphics& gfx) const noexcept

@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Graphics.h"
+#include "Technique.h"
 
 namespace Bind
 {
-	class Bindable;
 	class IndexBuffer;
+	class InputLayout;
+	class Topology;
+	class VertexBuffer;
 }
 
 class Drawable
@@ -16,22 +19,16 @@ public:
 	Drawable& operator=(const Drawable&) = delete;
 	virtual ~Drawable() = default;
 
-	void Draw(const Graphics & gfx) const noexcept(!IS_DEBUG);
+	void AddTechnique(Technique technique) noexcept;
+	void Submit(class FrameCommander& frame) const noexcept;
+	void Bind(const Graphics& gfx) const noexcept;
+	UINT GetIndexCount() const noexcept(!IS_DEBUG);
+
 	virtual DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept = 0;
 
-	template<class T>
-	T* QueryBindable() noexcept
-	{
-		for (auto& pBind : mBinds)
-			if (auto pt = dynamic_cast<T*>(pBind.get()))
-				return pt;
-		return nullptr;
-	}
-
 protected:
-	void AddBind(std::shared_ptr<Bind::Bindable> bind) noexcept(!IS_DEBUG);
-
-private:
-	const Bind::IndexBuffer* mIndexBuffer = nullptr;
-	std::vector<std::shared_ptr<Bind::Bindable>> mBinds;
+	std::shared_ptr<Bind::IndexBuffer> mIndexBuffer;
+	std::shared_ptr<Bind::Topology> mTopology;
+	std::shared_ptr<Bind::VertexBuffer> mVertexBuffer;
+	std::vector<Technique> mTechniques;
 };

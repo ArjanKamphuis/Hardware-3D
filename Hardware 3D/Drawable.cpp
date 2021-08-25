@@ -1,25 +1,30 @@
 #include "Drawable.h"
 
-#include <cassert>
-#include <typeinfo>
+#include "BindableCommon.h"
 #include "GraphicsThrowMacros.h"
-#include "IndexBuffer.h"
 
 using namespace Bind;
 
-void Drawable::Draw(const Graphics& gfx) const noexcept(!IS_DEBUG)
+void Drawable::AddTechnique(Technique technique) noexcept
 {
-	for (auto& b : mBinds)
-		b->Bind(gfx);
-	gfx.DrawIndexed(mIndexBuffer->GetCount());
+	technique.InitializeParentReferences(*this);
+	mTechniques.push_back(std::move(technique));
 }
 
-void Drawable::AddBind(std::shared_ptr<Bindable> bind) noexcept(!IS_DEBUG)
+void Drawable::Submit(FrameCommander& frame) const noexcept
 {
-	if (typeid(*bind) == typeid(IndexBuffer))
-	{
-		assert("Binding multiple index buffers not allowed" && mIndexBuffer == nullptr);
-		mIndexBuffer = &static_cast<IndexBuffer&>(*bind);
-	}
-	mBinds.push_back(std::move(bind));
+	for (const auto& technique : mTechniques)
+		technique.Submit(frame, *this);
+}
+
+void Drawable::Bind(const Graphics& gfx) const noexcept
+{
+	mTopology->Bind(gfx);
+	mIndexBuffer->Bind(gfx);
+	mVertexBuffer->Bind(gfx);
+}
+
+UINT Drawable::GetIndexCount() const noexcept(!IS_DEBUG)
+{
+	return mIndexBuffer->GetCount();
 }

@@ -10,7 +10,7 @@ using namespace DirectX;
 
 TestPlane::TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color)
 {
-	XMStoreFloat4(&mMaterial.Color, color);
+	/*XMStoreFloat4(&mMaterial.Color, color);
 
 	IndexedTriangleList model = Plane::Make();
 	model.Transform(XMMatrixScaling(size, size, 1.0f));
@@ -30,12 +30,12 @@ TestPlane::TestPlane(const Graphics& gfx, float size, DirectX::FXMVECTOR color)
 	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));
 
 	AddBind(Blender::Resolve(gfx, true, 0.5f));
-	AddBind(Rasterizer::Resolve(gfx, true));
+	AddBind(Rasterizer::Resolve(gfx, true));*/
 }
 
 void TestPlane::SpawnControlWindow(const Graphics& gfx, const std::string& name) noexcept
 {
-	if (ImGui::Begin(name.c_str()))
+	/*if (ImGui::Begin(name.c_str()))
 	{
 		ImGui::Text("Position");
 		ImGui::SliderFloat("X", &mPosition.x, -80.0f, 80.0f, "%.1f");
@@ -53,7 +53,7 @@ void TestPlane::SpawnControlWindow(const Graphics& gfx, const std::string& name)
 		ImGui::SliderFloat("Translucency", &factor, 0.0f, 1.0f);
 		pBlender->SetBlendFactor(factor);
 	}
-	ImGui::End();
+	ImGui::End();*/
 }
 
 void XM_CALLCONV TestPlane::SetPosition(FXMVECTOR position) noexcept

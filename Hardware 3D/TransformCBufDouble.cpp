@@ -1,6 +1,6 @@
 #include "TransformCBufDouble.h"
 
-namespace Bind
+/*namespace Bind
 {
 	std::unique_ptr<PixelConstantBuffer<TransformCBuf::Transforms>> TransformCBufDouble::mPCBuffer;
 
@@ -23,4 +23,4 @@ namespace Bind
 		mPCBuffer->Update(gfx, tf);
 		mPCBuffer->Bind(gfx);
 	}
-}
+}*/

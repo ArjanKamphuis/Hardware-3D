@@ -21,6 +21,11 @@ namespace Bind
 		GetDeviceContext(gfx)->IASetInputLayout(mInputLayout.Get());
 	}
 
+	const Dvtx::VertexLayout InputLayout::GetLayout() const noexcept
+	{
+		return mLayout;
+	}
+
 	std::shared_ptr<InputLayout> InputLayout::Resolve(const Graphics& gfx, Dvtx::VertexLayout layout, ID3DBlob* pVertexShaderByteCode)
 	{
 		return Codex::Resolve<InputLayout>(gfx, layout, pVertexShaderByteCode);

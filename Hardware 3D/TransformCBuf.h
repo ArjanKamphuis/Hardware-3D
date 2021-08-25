@@ -15,7 +15,8 @@ namespace Bind
 		};
 
 	public:
-		TransformCBuf(const Graphics& gfx, const Drawable& parent, UINT slot = 0u);
+		TransformCBuf(const Graphics& gfx, UINT slot = 0u);
+		void InitializeParentReference(const Drawable& parent) noexcept override;
 		void Bind(const Graphics& gfx) noexcept override;
 
 	protected:
@@ -24,6 +25,6 @@ namespace Bind
 
 	private:
 		static std::unique_ptr<VertexConstantBuffer<Transforms>> mVCBuffer;
-		const Drawable& mParent;
+		const Drawable* mParent = nullptr;
 	};
 }

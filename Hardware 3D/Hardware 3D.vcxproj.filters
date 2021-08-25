@@ -49,6 +49,12 @@
     <Filter Include="Shaders\Common">
       <UniqueIdentifier>{e00ba155-79b0-434c-ae2e-647321ae5fe7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Jobber">
+      <UniqueIdentifier>{8a53ae1f-f7b2-4a49-a47e-2b754069a74d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Jobber">
+      <UniqueIdentifier>{e5ea3948-727b-4cf6-af2f-6de018ee15aa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -227,6 +233,24 @@
     </ClCompile>
     <ClCompile Include="Stencil.cpp">
       <Filter>Source Files\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="NullPixelShader.cpp">
+      <Filter>Source Files\Bindable</Filter>
+    </ClCompile>
+    <ClCompile Include="Job.cpp">
+      <Filter>Source Files\Jobber</Filter>
+    </ClCompile>
+    <ClCompile Include="Pass.cpp">
+      <Filter>Source Files\Jobber</Filter>
+    </ClCompile>
+    <ClCompile Include="Step.cpp">
+      <Filter>Source Files\Jobber</Filter>
+    </ClCompile>
+    <ClCompile Include="Technique.cpp">
+      <Filter>Source Files\Jobber</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameCommander.cpp">
+      <Filter>Source Files\Jobber</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -412,6 +436,24 @@
     </ClInclude>
     <ClInclude Include="Stencil.h">
       <Filter>Header Files\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="NullPixelShader.h">
+      <Filter>Header Files\Bindable</Filter>
+    </ClInclude>
+    <ClInclude Include="Job.h">
+      <Filter>Header Files\Jobber</Filter>
+    </ClInclude>
+    <ClInclude Include="Pass.h">
+      <Filter>Header Files\Jobber</Filter>
+    </ClInclude>
+    <ClInclude Include="Step.h">
+      <Filter>Header Files\Jobber</Filter>
+    </ClInclude>
+    <ClInclude Include="Technique.h">
+      <Filter>Header Files\Jobber</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameCommander.h">
+      <Filter>Header Files\Jobber</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

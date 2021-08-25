@@ -15,39 +15,72 @@ TestCube::TestCube(const Graphics& gfx, float size)
 	model.SetNormalsIndependentFlat();
 	const std::wstring geoTag = L"$cube." + std::to_wstring(size);
 
-	std::vector<std::shared_ptr<Bindable>> sharedBinds;
-	sharedBinds.push_back(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
-	sharedBinds.push_back(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
-	sharedBinds.push_back(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	sharedBinds.push_back(Rasterizer::Resolve(gfx, false));
-	sharedBinds.push_back(Blender::Resolve(gfx, false));
-	sharedBinds.push_back(std::make_shared<TransformCBuf>(gfx, *this));
+	mVertexBuffer = VertexBuffer::Resolve(gfx, geoTag, model.Vertices);
+	mIndexBuffer = IndexBuffer::Resolve(gfx, geoTag, model.Indices);
+	mTopology = Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	for (auto& bind : sharedBinds)
 	{
-		AddBind(bind);
-		mOutlineEffect.push_back(std::move(bind));
+		Technique standard;
+		Step only(0u);
+
+		only.AddBindable(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
+		only.AddBindable(Sampler::Resolve(gfx));
+
+		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+		only.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
+		only.AddBindable(std::move(pVS));
+		only.AddBindable(PixelShader::Resolve(gfx, L"PhongPS.cso"));
+
+		only.AddBindable(std::make_shared<PixelConstantBuffer<Material>>(gfx, mMaterial));
+		only.AddBindable(std::make_shared<TransformCBuf>(gfx));
+
+		standard.AddStep(std::move(only));
+		AddTechnique(std::move(standard));
 	}
 
-	AddBind(PixelShader::Resolve(gfx, L"PhongPS.cso"));
-	mOutlineEffect.push_back(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+	{
+		Technique outline;
+		{
+			Step mask(1u);
 
-	AddBind(std::make_shared<PixelConstantBuffer<Material>>(gfx, mMaterial));
-	struct PSOutlineMaterial { XMFLOAT4 MaterialColor = XMFLOAT4{ 1.0f, 0.4f, 0.4f, 1.0f }; };
-	mOutlineEffect.push_back(std::make_shared<PixelConstantBuffer<PSOutlineMaterial>>(gfx, PSOutlineMaterial{}));
+			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+			mask.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
+			mask.AddBindable(std::move(pVS));
 
-	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
-	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
-	AddBind(std::move(pVS));
-	pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
-	mOutlineEffect.push_back(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
-	mOutlineEffect.push_back(std::move(pVS));
+			mask.AddBindable(std::make_shared<TransformCBuf>(gfx));
 
-	AddBind(Stencil::Resolve(gfx, Stencil::Mode::Write));
-	mOutlineEffect.push_back(Stencil::Resolve(gfx, Stencil::Mode::Mask));
+			outline.AddStep(std::move(mask));
+		}
 
-	AddBind(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
-	AddBind(Sampler::Resolve(gfx));
+		{
+			Step draw(2u);
+
+			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+			draw.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
+			draw.AddBindable(std::move(pVS));
+			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+
+			class TransformCbufScaling : public TransformCBuf
+			{
+			public:
+				using TransformCBuf::TransformCBuf;
+				void Bind(const Graphics& gfx) noexcept override
+				{
+					const XMMATRIX scale = XMMatrixScaling(1.04, 1.04f, 1.04f);
+					Transforms xf = GetTransforms(gfx);
+					xf.World = xf.World * scale;
+					xf.WVP = xf.WVP * scale;
+					UpdateBindImpl(gfx, xf);
+				}
+			};
+
+			draw.AddBindable(std::make_shared<TransformCbufScaling>(gfx));
+
+			outline.AddStep(std::move(draw));
+		}
+
+		AddTechnique(std::move(outline));
+	}
 }
 
 void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcept
@@ -64,23 +97,14 @@ void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcep
 		ImGui::SliderAngle("Pitch", &mPitch, -180.0f, 180.0f);
 		ImGui::SliderAngle("Yaw", &mYaw, -180.0f, 180.0f);
 
-		ImGui::Text("Shading");
+		/*ImGui::Text("Shading");
 		bool changed0 = ImGui::ColorPicker3("Spec. Color", reinterpret_cast<float*>(&mMaterial.SpecularColor));
 		bool changed1 = ImGui::SliderFloat("Spec. Power", &mMaterial.SpecularPower, 0.0f, 100.0f);
 
 		if (changed0 || changed1)
-			QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);
+			QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);*/
 	}
 	ImGui::End();
-}
-
-void TestCube::DrawOutline(const Graphics& gfx) noexcept(!IS_DEBUG)
-{
-	mOutlining = true;
-	for (auto& b : mOutlineEffect)
-		b->Bind(gfx);
-	gfx.DrawIndexed(QueryBindable<Bind::IndexBuffer>()->GetCount());
-	mOutlining = false;
 }
 
 void XM_CALLCONV TestCube::SetPosition(FXMVECTOR position) noexcept
@@ -97,8 +121,5 @@ void TestCube::SetRotation(float roll, float pitch, float yaw) noexcept
 
 XMMATRIX XM_CALLCONV TestCube::GetTransformMatrix() const noexcept
 {
-	XMMATRIX xf = XMMatrixRotationRollPitchYaw(mPitch, mYaw, mRoll) * XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
-	if (mOutlining)
-		xf = XMMatrixScaling(1.03f, 1.03f, 1.03f) * xf;
-	return xf;
+	return XMMatrixRotationRollPitchYaw(mPitch, mYaw, mRoll) * XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
 }

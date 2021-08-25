@@ -23,7 +23,7 @@ public:
 	PointLight(const Graphics& gfx, float radius = 0.5f);
 	void SpawnControlWindow() noexcept;
 	void Reset() noexcept;
-	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
+	void Submit(class FrameCommander& frame) const noexcept(!IS_DEBUG);
 	void Bind(const Graphics& gfx) const noexcept;
 	void XM_CALLCONV SetCameraPosition(DirectX::FXMVECTOR cam) noexcept;
 

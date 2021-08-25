@@ -14,7 +14,6 @@ private:
 public:
 	TestCube(const Graphics& gfx, float size);
 	void SpawnControlWindow(const Graphics& gfx, const char* name) noexcept;
-	void DrawOutline(const Graphics& gfx) noexcept(!IS_DEBUG);
 
 	void XM_CALLCONV SetPosition(DirectX::FXMVECTOR position) noexcept;
 	void SetRotation(float roll, float pitch, float yaw) noexcept;
@@ -28,5 +27,4 @@ private:
 	Material mMaterial;
 
 	std::vector<std::shared_ptr<Bind::Bindable>> mOutlineEffect;
-	bool mOutlining = false;
 };

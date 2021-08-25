@@ -11,7 +11,7 @@ namespace Bind
 	}
 
 	VertexBuffer::VertexBuffer(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf)
-		: mTag(tag), mStride(static_cast<UINT>(vbuf.GetLayout().Size()))
+		: mTag(tag), mStride(static_cast<UINT>(vbuf.GetLayout().Size())), mLayout(vbuf.GetLayout())
 	{
 		INFOMAN(gfx);
 
@@ -27,6 +27,11 @@ namespace Bind
 	void VertexBuffer::Bind(const Graphics& gfx) noexcept
 	{
 		GetDeviceContext(gfx)->IASetVertexBuffers(0u, 1u, mBuffer.GetAddressOf(), &mStride, &mOffset);
+	}
+
+	const Dvtx::VertexLayout& VertexBuffer::GetLayout() const noexcept
+	{
+		return mLayout;
 	}
 
 	std::shared_ptr<VertexBuffer> VertexBuffer::Resolve(const Graphics& gfx, const std::wstring& tag, const Dvtx::VertexBuffer& vbuf)

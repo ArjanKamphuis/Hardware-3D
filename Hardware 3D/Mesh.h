@@ -15,8 +15,8 @@
 class Mesh : public Drawable
 {
 public:
-	Mesh(const Graphics& gfx, std::vector<std::shared_ptr<Bind::Bindable>> bindPtrs);
-	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
+	using Drawable::Drawable;
+	void XM_CALLCONV Submit(FrameCommander& frame, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	DirectX::XMMATRIX XM_CALLCONV GetTransformMatrix() const noexcept override;
 
 private:
@@ -29,14 +29,14 @@ class Node
 
 public:
 	Node(int id, const std::string& name, std::vector<Mesh*> meshPtrs, DirectX::CXMMATRIX transform) noexcept(!IS_DEBUG);
-	void XM_CALLCONV Draw(const Graphics& gfx, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
+	void XM_CALLCONV Submit(FrameCommander& frame, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	void XM_CALLCONV SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 	const DirectX::XMMATRIX XM_CALLCONV GetAppliedTransform() const noexcept;
 	void ShowTree(Node*& pSelectedNode) const noexcept;
 	int GetId() const noexcept;
 
-	const Dcb::Buffer* GetMaterialConstants() const noexcept(!IS_DEBUG);
-	void SetMaterialConstants(const Dcb::Buffer& buffer) noexcept(!IS_DEBUG);
+	//const Dcb::Buffer* GetMaterialConstants() const noexcept(!IS_DEBUG);
+	//void SetMaterialConstants(const Dcb::Buffer& buffer) noexcept(!IS_DEBUG);
 
 private:
 	void AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG);
@@ -70,7 +70,7 @@ public:
 public:
 	Model(const Graphics& gfx, const std::string& pathName, float scale = 1.0f);
 	~Model() noexcept;
-	void Draw(const Graphics& gfx) const noexcept(!IS_DEBUG);
+	void Submit(FrameCommander& frame) const noexcept(!IS_DEBUG);
 	void ShowWindow(const Graphics& gfx, const char* windowName = nullptr) noexcept;
 	void XM_CALLCONV SetRootTransform(DirectX::FXMMATRIX transform) noexcept;
 

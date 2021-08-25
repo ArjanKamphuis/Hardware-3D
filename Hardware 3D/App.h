@@ -2,6 +2,7 @@
 
 #include "Camera.h"
 #include "ChiliTimer.h"
+#include "FrameCommander.h"
 #include "ImguiManager.h"
 #include "Mesh.h"
 #include "PointLight.h"
@@ -31,9 +32,10 @@ private:
 	ScriptCommander mScriptCommander;
 	ChiliTimer mTimer;
 	Camera mCamera;
+	FrameCommander mFrameCommander;
 	PointLight mLight;
 
-	Model mSponza{ mWnd.Gfx(), "Models/sponza/sponza.obj", 0.05f };
+	//Model mSponza{ mWnd.Gfx(), "Models/sponza/sponza.obj", 0.05f };
 	//TestPlane mBluePlane{ mWnd.Gfx(), 6.0f, { 0.3f, 0.3f, 1.0f, 0.0f} };
 	//TestPlane mRedPlane{ mWnd.Gfx(), 6.0f, { 1.0f, 0.3f, 0.3f, 0.0f} };
 	TestCube mCube{ mWnd.Gfx(), 4.0f };
