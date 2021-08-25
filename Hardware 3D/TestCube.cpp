@@ -15,30 +15,44 @@ TestCube::TestCube(const Graphics& gfx, float size)
 	model.SetNormalsIndependentFlat();
 	const std::wstring geoTag = L"$cube." + std::to_wstring(size);
 
-	AddBind(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
-	AddBind(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
+	std::vector<std::shared_ptr<Bindable>> sharedBinds;
+	sharedBinds.push_back(VertexBuffer::Resolve(gfx, geoTag, model.Vertices));
+	sharedBinds.push_back(IndexBuffer::Resolve(gfx, geoTag, model.Indices));
+	sharedBinds.push_back(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
+	sharedBinds.push_back(Rasterizer::Resolve(gfx, false));
+	sharedBinds.push_back(Blender::Resolve(gfx, false));
+	sharedBinds.push_back(std::make_shared<TransformCBuf>(gfx, *this));
 
-	AddBind(PixelShader::Resolve(gfx, L"PhongPSNormalMapObject.cso"));
-	AddBind(Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST));
-	AddBind(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
+	for (auto& bind : sharedBinds)
+	{
+		AddBind(bind);
+		mOutlineEffect.push_back(std::move(bind));
+	}
+
+	AddBind(PixelShader::Resolve(gfx, L"PhongPS.cso"));
+	mOutlineEffect.push_back(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+
+	AddBind(std::make_shared<PixelConstantBuffer<Material>>(gfx, mMaterial));
+	struct PSOutlineMaterial { XMFLOAT4 MaterialColor = XMFLOAT4{ 1.0f, 0.4f, 0.4f, 1.0f }; };
+	mOutlineEffect.push_back(std::make_shared<PixelConstantBuffer<PSOutlineMaterial>>(gfx, PSOutlineMaterial{}));
 
 	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
 	AddBind(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 	AddBind(std::move(pVS));
+	pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+	mOutlineEffect.push_back(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
+	mOutlineEffect.push_back(std::move(pVS));
+
+	AddBind(Stencil::Resolve(gfx, Stencil::Mode::Write));
+	mOutlineEffect.push_back(Stencil::Resolve(gfx, Stencil::Mode::Mask));
 
 	AddBind(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
-	AddBind(Texture::Resolve(gfx, L"Images/brickwall_normal.jpg", 2u));
 	AddBind(Sampler::Resolve(gfx));
-
-	AddBind(std::make_shared<TransformCBufDouble>(gfx, *this, 0u, 2u));
-
-	AddBind(Blender::Resolve(gfx, false));
-	AddBind(Rasterizer::Resolve(gfx, false));
 }
 
-void TestCube::SpawnControlWindow(const Graphics& gfx) noexcept
+void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcept
 {
-	if (ImGui::Begin("Cube"))
+	if (ImGui::Begin(name))
 	{
 		ImGui::Text("Position");
 		ImGui::SliderFloat("X", &mPosition.x, -80.0f, 80.0f, "%.1f");
@@ -51,16 +65,22 @@ void TestCube::SpawnControlWindow(const Graphics& gfx) noexcept
 		ImGui::SliderAngle("Yaw", &mYaw, -180.0f, 180.0f);
 
 		ImGui::Text("Shading");
-		bool changed0 = ImGui::SliderFloat("Spec. Int.", &mMaterial.SpecularIntensity, 0.0f, 1.0f);
+		bool changed0 = ImGui::ColorPicker3("Spec. Color", reinterpret_cast<float*>(&mMaterial.SpecularColor));
 		bool changed1 = ImGui::SliderFloat("Spec. Power", &mMaterial.SpecularPower, 0.0f, 100.0f);
-		bool checkState = mMaterial.NormalMapEnabled == TRUE;
-		bool changed2 = ImGui::Checkbox("Enable Normal Map", &checkState);
-		mMaterial.NormalMapEnabled = checkState ? TRUE : FALSE;
 
-		if (changed0 || changed1 || changed2)
+		if (changed0 || changed1)
 			QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);
 	}
 	ImGui::End();
+}
+
+void TestCube::DrawOutline(const Graphics& gfx) noexcept(!IS_DEBUG)
+{
+	mOutlining = true;
+	for (auto& b : mOutlineEffect)
+		b->Bind(gfx);
+	gfx.DrawIndexed(QueryBindable<Bind::IndexBuffer>()->GetCount());
+	mOutlining = false;
 }
 
 void XM_CALLCONV TestCube::SetPosition(FXMVECTOR position) noexcept
@@ -77,5 +97,8 @@ void TestCube::SetRotation(float roll, float pitch, float yaw) noexcept
 
 XMMATRIX XM_CALLCONV TestCube::GetTransformMatrix() const noexcept
 {
-	return XMMatrixRotationRollPitchYaw(mPitch, mYaw, mRoll) * XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
+	XMMATRIX xf = XMMatrixRotationRollPitchYaw(mPitch, mYaw, mRoll) * XMMatrixTranslationFromVector(XMLoadFloat3(&mPosition));
+	if (mOutlining)
+		xf = XMMatrixScaling(1.03f, 1.03f, 1.03f) * xf;
+	return xf;
 }

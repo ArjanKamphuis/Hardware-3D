@@ -31,15 +31,6 @@ Graphics::Graphics(HWND hWnd)
 #endif
 
 	GFX_THROW_INFO(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, nullptr, 0, D3D11_SDK_VERSION, &sd, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
-
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-	depthStencilDesc.DepthEnable = TRUE;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	ComPtr<ID3D11DepthStencilState> pDSState;
-	GFX_THROW_INFO(mDevice->CreateDepthStencilState(&depthStencilDesc, &pDSState));
-	mDeviceContext->OMSetDepthStencilState(pDSState.Get(), 1u);
-
 	ImGui_ImplDX11_Init(mDevice.Get(), mDeviceContext.Get());
 }
 
@@ -65,7 +56,7 @@ void Graphics::BeginFrame(float r, float g, float b)
 
 	const float color[] = { r, g, b, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
-	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
 }
 
 void Graphics::EndFrame()
@@ -124,7 +115,7 @@ void Graphics::OnResize(UINT width, UINT height)
 	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 	depthBufferDesc.ArraySize = 1u;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	depthBufferDesc.Height = height;
 	depthBufferDesc.MipLevels = 1u;
 	depthBufferDesc.SampleDesc = { 1u, 0u };
@@ -133,7 +124,7 @@ void Graphics::OnResize(UINT width, UINT height)
 	GFX_THROW_INFO(mDevice->CreateTexture2D(&depthBufferDesc, nullptr, &pDepthStencil));
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-	dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	GFX_THROW_INFO(mDevice->CreateDepthStencilView(pDepthStencil.Get(), &dsvDesc, &mDepthStencilView));
 

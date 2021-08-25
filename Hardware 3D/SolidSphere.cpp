@@ -28,6 +28,8 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 
 	AddBind(Blender::Resolve(gfx, false));
 	AddBind(Rasterizer::Resolve(gfx, false));
+
+	AddBind(Stencil::Resolve(gfx, Stencil::Mode::Off));
 }
 
 void XM_CALLCONV SolidSphere::SetPosition(FXMVECTOR position) noexcept

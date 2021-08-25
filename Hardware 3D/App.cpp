@@ -116,6 +116,10 @@ void App::DoFrame(float dt)
 	mSponza.Draw(gfx);
 	//mBluePlane.Draw(gfx);
 	//mRedPlane.Draw(gfx);
+	mCube.Draw(gfx);
+	mCube2.Draw(gfx);
+	mCube.DrawOutline(gfx);
+	mCube2.DrawOutline(gfx);
 
 	if (gfx.IsImguiEnabled())
 		DoImGui(gfx);
@@ -134,4 +138,6 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	mSponza.ShowWindow(gfx, "Sponza");
 	//mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
 	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
+	mCube.SpawnControlWindow(gfx, "Cube1");
+	mCube2.SpawnControlWindow(gfx, "Cube2");
 }

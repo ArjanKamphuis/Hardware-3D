@@ -137,6 +137,7 @@
     <ClCompile Include="Rasterizer.cpp" />
     <ClCompile Include="ScriptCommander.cpp" />
     <ClCompile Include="ScriptCommanderExceptions.cpp" />
+    <ClCompile Include="Stencil.cpp" />
     <ClCompile Include="Testing.cpp" />
     <ClCompile Include="TexturePreprocessor.cpp" />
     <ClCompile Include="Plane.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Rasterizer.h" />
     <ClInclude Include="ScriptCommander.h" />
+    <ClInclude Include="Stencil.h" />
     <ClInclude Include="Testing.h" />
     <ClInclude Include="TexturePreprocessor.h" />
     <ClInclude Include="Plane.h" />
