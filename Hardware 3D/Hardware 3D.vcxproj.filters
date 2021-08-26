@@ -252,6 +252,9 @@
     <ClCompile Include="FrameCommander.cpp">
       <Filter>Source Files\Jobber</Filter>
     </ClCompile>
+    <ClCompile Include="PerfLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsMessageMap.h">
@@ -454,6 +457,9 @@
     </ClInclude>
     <ClInclude Include="FrameCommander.h">
       <Filter>Header Files\Jobber</Filter>
+    </ClInclude>
+    <ClInclude Include="PerfLog.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

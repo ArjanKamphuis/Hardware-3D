@@ -138,6 +138,7 @@
     <ClCompile Include="ModelExceptions.cpp" />
     <ClCompile Include="NullPixelShader.cpp" />
     <ClCompile Include="Pass.cpp" />
+    <ClCompile Include="PerfLog.cpp" />
     <ClCompile Include="Rasterizer.cpp" />
     <ClCompile Include="ScriptCommander.cpp" />
     <ClCompile Include="ScriptCommanderExceptions.cpp" />
@@ -209,6 +210,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="NullPixelShader.h" />
     <ClInclude Include="Pass.h" />
+    <ClInclude Include="PerfLog.h" />
     <ClInclude Include="Rasterizer.h" />
     <ClInclude Include="ScriptCommander.h" />
     <ClInclude Include="Stencil.h" />
