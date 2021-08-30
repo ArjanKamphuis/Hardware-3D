@@ -1,14 +1,38 @@
 #pragma once
 
 #include <DirectXPackedVector.h>
+#include <assimp/scene.h>
 #include "Graphics.h"
+
+#define DVTX_ELEMENT_AI_EXTRACTOR(member) \
+static SysType Extract(const aiMesh& mesh, size_t i) noexcept \
+{ \
+	return *reinterpret_cast<const SysType*>(&mesh.member[i]); \
+}
+
+#define LAYOUT_ELEMENT_TYPES \
+	X(Position2D) \
+	X(Position3D) \
+	X(Texture2D) \
+	X(Normal) \
+	X(Tangent) \
+	X(BiTangent) \
+	X(Float3Color) \
+	X(Float4Color) \
+	X(BGRAColor) \
+	X(Count)
 
 namespace Dvtx
 {
 	class VertexLayout
 	{
 	public:
-		enum class ElementType { Position2D, Position3D, Texture2D, Normal, Tangent, BiTangent, Float3Color, Float4Color, BGRAColor, Count };
+		enum class ElementType
+		{
+			#define X(el) el,
+			LAYOUT_ELEMENT_TYPES
+			#undef X
+		};
 
 		template<ElementType> struct Map;
 		template<> struct Map<ElementType::Position2D>
@@ -17,6 +41,7 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* Semantic = "POSITION";
 			static constexpr const wchar_t* Code = L"P2";
+			DVTX_ELEMENT_AI_EXTRACTOR(mVertices);
 		};
 		template<> struct Map<ElementType::Position3D>
 		{
@@ -24,6 +49,7 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* Semantic = "POSITION";
 			static constexpr const wchar_t* Code = L"P3";
+			DVTX_ELEMENT_AI_EXTRACTOR(mVertices);
 		};
 		template<> struct Map<ElementType::Texture2D>
 		{
@@ -31,20 +57,7 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* Semantic = "TEXCOORD";
 			static constexpr const wchar_t* Code = L"T2";
-		};
-		template<> struct Map<ElementType::Tangent>
-		{
-			using SysType = DirectX::XMFLOAT3;
-			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-			static constexpr const char* Semantic = "TANGENT";
-			static constexpr const wchar_t* Code = L"Nt";
-		};
-		template<> struct Map<ElementType::BiTangent>
-		{
-			using SysType = DirectX::XMFLOAT3;
-			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-			static constexpr const char* Semantic = "BITANGENT";
-			static constexpr const wchar_t* Code = L"Nb";
+			DVTX_ELEMENT_AI_EXTRACTOR(mTextureCoords[i]);
 		};
 		template<> struct Map<ElementType::Normal>
 		{
@@ -52,6 +65,23 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* Semantic = "NORMAL";
 			static constexpr const wchar_t* Code = L"N";
+			DVTX_ELEMENT_AI_EXTRACTOR(mNormals);
+		};
+		template<> struct Map<ElementType::Tangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* Semantic = "TANGENT";
+			static constexpr const wchar_t* Code = L"Nt";
+			DVTX_ELEMENT_AI_EXTRACTOR(mTangents);
+		};
+		template<> struct Map<ElementType::BiTangent>
+		{
+			using SysType = DirectX::XMFLOAT3;
+			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+			static constexpr const char* Semantic = "BITANGENT";
+			static constexpr const wchar_t* Code = L"Nb";
+			DVTX_ELEMENT_AI_EXTRACTOR(mBitangents);
 		};
 		template<> struct Map<ElementType::Float3Color>
 		{
@@ -59,6 +89,7 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32_FLOAT;
 			static constexpr const char* Semantic = "COLOR";
 			static constexpr const wchar_t* Code = L"C3";
+			DVTX_ELEMENT_AI_EXTRACTOR(mColors[0]);
 		};
 		template<> struct Map<ElementType::Float4Color>
 		{
@@ -66,6 +97,7 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32B32A32_FLOAT;
 			static constexpr const char* Semantic = "COLOR";
 			static constexpr const wchar_t* Code = L"C4";
+			DVTX_ELEMENT_AI_EXTRACTOR(mColors[0]);
 		};
 		template<> struct Map<ElementType::BGRAColor>
 		{
@@ -73,7 +105,29 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
 			static constexpr const char* Semantic = "COLOR";
 			static constexpr const wchar_t* Code = L"C8";
+			DVTX_ELEMENT_AI_EXTRACTOR(mColors[0]);
 		};
+		template<> struct Map<ElementType::Count>
+		{
+			using SysType = long double;
+			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_UNKNOWN;
+			static constexpr const char* Semantic = "!INVALID";
+			static constexpr const wchar_t* Code = L"!INV";
+			DVTX_ELEMENT_AI_EXTRACTOR(mFaces);
+		};
+
+		template<template<VertexLayout::ElementType> class F, typename... Args>
+		static constexpr auto Bridge(VertexLayout::ElementType type, Args&&... args) noexcept(!IS_DEBUG)
+		{
+			switch (type)
+			{
+				#define X(el) case VertexLayout::ElementType::el: return F<VertexLayout::ElementType::el>::Exec(std::forward<Args>(args)...);
+				LAYOUT_ELEMENT_TYPES
+				#undef X
+			}
+			assert("Invalid element type" && false);
+			return F<VertexLayout::ElementType::Count>::Exec(std::forward<Args>(args)...);
+		}
 
 		class Element
 		{
@@ -88,13 +142,6 @@ namespace Dvtx
 			const wchar_t* GetCode() const noexcept;
 
 			static constexpr size_t SizeOf(ElementType type) noexcept(!IS_DEBUG);
-
-		private:
-			template<ElementType Type>
-			static constexpr D3D11_INPUT_ELEMENT_DESC GenerateDesc(size_t offset) noexcept
-			{
-				return { Map<Type>::Semantic, 0u, Map<Type>::DXGIFormat, 0u, static_cast<UINT>(offset), D3D11_INPUT_PER_VERTEX_DATA, 0u };
-			}
 
 		private:
 			ElementType mType;
@@ -121,6 +168,15 @@ namespace Dvtx
 		std::vector<D3D11_INPUT_ELEMENT_DESC> GetD3DLayout() const noexcept(!IS_DEBUG);
 		std::wstring GetCode() const noexcept(!IS_DEBUG);
 
+		template<ElementType Type>
+		bool Has() const noexcept
+		{
+			for (auto& e : mElements)
+				if (e.GetType() == Type)
+					return true;
+			return false;
+		}
+
 	private:
 		std::vector<Element> mElements;
 	};
@@ -128,6 +184,17 @@ namespace Dvtx
 	class Vertex
 	{
 		friend class VertexBuffer;
+
+	private:
+		template<VertexLayout::ElementType Type>
+		struct AttributeSetting
+		{
+			template<typename T>
+			static constexpr auto Exec(Vertex* pVertex, char* pAttribute, T&& value) noexcept(!IS_DEBUG)
+			{
+				return pVertex->SetAttribute<Type>(pAttribute, std::forward<T>(value));
+			}
+		};
 
 	public:
 		template<VertexLayout::ElementType Type>
@@ -142,41 +209,7 @@ namespace Dvtx
 		{
 			const auto& element = mLayout.ResolveByIndex(i);
 			auto pAttribute = mData + element.GetOffset();
-
-			switch (element.GetType())
-			{
-				using ElementType = VertexLayout::ElementType;
-			case ElementType::Position2D:
-				SetAttribute<ElementType::Position2D>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::Position3D:
-				SetAttribute<ElementType::Position3D>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::Texture2D:
-				SetAttribute<ElementType::Texture2D>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::Normal:
-				SetAttribute<ElementType::Normal>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::Tangent:
-				SetAttribute<ElementType::Tangent>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::BiTangent:
-				SetAttribute<ElementType::BiTangent>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::Float3Color:
-				SetAttribute<ElementType::Float3Color>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::Float4Color:
-				SetAttribute<ElementType::Float4Color>(pAttribute, std::forward<T>(value));
-				break;
-			case ElementType::BGRAColor:
-				SetAttribute<ElementType::BGRAColor>(pAttribute, std::forward<T>(value));
-				break;
-			default:
-				assert("Bad element Type" && false);
-				break;
-			}
+			VertexLayout::Bridge<AttributeSetting>(element.GetType(), this, pAttribute, std::forward<T>(value));			
 		}
 
 	protected:
@@ -254,3 +287,8 @@ namespace Dvtx
 		VertexLayout mLayout;
 	};
 }
+
+#undef DVTX_ELEMENT_AI_EXTRACTOR
+#ifndef DVTX_SOURCE_FILE
+#undef LAYOUT_ELEMENT_TYPES
+#endif

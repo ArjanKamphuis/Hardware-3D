@@ -1,3 +1,4 @@
+#define DVTX_SOURCE_FILE
 #include "Vertex.h"
 
 namespace Dvtx
@@ -26,61 +27,50 @@ namespace Dvtx
 		return mType;
 	}
 
+	template<VertexLayout::ElementType Type>
+	struct DescGenerate
+	{
+		static constexpr D3D11_INPUT_ELEMENT_DESC Exec(size_t offset) noexcept
+		{
+			return {
+				VertexLayout::Map<Type>::Semantic, 0u,
+				VertexLayout::Map<Type>::DXGIFormat, 0u,
+				static_cast<UINT>(offset), D3D11_INPUT_PER_VERTEX_DATA, 0u
+			};
+		}
+	};
+
 	D3D11_INPUT_ELEMENT_DESC VertexLayout::Element::GetDesc() const noexcept(!IS_DEBUG)
 	{
-		switch (mType)
-		{
-		case ElementType::Position2D: return GenerateDesc<ElementType::Position2D>(GetOffset());
-		case ElementType::Position3D: return GenerateDesc<ElementType::Position3D>(GetOffset());
-		case ElementType::Texture2D: return GenerateDesc<ElementType::Texture2D>(GetOffset());
-		case ElementType::Normal: return GenerateDesc<ElementType::Normal>(GetOffset());
-		case ElementType::Tangent: return GenerateDesc<ElementType::Tangent>(GetOffset());
-		case ElementType::BiTangent: return GenerateDesc<ElementType::BiTangent>(GetOffset());
-		case ElementType::Float3Color: return GenerateDesc<ElementType::Float3Color>(GetOffset());
-		case ElementType::Float4Color: return GenerateDesc<ElementType::Float4Color>(GetOffset());
-		case ElementType::BGRAColor: return GenerateDesc<ElementType::BGRAColor>(GetOffset());
-		default:
-			assert("Invalid element type" && false);
-			return { "INVALID", 0u, DXGI_FORMAT_UNKNOWN, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u };
-		}
+		return Bridge<DescGenerate>(mType, GetOffset());
 	}
+
+	template<VertexLayout::ElementType Type>
+	struct CodeLookup
+	{
+		static constexpr wchar_t* Exec() noexcept
+		{
+			return VertexLayout::Map<Type>::Code;
+		}
+	};
 
 	const wchar_t* VertexLayout::Element::GetCode() const noexcept
 	{
-		switch (mType)
-		{
-		case ElementType::Position2D: return Map<ElementType::Position2D>::Code;
-		case ElementType::Position3D: return Map<ElementType::Position3D>::Code;
-		case ElementType::Texture2D: return Map<ElementType::Texture2D>::Code;
-		case ElementType::Normal: return Map<ElementType::Normal>::Code;
-		case ElementType::Tangent: return Map<ElementType::Tangent>::Code;
-		case ElementType::BiTangent: return Map<ElementType::BiTangent>::Code;
-		case ElementType::Float3Color: return Map<ElementType::Float3Color>::Code;
-		case ElementType::Float4Color: return Map<ElementType::Float4Color>::Code;
-		case ElementType::BGRAColor: return Map<ElementType::BGRAColor>::Code;
-		}
-
-		assert("Invalid element type" && false);
-		return L"Invalid";
+		return Bridge<CodeLookup>(mType);
 	}
+
+	template<VertexLayout::ElementType Type>
+	struct SysSizeLookup
+	{
+		static constexpr size_t Exec() noexcept
+		{
+			return sizeof(VertexLayout::Map<Type>::SysType);
+		}
+	};
 
 	constexpr size_t VertexLayout::Element::SizeOf(ElementType type) noexcept(!IS_DEBUG)
 	{
-		switch (type)
-		{
-		case ElementType::Position2D: return sizeof(Map<ElementType::Position2D>::SysType);
-		case ElementType::Position3D: return sizeof(Map<ElementType::Position3D>::SysType);
-		case ElementType::Texture2D: return sizeof(Map<ElementType::Texture2D>::SysType);
-		case ElementType::Normal: return sizeof(Map<ElementType::Normal>::SysType);
-		case ElementType::Tangent: return sizeof(Map<ElementType::Tangent>::SysType);
-		case ElementType::BiTangent: return sizeof(Map<ElementType::BiTangent>::SysType);
-		case ElementType::Float3Color: return sizeof(Map<ElementType::Float3Color>::SysType);
-		case ElementType::Float4Color: return sizeof(Map<ElementType::Float4Color>::SysType);
-		case ElementType::BGRAColor: return sizeof(Map<ElementType::BGRAColor>::SysType);
-		default:
-			assert("Invalid element type" && false);
-			return 0u;
-		}
+		return Bridge<SysSizeLookup>(type);
 	}
 
 	const VertexLayout::Element& VertexLayout::ResolveByIndex(size_t i) const noexcept(!IS_DEBUG)
