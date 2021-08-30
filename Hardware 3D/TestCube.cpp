@@ -134,35 +134,38 @@ void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcep
 
 		class Probe : public TechniqueProbe
 		{
-		public:
-			bool VisitBuffer(Dcb::Buffer& buffer) override
-			{
-				float dirty = false;
-				const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
-
-				if (Dcb::ElementRef v = buffer[L"Scale"s]; v.Exists())
-					dcheck(ImGui::SliderFloat("Scale", &v, 1.0f, 2.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
-				if (Dcb::ElementRef v = buffer[L"MaterialColor"s]; v.Exists())
-					dcheck(ImGui::ColorPicker4("Mat. Color", reinterpret_cast<float*>(&static_cast<XMFLOAT4&>(v))));
-				if (Dcb::ElementRef v = buffer[L"SpecularColor"s]; v.Exists())
-					dcheck(ImGui::ColorPicker3("Spec. Color", reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
-				if (Dcb::ElementRef v = buffer[L"SpecularPower"s]; v.Exists())
-					dcheck(ImGui::SliderFloat("Glossiness", &v, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
-
-				return dirty;
-			}
 		protected:
 			void OnSetTechnique() override
 			{
 				const std::string techName = ChiliUtil::ToNarrow(mTechnique->GetName());
 				ImGui::TextColored({ 0.4f, 1.0f, 0.6f, 1.0f }, techName.c_str());
 				bool active = mTechnique->IsActive();
-				ImGui::Checkbox(("Tech Active##"s + techName).c_str(), &active);
+				ImGui::Checkbox(("Tech Active##"s + std::to_string(mTechIdx)).c_str(), &active);
 				mTechnique->SetActiveState(active);
 			}
-		};
+			bool OnVisitBuffer(Dcb::Buffer& buffer) override
+			{
+				float dirty = false;
+				const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
+				auto tag = [tagScratch = std::string{}, tagString = "##" + std::to_string(mBufferIdx)](const char* label) mutable
+				{
+					tagScratch = label + tagString;
+					return tagScratch.c_str();
+				};
 
-		static Probe probe;
+				if (Dcb::ElementRef v = buffer[L"Scale"s]; v.Exists())
+					dcheck(ImGui::SliderFloat(tag("Scale"), &v, 1.0f, 2.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
+				if (Dcb::ElementRef v = buffer[L"MaterialColor"s]; v.Exists())
+					dcheck(ImGui::ColorPicker4(tag("Mat. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT4&>(v))));
+				if (Dcb::ElementRef v = buffer[L"SpecularColor"s]; v.Exists())
+					dcheck(ImGui::ColorPicker3(tag("Spec. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
+				if (Dcb::ElementRef v = buffer[L"SpecularPower"s]; v.Exists())
+					dcheck(ImGui::SliderFloat(tag("Glossiness"), &v, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
+
+				return dirty;
+			}
+		} probe;
+
 		Accept(probe);
 	}
 	ImGui::End();
