@@ -48,7 +48,7 @@ namespace Dvtx
 	template<VertexLayout::ElementType Type>
 	struct CodeLookup
 	{
-		static constexpr wchar_t* Exec() noexcept
+		static constexpr const wchar_t* const Exec() noexcept
 		{
 			return VertexLayout::Map<Type>::Code;
 		}
@@ -125,6 +125,24 @@ namespace Dvtx
 		: mLayout(std::move(layout))
 	{
 		Resize(size);
+	}
+
+	template<VertexLayout::ElementType Type>
+	struct AttributeAiMeshFill
+	{
+		static constexpr void Exec(VertexBuffer* pBuffer, const aiMesh& mesh) noexcept(!IS_DEBUG)
+		{
+			for (size_t i = 0; i < mesh.mNumVertices; i++)
+				(*pBuffer)[i].Attr<Type>() = VertexLayout::Map<Type>::Extract(mesh, i);
+		}
+	};
+
+	VertexBuffer::VertexBuffer(VertexLayout layout, const aiMesh& mesh)
+		: mLayout(std::move(layout))
+	{
+		Resize(mesh.mNumVertices);
+		for (size_t i = 0; i < mLayout.GetElementCount(); i++)
+			VertexLayout::Bridge<AttributeAiMeshFill>(mLayout.ResolveByIndex(i).GetType(), this, mesh);
 	}
 
 	const char* VertexBuffer::GetData() const noexcept(!IS_DEBUG)

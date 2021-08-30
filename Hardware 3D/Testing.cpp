@@ -2,8 +2,15 @@
 
 #include "DynamicConstantBuffer.h"
 #include "LayoutCodex.h"
+#include "Vertex.h"
+
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 
 using namespace DirectX;
+using namespace Dvtx;
+using namespace std::string_literals;
 
 void TestDynamicConstant()
 {
@@ -206,5 +213,30 @@ void TestDynamicConstant()
 		pscLayout.Add(Dcb::Type::Float, L"SpecularMapWeight"s);
 		Dcb::CookedLayout cooked = Dcb::LayoutCodex::Resolve(std::move(pscLayout));
 		assert(cooked.GetSizeInBytes() == 32u);
+	}
+}
+
+void TestDynamicMeshLoading()
+{
+	using ElementType = VertexLayout::ElementType;
+
+	Assimp::Importer imp;
+	const aiScene* pScene = imp.ReadFile("Models/brick_wall/brick_wall.obj"s, 
+		aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+	VertexLayout layout = VertexLayout{}
+		.Append(ElementType::Position3D)
+		.Append(ElementType::Normal)
+		.Append(ElementType::Tangent)
+		.Append(ElementType::BiTangent)
+		.Append(ElementType::Texture2D);
+	VertexBuffer buffer{ std::move(layout), *pScene->mMeshes[0] };
+
+	for (size_t i = 0; i < buffer.Size(); i++)
+	{
+		const XMFLOAT3 a = buffer[i].Attr<ElementType::Position3D>();
+		const XMFLOAT3 b = buffer[i].Attr<ElementType::Normal>();
+		const XMFLOAT3 c = buffer[i].Attr<ElementType::Tangent>();
+		const XMFLOAT3 d = buffer[i].Attr<ElementType::BiTangent>();
+		const XMFLOAT2 e = buffer[i].Attr<ElementType::Texture2D>();
 	}
 }

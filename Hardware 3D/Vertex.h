@@ -57,7 +57,7 @@ namespace Dvtx
 			static constexpr DXGI_FORMAT DXGIFormat = DXGI_FORMAT_R32G32_FLOAT;
 			static constexpr const char* Semantic = "TEXCOORD";
 			static constexpr const wchar_t* Code = L"T2";
-			DVTX_ELEMENT_AI_EXTRACTOR(mTextureCoords[i]);
+			DVTX_ELEMENT_AI_EXTRACTOR(mTextureCoords[0]);
 		};
 		template<> struct Map<ElementType::Normal>
 		{
@@ -258,6 +258,7 @@ namespace Dvtx
 	{
 	public:
 		VertexBuffer(VertexLayout layout, size_t size = 0u) noexcept(!IS_DEBUG);
+		VertexBuffer(VertexLayout layout, const aiMesh& mesh);
 
 		const char* GetData() const noexcept(!IS_DEBUG);
 		const VertexLayout& GetLayout() const noexcept;
