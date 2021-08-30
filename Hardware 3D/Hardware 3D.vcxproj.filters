@@ -255,6 +255,9 @@
     <ClCompile Include="PerfLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TechniqueProbe.cpp">
+      <Filter>Source Files\Jobber</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WindowsMessageMap.h">
@@ -460,6 +463,9 @@
     </ClInclude>
     <ClInclude Include="PerfLog.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TechniqueProbe.h">
+      <Filter>Header Files\Jobber</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

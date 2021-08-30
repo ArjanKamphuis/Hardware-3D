@@ -11,6 +11,12 @@ void Drawable::AddTechnique(Technique technique) noexcept
 	mTechniques.push_back(std::move(technique));
 }
 
+void Drawable::Accept(TechniqueProbe& probe)
+{
+	for (Technique& technique : mTechniques)
+		technique.Accept(probe);
+}
+
 void Drawable::Submit(FrameCommander& frame) const noexcept
 {
 	for (const auto& technique : mTechniques)

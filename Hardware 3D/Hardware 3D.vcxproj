@@ -145,6 +145,7 @@
     <ClCompile Include="Stencil.cpp" />
     <ClCompile Include="Step.cpp" />
     <ClCompile Include="Technique.cpp" />
+    <ClCompile Include="TechniqueProbe.cpp" />
     <ClCompile Include="Testing.cpp" />
     <ClCompile Include="TexturePreprocessor.cpp" />
     <ClCompile Include="Plane.cpp" />
@@ -216,6 +217,7 @@
     <ClInclude Include="Stencil.h" />
     <ClInclude Include="Step.h" />
     <ClInclude Include="Technique.h" />
+    <ClInclude Include="TechniqueProbe.h" />
     <ClInclude Include="Testing.h" />
     <ClInclude Include="TexturePreprocessor.h" />
     <ClInclude Include="Plane.h" />

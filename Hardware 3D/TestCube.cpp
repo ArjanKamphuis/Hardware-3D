@@ -1,49 +1,60 @@
 #include "TestCube.h"
 
 #include "BindableCommon.h"
+#include "ChiliUtil.h"
+#include "ConstantBuffersEx.h"
 #include "Cube.h"
+#include "DynamicConstantBuffer.h"
 #include "imgui/imgui.h"
+#include "TechniqueProbe.h"
 #include "TransformCBufDouble.h"
 
 using namespace Bind;
 using namespace DirectX;
+using namespace std::string_literals;
 
 TestCube::TestCube(const Graphics& gfx, float size)
 {
 	IndexedTriangleList model = Cube::MakeIndependentTextured();
 	model.Transform(XMMatrixScaling(size, size, size));
 	model.SetNormalsIndependentFlat();
-	const std::wstring geoTag = L"$cube." + std::to_wstring(size);
+	const std::wstring geoTag = L"$cube."s + std::to_wstring(size);
 
 	mVertexBuffer = VertexBuffer::Resolve(gfx, geoTag, model.Vertices);
 	mIndexBuffer = IndexBuffer::Resolve(gfx, geoTag, model.Indices);
 	mTopology = Topology::Resolve(gfx, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	{
-		Technique standard;
+		Technique shade(L"Shade"s);
 		Step only(0u);
 
-		only.AddBindable(Texture::Resolve(gfx, L"Images/brickwall.jpg"));
+		only.AddBindable(Texture::Resolve(gfx, L"Images/brickwall.jpg"s));
 		only.AddBindable(Sampler::Resolve(gfx));
 
-		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso");
+		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso"s);
 		only.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 		only.AddBindable(std::move(pVS));
-		only.AddBindable(PixelShader::Resolve(gfx, L"PhongPS.cso"));
+		only.AddBindable(PixelShader::Resolve(gfx, L"PhongPS.cso"s));
 
-		only.AddBindable(std::make_shared<PixelConstantBuffer<Material>>(gfx, mMaterial));
+		Dcb::RawLayout layout;
+		layout.Add(Dcb::Type::Float3, L"SpecularColor"s);
+		layout.Add(Dcb::Type::Float, L"SpecularPower"s);
+		Dcb::Buffer buffer(std::move(layout));
+		buffer[L"SpecularColor"s] = XMFLOAT3{ 0.1f, 0.1f, 0.1f };
+		buffer[L"SpecularPower"s] = 20.0f;
+		only.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
 		only.AddBindable(std::make_shared<TransformCBuf>(gfx));
 
-		standard.AddStep(std::move(only));
-		AddTechnique(std::move(standard));
+		shade.AddStep(std::move(only));
+		AddTechnique(std::move(shade));
 	}
 
 	{
-		Technique outline;
+		Technique outline(L"Outline"s);
 		{
 			Step mask(1u);
 
-			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
 			mask.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 			mask.AddBindable(std::move(pVS));
 
@@ -55,23 +66,47 @@ TestCube::TestCube(const Graphics& gfx, float size)
 		{
 			Step draw(2u);
 
-			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
 			draw.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 			draw.AddBindable(std::move(pVS));
-			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"s));
+
+			Dcb::RawLayout layout;
+			layout.Add(Dcb::Type::Float4, L"MaterialColor"s);
+			Dcb::Buffer buffer(std::move(layout));
+			buffer[L"MaterialColor"s] = XMFLOAT4{ 1.0f, 0.4f, 0.4f, 1.0f };
+			draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
 
 			class TransformCbufScaling : public TransformCBuf
 			{
 			public:
-				using TransformCBuf::TransformCBuf;
+				TransformCbufScaling(const Graphics& gfx, float scale = 1.04f)
+					: TransformCBuf(gfx), mBuffer(MakeLayout())
+				{
+					mBuffer[L"Scale"s] = scale;
+				}
+				void Accept(TechniqueProbe& probe) override
+				{
+					probe.VisitBuffer(mBuffer);
+				}
 				void Bind(const Graphics& gfx) noexcept override
 				{
-					const XMMATRIX scale = XMMatrixScaling(1.04, 1.04f, 1.04f);
+					const float scale = mBuffer[L"Scale"s];
+					const XMMATRIX scaleMatrix = XMMatrixScaling(scale, scale, scale);
 					Transforms xf = GetTransforms(gfx);
-					xf.World = xf.World * scale;
-					xf.WVP = xf.WVP * scale;
+					xf.World = xf.World * scaleMatrix;
+					xf.WVP = xf.WVP * scaleMatrix;
 					UpdateBindImpl(gfx, xf);
 				}
+			private:
+				static Dcb::RawLayout MakeLayout()
+				{
+					Dcb::RawLayout layout;
+					layout.Add(Dcb::Type::Float, L"Scale"s);
+					return layout;
+				}
+			private:
+				Dcb::Buffer mBuffer;
 			};
 
 			draw.AddBindable(std::make_shared<TransformCbufScaling>(gfx));
@@ -97,12 +132,38 @@ void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcep
 		ImGui::SliderAngle("Pitch", &mPitch, -180.0f, 180.0f);
 		ImGui::SliderAngle("Yaw", &mYaw, -180.0f, 180.0f);
 
-		/*ImGui::Text("Shading");
-		bool changed0 = ImGui::ColorPicker3("Spec. Color", reinterpret_cast<float*>(&mMaterial.SpecularColor));
-		bool changed1 = ImGui::SliderFloat("Spec. Power", &mMaterial.SpecularPower, 0.0f, 100.0f);
+		class Probe : public TechniqueProbe
+		{
+		public:
+			bool VisitBuffer(Dcb::Buffer& buffer) override
+			{
+				float dirty = false;
+				const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
 
-		if (changed0 || changed1)
-			QueryBindable<PixelConstantBuffer<Material>>()->Update(gfx, mMaterial);*/
+				if (Dcb::ElementRef v = buffer[L"Scale"s]; v.Exists())
+					dcheck(ImGui::SliderFloat("Scale", &v, 1.0f, 2.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
+				if (Dcb::ElementRef v = buffer[L"MaterialColor"s]; v.Exists())
+					dcheck(ImGui::ColorPicker4("Mat. Color", reinterpret_cast<float*>(&static_cast<XMFLOAT4&>(v))));
+				if (Dcb::ElementRef v = buffer[L"SpecularColor"s]; v.Exists())
+					dcheck(ImGui::ColorPicker3("Spec. Color", reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
+				if (Dcb::ElementRef v = buffer[L"SpecularPower"s]; v.Exists())
+					dcheck(ImGui::SliderFloat("Glossiness", &v, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
+
+				return dirty;
+			}
+		protected:
+			void OnSetTechnique() override
+			{
+				const std::string techName = ChiliUtil::ToNarrow(mTechnique->GetName());
+				ImGui::TextColored({ 0.4f, 1.0f, 0.6f, 1.0f }, techName.c_str());
+				bool active = mTechnique->IsActive();
+				ImGui::Checkbox(("Tech Active##"s + techName).c_str(), &active);
+				mTechnique->SetActiveState(active);
+			}
+		};
+
+		static Probe probe;
+		Accept(probe);
 	}
 	ImGui::End();
 }

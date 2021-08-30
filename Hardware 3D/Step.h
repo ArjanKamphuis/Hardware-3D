@@ -2,6 +2,7 @@
 
 #include "Bindable.h"
 #include "Graphics.h"
+#include "TechniqueProbe.h"
 
 class Drawable;
 class FrameCommander;
@@ -13,6 +14,7 @@ public:
 	void InitializeParentReferences(const Drawable& parent) noexcept;
 
 	void AddBindable(std::shared_ptr<Bind::Bindable> bind) noexcept;
+	void Accept(TechniqueProbe& probe);
 	void Submit(FrameCommander& frame, const Drawable& drawable) const;
 	void Bind(const Graphics& gfx) const;
 

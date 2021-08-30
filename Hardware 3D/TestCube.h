@@ -4,13 +4,6 @@
 
 class TestCube : public Drawable
 {
-private:
-	struct Material
-	{
-		DirectX::XMFLOAT3 SpecularColor = { 0.1f, 0.1f, 0.1f };
-		float SpecularPower = 20.0f;
-	};
-
 public:
 	TestCube(const Graphics& gfx, float size);
 	void SpawnControlWindow(const Graphics& gfx, const char* name) noexcept;
@@ -24,7 +17,4 @@ private:
 	float mRoll = 0.0f;
 	float mPitch = 0.0f;
 	float mYaw = 0.0f;
-	Material mMaterial;
-
-	std::vector<std::shared_ptr<Bind::Bindable>> mOutlineEffect;
 };

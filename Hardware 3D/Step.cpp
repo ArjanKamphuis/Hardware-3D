@@ -19,6 +19,13 @@ void Step::AddBindable(std::shared_ptr<Bind::Bindable> bind) noexcept
 	mBindables.push_back(std::move(bind));
 }
 
+void Step::Accept(TechniqueProbe& probe)
+{
+	probe.SetStep(this);
+	for (auto& pb : mBindables)
+		pb->Accept(probe);
+}
+
 void Step::Submit(FrameCommander& frame, const Drawable& drawable) const
 {
 	frame.Accept(Job{ this, &drawable }, mTargetPass);

@@ -20,6 +20,7 @@ public:
 	virtual ~Drawable() = default;
 
 	void AddTechnique(Technique technique) noexcept;
+	void Accept(TechniqueProbe& probe);
 	void Submit(class FrameCommander& frame) const noexcept;
 	void Bind(const Graphics& gfx) const noexcept;
 	UINT GetIndexCount() const noexcept(!IS_DEBUG);

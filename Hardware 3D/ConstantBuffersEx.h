@@ -32,6 +32,7 @@ namespace Bind
 		const Dcb::Buffer& GetBuffer() const noexcept;
 		void SetBuffer(const Dcb::Buffer& buffer);
 		void Bind(const Graphics& gfx) noexcept override;
+		void Accept(TechniqueProbe& probe) override;
 
 	private:
 		bool mDirty = false;

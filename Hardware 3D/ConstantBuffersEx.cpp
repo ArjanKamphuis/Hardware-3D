@@ -1,6 +1,7 @@
 #include "ConstantBuffersEx.h"
 
 #include "GraphicsThrowMacros.h"
+#include "TechniqueProbe.h"
 
 namespace Bind
 {
@@ -75,6 +76,12 @@ namespace Bind
 			mDirty = false;
 		}
 		PixelConstantBufferEx::Bind(gfx);
+	}
+
+	void CachingPixelConstantBufferEx::Accept(TechniqueProbe& probe)
+	{
+		if (probe.VisitBuffer(mBuffer))
+			mDirty = true;
 	}
 
 	NoCachePixelConstantBufferEx::NoCachePixelConstantBufferEx(const Graphics& gfx, const Dcb::CookedLayout& layout, UINT slot)

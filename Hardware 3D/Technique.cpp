@@ -3,10 +3,22 @@
 #include "Drawable.h"
 #include "FrameCommander.h"
 
+Technique::Technique(const std::wstring& name) noexcept
+	: mName(name)
+{
+}
+
 void Technique::InitializeParentReferences(const Drawable& parent) noexcept
 {
 	for (auto& step : mSteps)
 		step.InitializeParentReferences(parent);
+}
+
+void Technique::Accept(TechniqueProbe& probe)
+{
+	probe.SetTechnique(this);
+	for (Step& step : mSteps)
+		step.Accept(probe);
 }
 
 void Technique::Submit(FrameCommander& frame, const Drawable& drawable) const noexcept
@@ -21,12 +33,17 @@ void Technique::AddStep(Step step) noexcept
 	mSteps.push_back(std::move(step));
 }
 
-void Technique::Activate() noexcept
+bool Technique::IsActive() const noexcept
 {
-	mActive = true;
+	return mActive;
 }
 
-void Technique::Deactivate() noexcept
+void Technique::SetActiveState(bool active) noexcept
 {
-	mActive = false;
+	mActive = active;
+}
+
+const std::wstring& Technique::GetName() const noexcept
+{
+	return mName;
 }
