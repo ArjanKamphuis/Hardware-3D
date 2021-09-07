@@ -503,6 +503,9 @@
     <ClInclude Include="ModelException.h">
       <Filter>Header Files\Model</Filter>
     </ClInclude>
+    <ClInclude Include="ModelProbe.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Hardware 3D.rc">

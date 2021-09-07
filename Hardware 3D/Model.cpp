@@ -13,7 +13,6 @@
 using namespace DirectX;
 
 Model::Model(const Graphics& gfx, const std::string& pathName, float scale)
-	//: mWindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer imp;
 	const auto pScene = imp.ReadFile(pathName.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
@@ -41,14 +40,13 @@ Model::~Model() noexcept
 
 void Model::Submit(FrameCommander& frame) const noexcept(!IS_DEBUG)
 {
-	//mWindow->ApplyParameters();
 	mRoot->Submit(frame, XMMatrixIdentity());
 }
 
-//void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
-//{
-//	mWindow->Show(gfx, windowName, *mRoot);
-//}
+void Model::Accept(ModelProbe& probe)
+{
+	mRoot->Accept(probe);
+}
 
 void XM_CALLCONV Model::SetRootTransform(FXMMATRIX transform) noexcept
 {

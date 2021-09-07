@@ -11,6 +11,8 @@
 #include "LayoutCodex.h"
 #include "Material.h"
 #include "Mesh.h"
+#include "ModelProbe.h"
+#include "Node.h"
 #include "Testing.h"
 
 using namespace DirectX;
@@ -140,7 +142,7 @@ void App::DoFrame(float dt)
 
 void App::DoImGui(const Graphics& gfx) noexcept
 {
-	class Probe : public TechniqueProbe
+	class TP : public TechniqueProbe
 	{
 	protected:
 		void OnSetTechnique() override
@@ -179,6 +181,45 @@ void App::DoImGui(const Graphics& gfx) noexcept
 		}
 	} probe;
 
+	class MP : public ModelProbe
+	{
+	public:
+		void SpawnWindow(Model& model)
+		{
+			ImGui::Begin("Model");
+			ImGui::Columns(2, nullptr, true);
+			model.Accept(*this);
+
+			ImGui::NextColumn();
+			if (mSelectedNode != nullptr)
+			{
+
+			}
+			ImGui::End();
+		}
+		bool PushNode(Node& node) override
+		{
+			const int selectedId = mSelectedNode == nullptr ? -1 : mSelectedNode->GetId();
+			const int nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
+				| ((node.GetId() == selectedId) ? ImGuiTreeNodeFlags_Selected : 0)
+				| (node.HasChildren() ? 0 : ImGuiTreeNodeFlags_Leaf);
+			const bool expanded = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(node.GetId())), nodeFlags, node.GetName().c_str());
+
+			if (ImGui::IsItemClicked())
+				mSelectedNode = &node;
+
+			return expanded;
+		}
+		void PopNode(Node& node) override
+		{
+			ImGui::TreePop();
+		}
+	private:
+		Node* mSelectedNode = nullptr;
+	};
+	static MP modelProbe;
+
+	modelProbe.SpawnWindow(mSponza);
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
 	//mWall.ShowWindow(gfx, "Wall");
