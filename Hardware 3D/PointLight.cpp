@@ -41,7 +41,7 @@ void PointLight::Reset() noexcept
 	mBufferData =
 	{
 		{ 0.0f, 0.0f, 0.0f },
-		{ 0.0f, 0.0f, -1.0f },
+		{ 1.0f, 2.5f, -8.0f },
 		{ 0.05f, 0.05f, 0.05f },
 		{ 1.0f, 1.0f, 1.0f },
 		1.0f, 1.0f, 0.045f, 0.0075f

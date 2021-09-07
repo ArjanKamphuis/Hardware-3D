@@ -22,7 +22,7 @@ public:
 
 private:
 	static std::unique_ptr<Mesh> ParseMesh(const Graphics& gfx, const aiMesh& mesh, const aiMaterial* const* pMaterials, const std::filesystem::path& path, float scale);
-	std::unique_ptr<Node> ParseNode(int& nextId, const aiNode& node) noexcept;
+	std::unique_ptr<Node> XM_CALLCONV ParseNode(int& nextId, const aiNode& node, DirectX::FXMMATRIX additionalTransform) noexcept;
 
 private:
 	std::unique_ptr<Node> mRoot;

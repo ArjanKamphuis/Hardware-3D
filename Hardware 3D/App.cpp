@@ -22,12 +22,6 @@ App::App(const std::wstring& commandLine)
 	mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
 	mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
 
-	std::string path{ "Models/brick_wall/brick_wall.obj" };
-	Assimp::Importer imp;
-	const aiScene* pScene = imp.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
-	Material mat{ mWnd.Gfx(), *pScene->mMaterials[1], path };
-	mLoadedMesh = std::make_unique<Mesh>(mWnd.Gfx(), mat, *pScene->mMeshes[0]);
-
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
@@ -135,7 +129,6 @@ void App::DoFrame(float dt)
 	//mRedPlane.Draw(gfx);
 	//mCube.Submit(mFrameCommander);
 	//mCube2.Submit(mFrameCommander);
-	mLoadedMesh->Submit(mFrameCommander, XMMatrixIdentity());
 
 	mFrameCommander.Execute(gfx);
 
@@ -186,7 +179,6 @@ void App::DoImGui(const Graphics& gfx) noexcept
 			return dirty;
 		}
 	} probe;
-	mLoadedMesh->Accept(probe);
 
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();

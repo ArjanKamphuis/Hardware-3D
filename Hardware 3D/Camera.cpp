@@ -42,7 +42,7 @@ void Camera::SpawnControlWindow() noexcept
 
 void Camera::Reset() noexcept
 {
-	mPosition = { 0.0f, 0.0f, -3.0f };
+	mPosition = { 0.0f, 0.0f, -12.0f };
 	mPitch = 0.0f;
 	mYaw = 0.0f;
 }
