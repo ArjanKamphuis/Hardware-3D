@@ -142,6 +142,46 @@ void App::DoFrame(float dt)
 
 void App::DoImGui(const Graphics& gfx) noexcept
 {
+	class Probe : public TechniqueProbe
+	{
+	protected:
+		void OnSetTechnique() override
+		{
+			ImGui::TextColored({ 0.4f, 1.0f, 0.6f, 1.0f }, ChiliUtil::ToNarrow(mTechnique->GetName()).c_str());
+			bool active = mTechnique->IsActive();
+			ImGui::Checkbox(("Tech Active##"s + std::to_string(mTechIdx)).c_str(), &active);
+			mTechnique->SetActiveState(active);
+		}
+		bool OnVisitBuffer(Dcb::Buffer& buffer) override
+		{
+			float dirty = false;
+			const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
+			auto tag = [tagScratch = std::string{}, tagString = "##" + std::to_string(mBufferIdx)](const char* label) mutable
+			{
+				tagScratch = label + tagString;
+				return tagScratch.c_str();
+			};
+
+			if (auto r = buffer[L"Scale"s]; r.Exists())
+				dcheck(ImGui::SliderFloat(tag("Scale"), &r, 1.0f, 2.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
+			if (auto r = buffer[L"MaterialColor"s]; r.Exists())
+				dcheck(ImGui::ColorPicker3(tag("Mat. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(r))));
+			if (auto r = buffer[L"SpecularColor"s]; r.Exists())
+				dcheck(ImGui::ColorPicker3(tag("Spec. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(r))));
+			if (auto r = buffer[L"SpecularGloss"s]; r.Exists())
+				dcheck(ImGui::SliderFloat(tag("Glossiness"), &r, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
+			if (auto r = buffer[L"SpecularWeight"s]; r.Exists())
+				dcheck(ImGui::SliderFloat(tag("Spec. Weight"), &r, 1.0f, 2.0f));
+			if (auto r = buffer[L"UseNormalMap"s]; r.Exists())
+				dcheck(ImGui::Checkbox(tag("Normal Map Enabled"), &r));
+			if (auto r = buffer[L"NormalMapWeight"s]; r.Exists())
+				dcheck(ImGui::SliderFloat(tag("Normal Map Weight"), &r, 0.0f, 2.0f));
+
+			return dirty;
+		}
+	} probe;
+	mLoadedMesh->Accept(probe);
+
 	mCamera.SpawnControlWindow();
 	mLight.SpawnControlWindow();
 	//mWall.ShowWindow(gfx, "Wall");

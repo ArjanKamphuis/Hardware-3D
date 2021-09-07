@@ -49,7 +49,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 				step.AddBindable(std::move(pTex));
 			}
 			else
-				pscLayout.Add(Dcb::Type::Float4, L"MaterialColor"s);
+				pscLayout.Add(Dcb::Type::Float3, L"MaterialColor"s);
 
 			step.AddBindable(Rasterizer::Resolve(gfx, hasAlpha));
 		}
@@ -98,7 +98,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 			{
 				aiColor3D color;
 				material.Get(AI_MATKEY_COLOR_DIFFUSE, color);
-				r = reinterpret_cast<XMFLOAT4&>(color);
+				r = reinterpret_cast<XMFLOAT3&>(color);
 			}
 			if (Dcb::ElementRef r = buffer[L"SpecularColor"s]; r.Exists())
 			{
@@ -142,9 +142,9 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"s));
 
 			Dcb::RawLayout layout;
-			layout.Add(Dcb::Type::Float4, L"MaterialColor"s);
+			layout.Add(Dcb::Type::Float3, L"MaterialColor"s);
 			Dcb::Buffer buffer{ std::move(layout) };
-			buffer[L"MaterialColor"s] = XMFLOAT4{ 1.0f, 0.4f, 0.4f, 1.0f };
+			buffer[L"MaterialColor"s] = XMFLOAT3{ 1.0f, 0.4f, 0.4f };
 			draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
 
 			class TransformCbufScaling : public TransformCBuf

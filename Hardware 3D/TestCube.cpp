@@ -72,9 +72,9 @@ TestCube::TestCube(const Graphics& gfx, float size)
 			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"s));
 
 			Dcb::RawLayout layout;
-			layout.Add(Dcb::Type::Float4, L"MaterialColor"s);
+			layout.Add(Dcb::Type::Float3, L"MaterialColor"s);
 			Dcb::Buffer buffer(std::move(layout));
-			buffer[L"MaterialColor"s] = XMFLOAT4{ 1.0f, 0.4f, 0.4f, 1.0f };
+			buffer[L"MaterialColor"s] = XMFLOAT3{ 1.0f, 0.4f, 0.4f };
 			draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
 
 			class TransformCbufScaling : public TransformCBuf
@@ -156,7 +156,7 @@ void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcep
 				if (Dcb::ElementRef v = buffer[L"Scale"s]; v.Exists())
 					dcheck(ImGui::SliderFloat(tag("Scale"), &v, 1.0f, 2.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
 				if (Dcb::ElementRef v = buffer[L"MaterialColor"s]; v.Exists())
-					dcheck(ImGui::ColorPicker4(tag("Mat. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT4&>(v))));
+					dcheck(ImGui::ColorPicker3(tag("Mat. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
 				if (Dcb::ElementRef v = buffer[L"SpecularColor"s]; v.Exists())
 					dcheck(ImGui::ColorPicker3(tag("Spec. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
 				if (Dcb::ElementRef v = buffer[L"SpecularPower"s]; v.Exists())

@@ -20,7 +20,10 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 {
 	normal = normalize(normal);
 	if (gUseNormalMap)
-		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
+	{
+		const float3 mappedNormal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
+		normal = lerp(normal, mappedNormal, gNormalMapWeight);
+	}
 	
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
