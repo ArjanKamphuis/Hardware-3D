@@ -1,9 +1,13 @@
 #include "TexturePreprocessor.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #include <filesystem>
 #include <sstream>
 #include "ChiliUtil.h"
-#include "Mesh.h"
+#include "ModelException.h"
 
 using namespace DirectX;
 using namespace DirectX::PackedVector;
@@ -32,7 +36,7 @@ void TexturePreprocessor::FlipYAllNormalMapsInObj(const std::wstring& objPath)
 	Assimp::Importer imp;
 	const aiScene* pScene = imp.ReadFile(ToNarrow(objPath).c_str(), 0u);
 	if (pScene == nullptr)
-		throw Model::Exception(__LINE__, __FILEW__, imp.GetErrorString());
+		throw ModelException(__LINE__, __FILEW__, imp.GetErrorString());
 
 	for (UINT i = 0u; i < pScene->mNumMaterials; i++)
 	{

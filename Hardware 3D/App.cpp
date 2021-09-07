@@ -1,9 +1,16 @@
 #include "App.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include "imgui/imgui.h"
+
 #include "ChiliUtil.h"
 #include "DynamicConstantBuffer.h"
 #include "LayoutCodex.h"
 #include "Material.h"
+#include "Mesh.h"
 #include "Testing.h"
 
 using namespace DirectX;
@@ -26,7 +33,7 @@ App::App(const std::wstring& commandLine)
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
 	//mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
-	//mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
+	mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
 	//mNano.SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
 }
 
