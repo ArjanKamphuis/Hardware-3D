@@ -10,7 +10,7 @@ struct VSOut
 	float4 PosH : SV_POSITION;
 };
 
-VSOut main(float3 position : POSITION, float3 normal : NORMAL, float3 tangent : TANGENT, float3 bitangent : BITANGENT, float2 texC : TEXCOORD)
+VSOut main(float3 position : POSITION, float3 normal : NORMAL, float2 texC : TEXCOORD, float3 tangent : TANGENT, float3 bitangent : BITANGENT)
 {
 	VSOut vout;
 	vout.PosW = mul(float4(position, 1.0f), gWorld).xyz;

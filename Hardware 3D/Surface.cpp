@@ -18,7 +18,7 @@ Surface::Surface(size_t width, size_t height)
 Surface Surface::FromFile(const std::wstring& filename)
 {
 	ScratchImage scratch;
-	HRESULT hr = LoadFromWICFile(filename.c_str(), WIC_FLAGS_NONE, nullptr, scratch);
+	HRESULT hr = LoadFromWICFile(filename.c_str(), WIC_FLAGS_IGNORE_SRGB, nullptr, scratch);
 	if (FAILED(hr))
 		throw Exception(__LINE__, __FILEW__, filename, L"Failed to load image", hr);
 

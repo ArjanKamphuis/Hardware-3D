@@ -80,7 +80,8 @@ namespace Dvtx
 
 	VertexLayout& VertexLayout::Append(ElementType type) noexcept(!IS_DEBUG)
 	{
-		mElements.emplace_back(type, Size());
+		if (!Has(type))
+			mElements.emplace_back(type, Size());
 		return *this;
 	}
 
@@ -109,6 +110,14 @@ namespace Dvtx
 		for (const Element& e : mElements)
 			code += e.GetCode();
 		return code;
+	}
+
+	bool VertexLayout::Has(ElementType type) const noexcept
+	{
+		for (auto& e : mElements)
+			if (e.GetType() == type)
+				return true;
+		return false;
 	}
 
 	Vertex::Vertex(char* pData, const VertexLayout& layout) noexcept(!IS_DEBUG)

@@ -168,14 +168,7 @@ namespace Dvtx
 		std::vector<D3D11_INPUT_ELEMENT_DESC> GetD3DLayout() const noexcept(!IS_DEBUG);
 		std::wstring GetCode() const noexcept(!IS_DEBUG);
 
-		template<ElementType Type>
-		bool Has() const noexcept
-		{
-			for (auto& e : mElements)
-				if (e.GetType() == Type)
-					return true;
-			return false;
-		}
+		bool Has(ElementType type) const noexcept;
 
 	private:
 		std::vector<Element> mElements;

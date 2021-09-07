@@ -55,6 +55,15 @@
     <Filter Include="Source Files\Jobber">
       <UniqueIdentifier>{e5ea3948-727b-4cf6-af2f-6de018ee15aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Model">
+      <UniqueIdentifier>{9742c8e6-0840-46ed-99d1-fad459635195}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Model">
+      <UniqueIdentifier>{fc1c738c-86e0-4865-87ae-68dec7188c4f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other">
+      <UniqueIdentifier>{b5d189c9-709b-412a-a276-5d9c1d0bf94b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -171,9 +180,6 @@
     <ClCompile Include="Vertex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ModelExceptions.cpp">
       <Filter>Source Files\ExceptionDefinitions</Filter>
     </ClCompile>
@@ -257,6 +263,12 @@
     </ClCompile>
     <ClCompile Include="TechniqueProbe.cpp">
       <Filter>Source Files\Jobber</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source Files\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -389,9 +401,6 @@
     <ClInclude Include="Vertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BindableCodex.h">
       <Filter>Header Files\Bindable</Filter>
     </ClInclude>
@@ -467,6 +476,12 @@
     <ClInclude Include="TechniqueProbe.h">
       <Filter>Header Files\Jobber</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Hardware 3D.rc">
@@ -494,10 +509,10 @@
     <FxCompile Include="PhongPSSpecNormalMap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongPSNormalMap.hlsl">
+    <FxCompile Include="PhongDifNrmPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PhongVSNormalMap.hlsl">
+    <FxCompile Include="PhongDifNrmVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="PhongPSNormalMapObject.hlsl">
@@ -529,6 +544,8 @@
     <None Include="LightVectorData.hlsli">
       <Filter>Shaders\Common</Filter>
     </None>
-    <None Include="process.json" />
+    <None Include="process.json">
+      <Filter>Other</Filter>
+    </None>
   </ItemGroup>
 </Project>

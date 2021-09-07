@@ -8,6 +8,19 @@ Step::Step(size_t targetPass)
 {
 }
 
+Step::Step(const Step& rhs) noexcept
+	: mTargetPass(rhs.mTargetPass)
+{
+	mBindables.reserve(rhs.mBindables.size());
+	for (auto& pb : rhs.mBindables)
+	{
+		if (auto* pCloning = dynamic_cast<const Bind::CloningBindable*>(pb.get()))
+			mBindables.push_back(pCloning->Clone());
+		else
+			mBindables.push_back(pb);
+	}
+}
+
 void Step::InitializeParentReferences(const Drawable& parent) noexcept
 {
 	for (auto& bind : mBindables)

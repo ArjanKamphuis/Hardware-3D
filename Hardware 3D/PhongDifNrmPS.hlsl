@@ -1,9 +1,11 @@
 cbuffer gMaterialCBuf : register(b0)
 {
 	float3 gSpecularColor;
-	float gSpecularPower;
-	bool gNormalMapEnabled;
-	float3 gMaterialPad;
+	float gSpecularWeight;
+	float gSpecularGloss;
+	bool gUseNormalMap;
+	float gNormalMapWeight;
+	float gMatPad;
 };
 
 #include "PointLightBuffer.hlsli"
@@ -17,13 +19,13 @@ SamplerState gSampler;
 float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TANGENT, float3 bitangent : BITANGENT, float2 texC : TEXCOORD) : SV_TARGET
 {
 	normal = normalize(normal);
-	if (gNormalMapEnabled)
+	if (gUseNormalMap)
 		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
 	
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
 	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
-	const float3 specular = Speculate(gSpecularColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, gSpecularPower);
+	const float3 specular = Speculate(gDiffuseColor * gDiffuseIntensity * gSpecularColor, gSpecularWeight, normal, lv.VToL, gCameraPosition, posW, att, gSpecularGloss);
 
 	return float4(saturate((diffuse + gAmbientColor) * gTexture.Sample(gSampler, texC).rgb + specular), 1.0f);
 }

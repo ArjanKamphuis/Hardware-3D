@@ -3,6 +3,9 @@
 #include "Graphics.h"
 #include "Technique.h"
 
+class Material;
+struct aiMesh;
+
 namespace Bind
 {
 	class IndexBuffer;
@@ -15,6 +18,7 @@ class Drawable
 {
 public:
 	Drawable() = default;
+	Drawable(const Graphics& gfx, const Material& material, const aiMesh& mesh) noexcept;
 	Drawable(const Drawable&) = delete;
 	Drawable& operator=(const Drawable&) = delete;
 	virtual ~Drawable() = default;

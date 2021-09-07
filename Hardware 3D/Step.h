@@ -11,6 +11,11 @@ class Step
 {
 public:
 	Step(size_t targetPass);
+	Step(const Step& rhs) noexcept;
+	Step(Step&& rhs) = default;
+	Step& operator=(const Step& rhs) = delete;
+	Step& operator=(Step&& rhs) = delete;
+
 	void InitializeParentReferences(const Drawable& parent) noexcept;
 
 	void AddBindable(std::shared_ptr<Bind::Bindable> bind) noexcept;

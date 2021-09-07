@@ -1,9 +1,21 @@
 #include "Drawable.h"
 
+#include <assimp/scene.h>
 #include "BindableCommon.h"
 #include "GraphicsThrowMacros.h"
+#include "Material.h"
 
 using namespace Bind;
+
+Drawable::Drawable(const Graphics& gfx, const Material& material, const aiMesh& mesh) noexcept
+{
+	mVertexBuffer = material.MakeVertexBindable(gfx, mesh);
+	mIndexBuffer = material.MakeIndexBindable(gfx, mesh);
+	mTopology = Topology::Resolve(gfx);
+
+	for (Technique& technique : material.GetTechniques())
+		AddTechnique(std::move(technique));
+}
 
 void Drawable::AddTechnique(Technique technique) noexcept
 {

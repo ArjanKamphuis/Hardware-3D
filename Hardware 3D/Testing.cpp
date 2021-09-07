@@ -2,6 +2,8 @@
 
 #include "DynamicConstantBuffer.h"
 #include "LayoutCodex.h"
+#include "Material.h"
+#include "Mesh.h"
 #include "Vertex.h"
 
 #include <assimp/Importer.hpp>
@@ -9,7 +11,6 @@
 #include <assimp/scene.h>
 
 using namespace DirectX;
-using namespace Dvtx;
 using namespace std::string_literals;
 
 void TestDynamicConstant()
@@ -218,6 +219,7 @@ void TestDynamicConstant()
 
 void TestDynamicMeshLoading()
 {
+	using namespace Dvtx;
 	using ElementType = VertexLayout::ElementType;
 
 	Assimp::Importer imp;
@@ -239,4 +241,13 @@ void TestDynamicMeshLoading()
 		const XMFLOAT3 d = buffer[i].Attr<ElementType::BiTangent>();
 		const XMFLOAT2 e = buffer[i].Attr<ElementType::Texture2D>();
 	}
+}
+
+void TestMaterialSystemLoading(const Graphics& gfx)
+{
+	std::string path{ "Models/brick_wall/brick_wall.obj"s };
+	Assimp::Importer imp;
+	const aiScene* pScene = imp.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
+	Material mat{ gfx, *pScene->mMaterials[1], path };
+	Mesh mesh{ gfx, mat, *pScene->mMeshes[0] };
 }

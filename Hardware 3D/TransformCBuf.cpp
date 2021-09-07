@@ -22,6 +22,11 @@ namespace Bind
 		UpdateBindImpl(gfx, GetTransforms(gfx));
 	}
 
+	std::unique_ptr<CloningBindable> TransformCBuf::Clone() const noexcept
+	{
+		return std::make_unique<TransformCBuf>(*this);
+	}
+
 	void TransformCBuf::UpdateBindImpl(const Graphics& gfx, const Transforms& tf) noexcept
 	{
 		assert(mParent != nullptr);

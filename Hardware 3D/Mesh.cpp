@@ -14,6 +14,11 @@ using namespace ChiliXM;
 using namespace std::string_literals;
 using ChiliUtil::ToWide;
 
+Mesh::Mesh(const Graphics& gfx, const Material& material, const aiMesh& mesh) noexcept(!IS_DEBUG)
+	: Drawable(gfx, material, mesh)
+{
+}
+
 void XM_CALLCONV Mesh::Submit(FrameCommander& frame, FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG)
 {
 	XMStoreFloat4x4(&mTransform, accumulatedTransform);
