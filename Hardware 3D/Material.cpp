@@ -125,7 +125,68 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 	}
 	// outline technique
 	{
-		
+		Technique outline{ L"Outline"s };
+		{
+			Step mask{ 1u };
+			auto pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
+			mask.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
+			mask.AddBindable(std::move(pVS));
+			mask.AddBindable(std::make_shared<TransformCBuf>(gfx));
+			outline.AddStep(mask);
+		}
+		{
+			Step draw{ 2u };
+			auto pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
+			draw.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
+			draw.AddBindable(std::move(pVS));
+			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"s));
+
+			Dcb::RawLayout layout;
+			layout.Add(Dcb::Type::Float4, L"MaterialColor"s);
+			Dcb::Buffer buffer{ std::move(layout) };
+			buffer[L"MaterialColor"s] = XMFLOAT4{ 1.0f, 0.4f, 0.4f, 1.0f };
+			draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
+
+			class TransformCbufScaling : public TransformCBuf
+			{
+			public:
+				TransformCbufScaling(const Graphics& gfx, float scale = 1.04f)
+					: TransformCBuf(gfx), mBuffer(MakeLayout())
+				{
+					mBuffer[L"Scale"s] = scale;
+				}
+				void Accept(TechniqueProbe& probe) override
+				{
+					probe.VisitBuffer(mBuffer);
+				}
+				void Bind(const Graphics& gfx) noexcept override
+				{
+					const float scale = mBuffer[L"Scale"s];
+					const XMMATRIX scaleMatrix = XMMatrixScaling(scale, scale, scale);
+					Transforms xf = GetTransforms(gfx);
+					xf.World = xf.World * scaleMatrix;
+					xf.WVP = xf.WVP * scaleMatrix;
+					UpdateBindImpl(gfx, xf);
+				}
+				std::unique_ptr<CloningBindable> Clone() const noexcept override
+				{
+					return std::make_unique<TransformCbufScaling>(*this);
+				}
+			private:
+				static Dcb::RawLayout MakeLayout()
+				{
+					Dcb::RawLayout layout;
+					layout.Add(Dcb::Type::Float, L"Scale"s);
+					return layout;
+				}
+			private:
+				Dcb::Buffer mBuffer;
+			};
+
+			draw.AddBindable(std::make_shared<TransformCbufScaling>(gfx));
+			outline.AddStep(std::move(draw));
+		}
+		mTechniques.push_back(std::move(outline));
 	}
 }
 
