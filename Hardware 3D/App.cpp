@@ -19,7 +19,6 @@ using namespace std::string_literals;
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	TestMaterialSystemLoading(mWnd.Gfx());
 	mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
 	mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
 
@@ -33,7 +32,7 @@ App::App(const std::wstring& commandLine)
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
 	//mPlane.SetPosition({ 12.0f, 0.0f, 0.0f });
-	mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
+	//mGobber.SetRootTransform(XMMatrixTranslation(0.0f, 0.0f, -4.0f));
 	//mNano.SetRootTransform(XMMatrixTranslation(0.0f, -7.0f, 6.0f));
 }
 
@@ -129,7 +128,7 @@ void App::DoFrame(float dt)
 	//mWall.Draw(gfx);
 	//mPlane.Draw(gfx);
 	//mNano.Draw(gfx);
-	//mGobber.Draw(gfx);
+	mGobber.Submit(mFrameCommander);
 	mLight.Submit(mFrameCommander);
 	//mSponza.Draw(gfx);
 	//mBluePlane.Draw(gfx);

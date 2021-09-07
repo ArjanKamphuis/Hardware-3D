@@ -31,17 +31,19 @@ TestCube::TestCube(const Graphics& gfx, float size)
 		only.AddBindable(Texture::Resolve(gfx, L"Images/brickwall.jpg"s));
 		only.AddBindable(Sampler::Resolve(gfx));
 
-		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"Phong_VS.cso"s);
+		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongDif_VS.cso"s);
 		only.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 		only.AddBindable(std::move(pVS));
-		only.AddBindable(PixelShader::Resolve(gfx, L"Phong_PS.cso"s));
+		only.AddBindable(PixelShader::Resolve(gfx, L"PhongDif_PS.cso"s));
 
 		Dcb::RawLayout layout;
 		layout.Add(Dcb::Type::Float3, L"SpecularColor"s);
-		layout.Add(Dcb::Type::Float, L"SpecularPower"s);
+		layout.Add(Dcb::Type::Float, L"SpecularWeight"s);
+		layout.Add(Dcb::Type::Float, L"SpecularGloss"s);
 		Dcb::Buffer buffer(std::move(layout));
 		buffer[L"SpecularColor"s] = XMFLOAT3{ 0.1f, 0.1f, 0.1f };
-		buffer[L"SpecularPower"s] = 20.0f;
+		buffer[L"SpecularWeight"s] = 1.0f;
+		buffer[L"SpecularGloss"] = 20.0f;
 		only.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
 		only.AddBindable(std::make_shared<TransformCBuf>(gfx));
 
@@ -159,8 +161,10 @@ void TestCube::SpawnControlWindow(const Graphics& gfx, const char* name) noexcep
 					dcheck(ImGui::ColorPicker3(tag("Mat. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
 				if (Dcb::ElementRef v = buffer[L"SpecularColor"s]; v.Exists())
 					dcheck(ImGui::ColorPicker3(tag("Spec. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(v))));
-				if (Dcb::ElementRef v = buffer[L"SpecularPower"s]; v.Exists())
-					dcheck(ImGui::SliderFloat(tag("Glossiness"), &v, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
+				if (auto r = buffer[L"SpecularGloss"s]; r.Exists())
+					dcheck(ImGui::SliderFloat(tag("Glossiness"), &r, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
+				if (auto r = buffer[L"SpecularWeight"s]; r.Exists())
+					dcheck(ImGui::SliderFloat(tag("Spec. Weight"), &r, 1.0f, 2.0f));
 
 				return dirty;
 			}

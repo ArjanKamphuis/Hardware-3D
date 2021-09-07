@@ -1,9 +1,10 @@
 cbuffer ObjectBuffer : register(b0)
 {
-	bool gHasGloss;
-	float gSpecularPower;
-	float gSpecularMapWeight;
-	float gObjectPad;
+	bool gUseGlossAlpha;
+	float3 gSpecularColor;
+	float gSpecularWeight;
+	float gSpecularGloss;
+	float2 gMatPad;
 }
 
 #include "PointLightBuffer.hlsli"
@@ -21,12 +22,12 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	
 	const float4 specularSample = gSpecMap.Sample(gSampler, texC);
-	const float3 specularReflectionColor = specularSample.rgb * gSpecularMapWeight;
-	const float specularPower = gHasGloss ? pow(2.0f, specularSample.a * 13.0f) : gSpecularPower;
+	const float3 specularReflectionColor = specularSample.rgb;
+	const float specularPower = gUseGlossAlpha ? pow(2.0f, specularSample.a * 13.0f) : gSpecularGloss;
 
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
 	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
-	const float3 specularReflected = Speculate(specularReflectionColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, specularPower);
+	const float3 specularReflected = Speculate(gDiffuseColor * gDiffuseIntensity * specularReflectionColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, specularPower);
 
 	return float4(saturate((diffuse + gAmbientColor) * gTexture.Sample(gSampler, texC).rgb + specularReflected), 1.0f);
 }

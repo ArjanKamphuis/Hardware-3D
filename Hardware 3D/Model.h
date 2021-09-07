@@ -17,7 +17,7 @@ public:
 	Model(const Graphics& gfx, const std::string& pathName, float scale = 1.0f);
 	~Model() noexcept;
 	void Submit(FrameCommander& frame) const noexcept(!IS_DEBUG);
-	void ShowWindow(const Graphics& gfx, const char* windowName = nullptr) noexcept;
+	//void ShowWindow(const Graphics& gfx, const char* windowName = nullptr) noexcept;
 	void XM_CALLCONV SetRootTransform(DirectX::FXMMATRIX transform) noexcept;
 
 private:
@@ -27,5 +27,5 @@ private:
 private:
 	std::unique_ptr<Node> mRoot;
 	std::vector<std::unique_ptr<Mesh>> mMeshPtrs;
-	std::unique_ptr<class ModelWindow> mWindow;
+	//std::unique_ptr<class ModelWindow> mWindow;
 };

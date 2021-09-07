@@ -1,11 +1,11 @@
 cbuffer ObjectBuffer : register(b0)
 {
-	bool gNormalMapEnabled;
-	bool gSpecularMapEnabled;
-	bool gHasGloss;
-	float gSpecularPower;
+	bool gUseGlossAlpha;
 	float3 gSpecularColor;
-	float gSpecularMapWeight;
+	float gSpecularWeight;
+	float gSpecularGloss;
+	bool gUseNormalMap;
+	float gNormalMapWeight;
 }
 
 #include "PointLightBuffer.hlsli"
@@ -28,26 +28,20 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float3 tangent : TAN
 	#endif
 	
 	normal = normalize(normal);
-	if (gNormalMapEnabled)
-		normal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
+	if (gUseNormalMap)
+	{
+		const float3 mappedNormal = MapNormal(normalize(tangent), normalize(bitangent), normal, texC, gNormalMap, gSampler);
+		normal = lerp(normal, mappedNormal, gNormalMapWeight);
+	}
+	
+	const float4 specularSample = gSpecMap.Sample(gSampler, texC);
+	const float3 specularReflectionColor = specularSample.rgb;
+	const float specularPower = gUseGlossAlpha ? pow(2.0f, specularSample.a * 13.0f) : gSpecularGloss;
 	
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
-	float3 specularReflectionColor;
-	float specularPower = gSpecularPower;
-	
-	if (gSpecularMapEnabled)
-	{
-		const float4 specularSample = gSpecMap.Sample(gSampler, texC);
-		specularReflectionColor = specularSample.rgb * gSpecularMapWeight;
-		if (gHasGloss)
-			specularPower = pow(2.0f, specularSample.a * 13.0f);
-	}
-	else
-		specularReflectionColor = gSpecularColor;	
-
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);
 	const float3 diffuse = Diffuse(gDiffuseColor, gDiffuseIntensity, att, lv.DirToL, normal);
-	const float3 specularReflected = Speculate(specularReflectionColor, 1.0f, normal, lv.VToL, gCameraPosition, posW, att, specularPower);
+	const float3 specularReflected = Speculate(gDiffuseColor * gDiffuseIntensity * specularReflectionColor, gSpecularWeight, normal, lv.VToL, gCameraPosition, posW, att, specularPower);
 
-	return float4(saturate((diffuse + gAmbientColor) * texSample.rgb + specularReflected), texSample.a);
+	return float4(saturate((diffuse + gAmbientColor) * texSample.rgb + specularReflected), 1.0f);
 }

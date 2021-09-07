@@ -32,26 +32,26 @@ const XMMATRIX XM_CALLCONV Node::GetAppliedTransform() const noexcept
 	return XMLoadFloat4x4(&mAppliedTransform);
 }
 
-void Node::ShowTree(Node*& pSelectedNode) const noexcept
-{
-	const int id = GetId();
-	const int selectedId = pSelectedNode == nullptr ? -1 : pSelectedNode->GetId();
-
-	const auto nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
-		| (id == selectedId ? ImGuiTreeNodeFlags_Selected : 0)
-		| (mChildPtrs.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
-	const bool expanded = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(id)), nodeFlags, mName.c_str());
-
-	if (ImGui::IsItemClicked())
-		pSelectedNode = const_cast<Node*>(this);
-
-	if (expanded)
-	{
-		for (const auto& pChild : mChildPtrs)
-			pChild->ShowTree(pSelectedNode);
-		ImGui::TreePop();
-	}
-}
+//void Node::ShowTree(Node*& pSelectedNode) const noexcept
+//{
+//	const int id = GetId();
+//	const int selectedId = pSelectedNode == nullptr ? -1 : pSelectedNode->GetId();
+//
+//	const auto nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow
+//		| (id == selectedId ? ImGuiTreeNodeFlags_Selected : 0)
+//		| (mChildPtrs.empty() ? ImGuiTreeNodeFlags_Leaf : 0);
+//	const bool expanded = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(id)), nodeFlags, mName.c_str());
+//
+//	if (ImGui::IsItemClicked())
+//		pSelectedNode = const_cast<Node*>(this);
+//
+//	if (expanded)
+//	{
+//		for (const auto& pChild : mChildPtrs)
+//			pChild->ShowTree(pSelectedNode);
+//		ImGui::TreePop();
+//	}
+//}
 
 int Node::GetId() const noexcept
 {

@@ -4,6 +4,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "Material.h"
 #include "Mesh.h"
 #include "ModelException.h"
 #include "ModelWindow.h"
@@ -12,15 +13,23 @@
 using namespace DirectX;
 
 Model::Model(const Graphics& gfx, const std::string& pathName, float scale)
-	: mWindow(std::make_unique<ModelWindow>())
+	//: mWindow(std::make_unique<ModelWindow>())
 {
 	Assimp::Importer imp;
 	const auto pScene = imp.ReadFile(pathName.c_str(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 	if (pScene == nullptr)
 		throw ModelException(__LINE__, __FILEW__, imp.GetErrorString());
 
-	for (size_t i = 0; i < pScene->mNumMeshes; i++)
-		mMeshPtrs.push_back(ParseMesh(gfx, *pScene->mMeshes[i], pScene->mMaterials, pathName, scale));
+	std::vector<Material> materials;
+	materials.reserve(static_cast<size_t>(pScene->mNumMaterials));
+	for (unsigned int i = 0u; i < pScene->mNumMaterials; i++)
+		materials.emplace_back(gfx, *pScene->mMaterials[i], pathName);
+
+	for (unsigned int i = 0u; i < pScene->mNumMeshes; i++)
+	{
+		const auto& mesh = *pScene->mMeshes[i];
+		mMeshPtrs.push_back(std::make_unique<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh));
+	}
 
 	int nextId = 0;
 	mRoot = ParseNode(nextId, *pScene->mRootNode);
@@ -32,14 +41,14 @@ Model::~Model() noexcept
 
 void Model::Submit(FrameCommander& frame) const noexcept(!IS_DEBUG)
 {
-	mWindow->ApplyParameters();
+	//mWindow->ApplyParameters();
 	mRoot->Submit(frame, XMMatrixIdentity());
 }
 
-void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
-{
-	mWindow->Show(gfx, windowName, *mRoot);
-}
+//void Model::ShowWindow(const Graphics& gfx, const char* windowName) noexcept
+//{
+//	mWindow->Show(gfx, windowName, *mRoot);
+//}
 
 void XM_CALLCONV Model::SetRootTransform(FXMMATRIX transform) noexcept
 {

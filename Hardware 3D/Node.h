@@ -15,7 +15,7 @@ public:
 	void XM_CALLCONV Submit(FrameCommander& frame, DirectX::FXMMATRIX accumulatedTransform) const noexcept(!IS_DEBUG);
 	void XM_CALLCONV SetAppliedTransform(DirectX::FXMMATRIX transform) noexcept;
 	const DirectX::XMMATRIX XM_CALLCONV GetAppliedTransform() const noexcept;
-	void ShowTree(Node*& pSelectedNode) const noexcept;
+	//void ShowTree(Node*& pSelectedNode) const noexcept;
 	int GetId() const noexcept;
 
 private:
