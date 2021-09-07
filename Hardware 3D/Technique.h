@@ -9,7 +9,7 @@ class Technique
 {
 public:
 	Technique() = default;
-	Technique(const std::wstring& name) noexcept;
+	Technique(const std::wstring& name, bool active = true) noexcept;
 	void InitializeParentReferences(const Drawable& parent) noexcept;
 
 	void Accept(TechniqueProbe& probe);

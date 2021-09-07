@@ -3,8 +3,8 @@
 #include "Drawable.h"
 #include "FrameCommander.h"
 
-Technique::Technique(const std::wstring& name) noexcept
-	: mName(name)
+Technique::Technique(const std::wstring& name, bool active) noexcept
+	: mName(name), mActive(active)
 {
 }
 

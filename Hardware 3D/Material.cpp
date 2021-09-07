@@ -125,7 +125,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 	}
 	// outline technique
 	{
-		Technique outline{ L"Outline"s };
+		Technique outline{ L"Outline"s, false };
 		{
 			Step mask{ 1u };
 			auto pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
