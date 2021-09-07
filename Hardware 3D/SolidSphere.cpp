@@ -20,11 +20,11 @@ SolidSphere::SolidSphere(const Graphics& gfx, float radius)
 	Technique solid;
 	Step only(0u);
 
-	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso");
+	std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso");
 	only.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 	only.AddBindable(std::move(pVS));
 
-	only.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"));
+	only.AddBindable(PixelShader::Resolve(gfx, L"Solid_PS.cso"));
 	only.AddBindable(PixelConstantBuffer<Material>::Resolve(gfx, mMaterial));
 	only.AddBindable(std::make_shared<TransformCBuf>(gfx));
 

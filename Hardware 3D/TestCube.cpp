@@ -31,10 +31,10 @@ TestCube::TestCube(const Graphics& gfx, float size)
 		only.AddBindable(Texture::Resolve(gfx, L"Images/brickwall.jpg"s));
 		only.AddBindable(Sampler::Resolve(gfx));
 
-		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"PhongVS.cso"s);
+		std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"Phong_VS.cso"s);
 		only.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 		only.AddBindable(std::move(pVS));
-		only.AddBindable(PixelShader::Resolve(gfx, L"PhongPS.cso"s));
+		only.AddBindable(PixelShader::Resolve(gfx, L"Phong_PS.cso"s));
 
 		Dcb::RawLayout layout;
 		layout.Add(Dcb::Type::Float3, L"SpecularColor"s);
@@ -54,7 +54,7 @@ TestCube::TestCube(const Graphics& gfx, float size)
 		{
 			Step mask(1u);
 
-			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
+			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
 			mask.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 			mask.AddBindable(std::move(pVS));
 
@@ -66,10 +66,10 @@ TestCube::TestCube(const Graphics& gfx, float size)
 		{
 			Step draw(2u);
 
-			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
+			std::shared_ptr<VertexShader> pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
 			draw.AddBindable(InputLayout::Resolve(gfx, model.Vertices.GetLayout(), pVS->GetByteCode()));
 			draw.AddBindable(std::move(pVS));
-			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"s));
+			draw.AddBindable(PixelShader::Resolve(gfx, L"Solid_PS.cso"s));
 
 			Dcb::RawLayout layout;
 			layout.Add(Dcb::Type::Float3, L"MaterialColor"s);

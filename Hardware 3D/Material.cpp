@@ -87,10 +87,10 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 		{
 			step.AddBindable(std::make_shared<TransformCBuf>(gfx));
 			step.AddBindable(Blender::Resolve(gfx, false));
-			auto pVS = VertexShader::Resolve(gfx, shaderCode + L"VS.cso"s);
+			auto pVS = VertexShader::Resolve(gfx, shaderCode + L"_VS.cso"s);
 			step.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
 			step.AddBindable(std::move(pVS));
-			step.AddBindable(PixelShader::Resolve(gfx, shaderCode + L"PS.cso"s));
+			step.AddBindable(PixelShader::Resolve(gfx, shaderCode + L"_PS.cso"s));
 			if (hasTexture) step.AddBindable(Sampler::Resolve(gfx));
 
 			Dcb::Buffer buffer{ std::move(pscLayout) };
@@ -128,7 +128,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 		Technique outline{ L"Outline"s };
 		{
 			Step mask{ 1u };
-			auto pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
+			auto pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
 			mask.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
 			mask.AddBindable(std::move(pVS));
 			mask.AddBindable(std::make_shared<TransformCBuf>(gfx));
@@ -136,10 +136,10 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 		}
 		{
 			Step draw{ 2u };
-			auto pVS = VertexShader::Resolve(gfx, L"SolidVS.cso"s);
+			auto pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
 			draw.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
 			draw.AddBindable(std::move(pVS));
-			draw.AddBindable(PixelShader::Resolve(gfx, L"SolidPS.cso"s));
+			draw.AddBindable(PixelShader::Resolve(gfx, L"Solid_PS.cso"s));
 
 			Dcb::RawLayout layout;
 			layout.Add(Dcb::Type::Float3, L"MaterialColor"s);
