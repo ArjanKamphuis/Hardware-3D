@@ -138,54 +138,27 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 		}
 		{
 			Step draw{ 2u };
-			auto pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
+			auto pVS = VertexShader::Resolve(gfx, L"Offset_VS.cso"s);
 			draw.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
 			draw.AddBindable(std::move(pVS));
 			draw.AddBindable(PixelShader::Resolve(gfx, L"Solid_PS.cso"s));
 
-			Dcb::RawLayout layout;
-			layout.Add(Dcb::Type::Float3, L"MaterialColor"s);
-			Dcb::Buffer buffer{ std::move(layout) };
-			buffer[L"MaterialColor"s] = XMFLOAT3{ 1.0f, 0.4f, 0.4f };
-			draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
-
-			class TransformCbufScaling : public TransformCBuf
 			{
-			public:
-				TransformCbufScaling(const Graphics& gfx, float scale = 1.04f)
-					: TransformCBuf(gfx), mBuffer(MakeLayout())
-				{
-					mBuffer[L"Scale"s] = scale;
-				}
-				void Accept(TechniqueProbe& probe) override
-				{
-					probe.VisitBuffer(mBuffer);
-				}
-				void Bind(const Graphics& gfx) noexcept override
-				{
-					const float scale = mBuffer[L"Scale"s];
-					const XMMATRIX scaleMatrix = XMMatrixScaling(scale, scale, scale);
-					Transforms xf = GetTransforms(gfx);
-					xf.World = xf.World * scaleMatrix;
-					xf.WVP = xf.WVP * scaleMatrix;
-					UpdateBindImpl(gfx, xf);
-				}
-				std::unique_ptr<CloningBindable> Clone() const noexcept override
-				{
-					return std::make_unique<TransformCbufScaling>(*this);
-				}
-			private:
-				static Dcb::RawLayout MakeLayout()
-				{
-					Dcb::RawLayout layout;
-					layout.Add(Dcb::Type::Float, L"Scale"s);
-					return layout;
-				}
-			private:
-				Dcb::Buffer mBuffer;
-			};
+				Dcb::RawLayout layout;
+				layout.Add(Dcb::Type::Float3, L"MaterialColor"s);
+				Dcb::Buffer buffer{ std::move(layout) };
+				buffer[L"MaterialColor"s] = XMFLOAT3{ 1.0f, 0.4f, 0.4f };
+				draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
+			}
+			{
+				Dcb::RawLayout layout;
+				layout.Add(Dcb::Type::Float, L"Offset"s);
+				Dcb::Buffer buffer{ std::move(layout) };
+				buffer[L"Offset"s] = 0.1f;
+				draw.AddBindable(std::make_shared<CachingVertexConstantBufferEx>(gfx, buffer, 1u));
+			}
 
-			draw.AddBindable(std::make_shared<TransformCbufScaling>(gfx));
+			draw.AddBindable(std::make_shared<TransformCBuf>(gfx));
 			outline.AddStep(std::move(draw));
 		}
 		mTechniques.push_back(std::move(outline));

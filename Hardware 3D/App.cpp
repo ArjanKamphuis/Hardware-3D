@@ -168,6 +168,8 @@ void App::DoImGui(const Graphics& gfx) noexcept
 
 			if (auto r = buffer[L"Scale"s]; r.Exists())
 				dcheck(ImGui::SliderFloat(tag("Scale"), &r, 1.0f, 2.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
+			if (auto r = buffer[L"Offset"s]; r.Exists())
+				dcheck(ImGui::SliderFloat(tag("Offset"), &r, 0.0f, 1.0f, "%.3f", ImGuiSliderFlags_Logarithmic));
 			if (auto r = buffer[L"MaterialColor"s]; r.Exists())
 				dcheck(ImGui::ColorPicker3(tag("Mat. Color"), reinterpret_cast<float*>(&static_cast<XMFLOAT3&>(r))));
 			if (auto r = buffer[L"SpecularColor"s]; r.Exists())
