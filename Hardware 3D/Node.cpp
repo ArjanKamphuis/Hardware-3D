@@ -3,6 +3,7 @@
 #include "imgui/imgui.h"
 #include "Mesh.h"
 #include "ModelProbe.h"
+#include "TechniqueProbe.h"
 
 using namespace DirectX;
 
@@ -56,6 +57,12 @@ void Node::Accept(ModelProbe& probe)
 			cp->Accept(probe);
 		probe.PopNode(*this);
 	}
+}
+
+void Node::Accept(TechniqueProbe& probe)
+{
+	for (auto& mp : mMeshPtrs)
+		mp->Accept(probe);
 }
 
 void Node::AddChild(std::unique_ptr<Node> pChild) noexcept(!IS_DEBUG)

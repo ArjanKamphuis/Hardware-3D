@@ -1,6 +1,7 @@
 cbuffer ObjectBuffer : register(b0)
 {
 	bool gUseGlossAlpha;
+	bool gUseSpecularMap;
 	float3 gSpecularColor;
 	float gSpecularWeight;
 	float gSpecularGloss;
@@ -22,7 +23,7 @@ float4 main(float3 posW : POSITION, float3 normal : NORMAL, float2 texC : TEXCOO
 	const LightVectorData lv = CalculateLightVectorData(gLightPosition, posW);
 	
 	const float4 specularSample = gSpecMap.Sample(gSampler, texC);
-	const float3 specularReflectionColor = specularSample.rgb;
+	const float3 specularReflectionColor = gUseSpecularMap ? specularSample.rgb : gSpecularColor;
 	const float specularPower = gUseGlossAlpha ? pow(2.0f, specularSample.a * 13.0f) : gSpecularGloss;
 
 	const float att = Attenuate(gAttConst, gAttLinear, gAttQuad, lv.DistToL);

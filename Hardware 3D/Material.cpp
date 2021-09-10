@@ -64,6 +64,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 				hasGlossAlpha = pTex->HasAlpha();
 				step.AddBindable(std::move(pTex));
 				pscLayout.Add(Dcb::Type::Bool, L"UseGlossAlpha"s);
+				pscLayout.Add(Dcb::Type::Bool, L"UseSpecularMap"s);
 			}
 			pscLayout.Add(Dcb::Type::Float3, L"SpecularColor");
 			pscLayout.Add(Dcb::Type::Float, L"SpecularWeight");
@@ -114,6 +115,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 			}
 			buffer[L"UseGlossAlpha"s].SetIfExists(hasGlossAlpha);
 			buffer[L"SpecularWeight"s].SetIfExists(1.0f);
+			buffer[L"UseSpecularMap"s].SetIfExists(true);
 			buffer[L"UseNormalMap"s].SetIfExists(true);
 			buffer[L"NormalMapWeight"s].SetIfExists(1.0f);
 

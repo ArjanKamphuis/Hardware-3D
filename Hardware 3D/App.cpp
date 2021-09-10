@@ -176,6 +176,8 @@ void App::DoImGui(const Graphics& gfx) noexcept
 				dcheck(ImGui::SliderFloat(tag("Glossiness"), &r, 1.0f, 100.0f, "%.1f", ImGuiSliderFlags_Logarithmic));
 			if (auto r = buffer[L"SpecularWeight"s]; r.Exists())
 				dcheck(ImGui::SliderFloat(tag("Spec. Weight"), &r, 1.0f, 2.0f));
+			if (auto r = buffer[L"UseSpecularMap"s]; r.Exists())
+				dcheck(ImGui::Checkbox(tag("Spec. Map Enabled"), &r));
 			if (auto r = buffer[L"UseNormalMap"s]; r.Exists())
 				dcheck(ImGui::Checkbox(tag("Normal Map Enabled"), &r));
 			if (auto r = buffer[L"NormalMapWeight"s]; r.Exists())
@@ -183,7 +185,7 @@ void App::DoImGui(const Graphics& gfx) noexcept
 
 			return dirty;
 		}
-	} probe;
+	};
 
 	class MP : public ModelProbe
 	{
@@ -220,6 +222,9 @@ void App::DoImGui(const Graphics& gfx) noexcept
 					mSelectedNode->SetAppliedTransform(
 						XMMatrixRotationX(tf.Orientation.x) * XMMatrixRotationY(tf.Orientation.y) * XMMatrixRotationZ(tf.Orientation.z) * 
 						XMMatrixTranslation(tf.Position.x, tf.Position.y, tf.Position.z));
+
+				TP probe;
+				mSelectedNode->Accept(probe);
 			}
 			ImGui::End();
 		}
