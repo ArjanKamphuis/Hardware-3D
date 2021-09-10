@@ -21,7 +21,7 @@ public:
 protected:
 	virtual void OnSetTechnique();
 	virtual void OnSetStep();
-	virtual bool OnVisitBuffer(Dcb::Buffer& buffer) = 0;
+	virtual bool OnVisitBuffer(Dcb::Buffer& buffer);
 
 protected:
 	Technique* mTechnique = nullptr;

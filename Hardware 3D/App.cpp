@@ -25,8 +25,8 @@ App::App(const std::wstring& commandLine)
 {
 	//TestScaleMatrixTranslation();
 
-	mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
-	mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
+	//mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
+	//mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
@@ -129,11 +129,11 @@ void App::DoFrame(float dt)
 	//mNano.Draw(gfx);
 	//mGobber.Submit(mFrameCommander);
 	mLight.Submit(mFrameCommander);
-	mCube.Submit(mFrameCommander);
+	//mCube.Submit(mFrameCommander);
 	mSponza.Submit(mFrameCommander);
 	//mBluePlane.Draw(gfx);
 	//mRedPlane.Draw(gfx);
-	mCube2.Submit(mFrameCommander);
+	//mCube2.Submit(mFrameCommander);
 
 	mFrameCommander.Execute(gfx);
 
@@ -239,7 +239,27 @@ void App::DoImGui(const Graphics& gfx) noexcept
 			const bool expanded = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<intptr_t>(node.GetId())), nodeFlags, node.GetName().c_str());
 
 			if (ImGui::IsItemClicked())
+			{
+				struct HighlightProbe : public TechniqueProbe
+				{
+				protected:
+					void OnSetTechnique() override
+					{
+						if (mTechnique->GetName() == L"Outline"s)
+							mTechnique->SetActiveState(Highlighted);
+					}
+				public:
+					bool Highlighted = false;
+				} probe;
+
+				if (mSelectedNode != nullptr)
+					mSelectedNode->Accept(probe);
+
+				probe.Highlighted = true;
+				node.Accept(probe);
+
 				mSelectedNode = &node;
+			}
 
 			return expanded;
 		}
@@ -278,6 +298,6 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mSponza.ShowWindow(gfx, "Sponza");
 	//mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
 	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
-	mCube.SpawnControlWindow(gfx, "Cube1");
-	mCube2.SpawnControlWindow(gfx, "Cube2");
+	//mCube.SpawnControlWindow(gfx, "Cube1");
+	//mCube2.SpawnControlWindow(gfx, "Cube2");
 }

@@ -27,3 +27,8 @@ void TechniqueProbe::OnSetTechnique()
 void TechniqueProbe::OnSetStep()
 {
 }
+
+bool TechniqueProbe::OnVisitBuffer(Dcb::Buffer& buffer)
+{
+	return false;
+}
