@@ -8,7 +8,6 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "ModelException.h"
-#include "ModelWindow.h"
 #include "Node.h"
 
 using namespace DirectX;
