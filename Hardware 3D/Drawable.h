@@ -18,7 +18,7 @@ class Drawable
 {
 public:
 	Drawable() = default;
-	Drawable(const Graphics& gfx, const Material& material, const aiMesh& mesh) noexcept;
+	Drawable(const Graphics& gfx, const Material& material, const aiMesh& mesh, float scale = 1.0f) noexcept;
 	Drawable(const Drawable&) = delete;
 	Drawable& operator=(const Drawable&) = delete;
 	virtual ~Drawable() = default;

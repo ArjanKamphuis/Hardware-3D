@@ -210,9 +210,20 @@ std::vector<unsigned short> Material::ExtractIndices(const aiMesh& mesh) const n
 	return indices;
 }
 
-std::shared_ptr<VertexBuffer> Material::MakeVertexBindable(const Graphics& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG)
+std::shared_ptr<VertexBuffer> Material::MakeVertexBindable(const Graphics& gfx, const aiMesh& mesh, float scale) const noexcept(!IS_DEBUG)
 {
-	return VertexBuffer::Resolve(gfx, MakeMeshTag(mesh), ExtractVertices(mesh));
+	Dvtx::VertexBuffer vtc = ExtractVertices(mesh);
+	if (scale != 1.0f)
+	{
+		for (size_t i = 0u; i < vtc.Size(); i++)
+		{
+			XMFLOAT3& position = vtc[i].Attr<Dvtx::VertexLayout::ElementType::Position3D>();
+			position.x *= scale;
+			position.y *= scale;
+			position.z *= scale;
+		}
+	}
+	return VertexBuffer::Resolve(gfx, MakeMeshTag(mesh), std::move(vtc));
 }
 
 std::shared_ptr<IndexBuffer> Material::MakeIndexBindable(const Graphics& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG)

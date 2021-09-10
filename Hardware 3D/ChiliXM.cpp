@@ -32,4 +32,12 @@ namespace ChiliXM
         XMStoreFloat4x4(&mat, matrix);
         return XMVectorSet(mat._41, mat._42, mat._43, 1.0f);
     }
+
+    XMMATRIX XM_CALLCONV ScaleTranslation(XMMATRIX matrix, float scale)
+    {
+        matrix.r[3].m128_f32[0] *= scale;
+        matrix.r[3].m128_f32[1] *= scale;
+        matrix.r[3].m128_f32[2] *= scale;
+        return matrix;
+    }
 }

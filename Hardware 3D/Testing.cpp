@@ -1,5 +1,6 @@
 #include "Testing.h"
 
+#include "ChiliXM.h"
 #include "DynamicConstantBuffer.h"
 #include "LayoutCodex.h"
 #include "Material.h"
@@ -250,4 +251,14 @@ void TestMaterialSystemLoading(const Graphics& gfx)
 	const aiScene* pScene = imp.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
 	Material mat{ gfx, *pScene->mMaterials[1], path };
 	Mesh mesh{ gfx, mat, *pScene->mMeshes[0] };
+}
+
+void TestScaleMatrixTranslation()
+{
+	using namespace ChiliXM;
+	XMMATRIX translation = XMMatrixTranslation(20.0f, 30.0f, 40.0f);
+	translation = ScaleTranslation(translation, 0.1f);
+	XMFLOAT3 f3;
+	XMStoreFloat3(&f3, ExtractTranslation(translation));
+	assert(f3.x == 2.0f && f3.y == 3.0f && f3.z == 4.0f);
 }

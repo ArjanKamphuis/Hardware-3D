@@ -2,8 +2,8 @@
 
 using namespace DirectX;
 
-Mesh::Mesh(const Graphics& gfx, const Material& material, const aiMesh& mesh) noexcept(!IS_DEBUG)
-	: Drawable(gfx, material, mesh)
+Mesh::Mesh(const Graphics& gfx, const Material& material, const aiMesh& mesh, float scale) noexcept(!IS_DEBUG)
+	: Drawable(gfx, material, mesh, scale)
 {
 }
 

@@ -7,6 +7,7 @@
 #include "imgui/imgui.h"
 
 #include "ChiliUtil.h"
+#include "ChiliXM.h"
 #include "DynamicConstantBuffer.h"
 #include "LayoutCodex.h"
 #include "Material.h"
@@ -15,14 +16,17 @@
 #include "Node.h"
 #include "Testing.h"
 
+using namespace ChiliXM;
 using namespace DirectX;
 using namespace std::string_literals;
 
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	//mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
-	//mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
+	//TestScaleMatrixTranslation();
+
+	mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
+	mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
 	//mBluePlane.SetPosition(mCamera.GetPosition());
 	//mRedPlane.SetPosition(mCamera.GetPosition());
 	//mWall.SetRootTransform(XMMatrixTranslation(-12.0f, 0.0f, 0.0f));
@@ -125,11 +129,11 @@ void App::DoFrame(float dt)
 	//mNano.Draw(gfx);
 	//mGobber.Submit(mFrameCommander);
 	mLight.Submit(mFrameCommander);
+	mCube.Submit(mFrameCommander);
 	mSponza.Submit(mFrameCommander);
 	//mBluePlane.Draw(gfx);
 	//mRedPlane.Draw(gfx);
-	//mCube.Submit(mFrameCommander);
-	//mCube2.Submit(mFrameCommander);
+	mCube2.Submit(mFrameCommander);
 
 	mFrameCommander.Execute(gfx);
 
@@ -183,6 +187,12 @@ void App::DoImGui(const Graphics& gfx) noexcept
 
 	class MP : public ModelProbe
 	{
+	private:
+		struct TransformParameters
+		{
+			DirectX::XMFLOAT3 Position = {};
+			DirectX::XMFLOAT3 Orientation = {};
+		};
 	public:
 		void SpawnWindow(Model& model)
 		{
@@ -193,7 +203,23 @@ void App::DoImGui(const Graphics& gfx) noexcept
 			ImGui::NextColumn();
 			if (mSelectedNode != nullptr)
 			{
+				bool dirty = false;
+				const auto dcheck = [&dirty](bool changed) { dirty = dirty || changed; };
+				TransformParameters& tf = ResolveTransform();
 
+				ImGui::TextColored({ 0.4f, 1.0f, 0.6f, 1.0f }, "Translation");
+				dcheck(ImGui::SliderFloat("X", &tf.Position.x, -60.0f, 60.0f));
+				dcheck(ImGui::SliderFloat("Y", &tf.Position.y, -60.0f, 60.0f));
+				dcheck(ImGui::SliderFloat("Z", &tf.Position.z, -60.0f, 60.0f));
+				ImGui::TextColored({ 0.4f, 1.0f, 0.6f, 1.0f }, "Orientation");
+				dcheck(ImGui::SliderAngle("X-rotation", &tf.Orientation.x, -180.0f, 180.0f));
+				dcheck(ImGui::SliderAngle("Y-rotation", &tf.Orientation.y, -180.0f, 180.0f));
+				dcheck(ImGui::SliderAngle("Z-rotation", &tf.Orientation.z, -180.0f, 180.0f));
+
+				if (dirty)
+					mSelectedNode->SetAppliedTransform(
+						XMMatrixRotationX(tf.Orientation.x) * XMMatrixRotationY(tf.Orientation.y) * XMMatrixRotationZ(tf.Orientation.z) * 
+						XMMatrixTranslation(tf.Position.x, tf.Position.y, tf.Position.z));
 			}
 			ImGui::End();
 		}
@@ -215,7 +241,23 @@ void App::DoImGui(const Graphics& gfx) noexcept
 			ImGui::TreePop();
 		}
 	private:
+		TransformParameters& ResolveTransform() noexcept
+		{
+			const int id = mSelectedNode->GetId();
+			auto it = mTransformParameters.find(id);
+			return it == mTransformParameters.end() ? LoadTransform(id) : it->second;
+		}
+		TransformParameters& LoadTransform(int id) noexcept
+		{
+			const XMMATRIX& applied = mSelectedNode->GetAppliedTransform();
+			XMFLOAT3 angles, translation;
+			XMStoreFloat3(&angles, ChiliXM::ExtractEulerAngles(applied));
+			XMStoreFloat3(&translation, ChiliXM::ExtractTranslation(applied));
+			return mTransformParameters.insert({ id, { translation,  angles } }).first->second;
+		}
+	private:
 		Node* mSelectedNode = nullptr;
+		std::unordered_map<int, TransformParameters> mTransformParameters;
 	};
 	static MP modelProbe;
 
@@ -229,6 +271,6 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mSponza.ShowWindow(gfx, "Sponza");
 	//mBluePlane.SpawnControlWindow(gfx, "Blue Plane");
 	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
-	//mCube.SpawnControlWindow(gfx, "Cube1");
-	//mCube2.SpawnControlWindow(gfx, "Cube2");
+	mCube.SpawnControlWindow(gfx, "Cube1");
+	mCube2.SpawnControlWindow(gfx, "Cube2");
 }

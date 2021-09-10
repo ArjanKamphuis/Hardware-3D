@@ -88,37 +88,38 @@ void ModelWindow::ApplyParameters() noexcept(!IS_DEBUG)
 
 DirectX::XMMATRIX XM_CALLCONV ModelWindow::GetTransform() const noexcept
 {
-	assert(mSelectedNode != nullptr);
-	const TransformParameters& transform = mTransforms.at(mSelectedNode->GetId()).TransformParams;
-	return XMMatrixRotationRollPitchYaw(transform.Pitch, transform.Yaw, transform.Roll) * XMMatrixTranslationFromVector(XMLoadFloat3(&transform.Position));
+	//assert(mSelectedNode != nullptr);
+	//const TransformParameters& transform = mTransforms.at(mSelectedNode->GetId()).TransformParams;
+	//return XMMatrixRotationRollPitchYaw(transform.Pitch, transform.Yaw, transform.Roll) * XMMatrixTranslationFromVector(XMLoadFloat3(&transform.Position));
+	return XMMatrixIdentity();
 }
 
-const Dcb::Buffer& ModelWindow::GetMaterial() const noexcept(!IS_DEBUG)
-{
-	assert(mSelectedNode != nullptr);
-	const auto& mat = mTransforms.at(mSelectedNode->GetId()).MaterialCBuf;
-	assert(mat);
-	return *mat;
-}
+//const Dcb::Buffer& ModelWindow::GetMaterial() const noexcept(!IS_DEBUG)
+//{
+//	assert(mSelectedNode != nullptr);
+//	const auto& mat = mTransforms.at(mSelectedNode->GetId()).MaterialCBuf;
+//	assert(mat);
+//	return *mat;
+//}
 
 void ModelWindow::ResetTransformDirty() noexcept(!IS_DEBUG)
 {
-	mTransforms.at(mSelectedNode->GetId()).TransformParamsDirty = false;
+	//mTransforms.at(mSelectedNode->GetId()).TransformParamsDirty = false;
 }
 
 void ModelWindow::ResetMaterialDirty() noexcept(!IS_DEBUG)
 {
-	mTransforms.at(mSelectedNode->GetId()).MaterialCBufDirty = false;
+	//mTransforms.at(mSelectedNode->GetId()).MaterialCBufDirty = false;
 }
 
 bool ModelWindow::TransformDirty() const noexcept(!IS_DEBUG)
 {
-	return mSelectedNode && mTransforms.at(mSelectedNode->GetId()).TransformParamsDirty;
+	return false;// mSelectedNode&& mTransforms.at(mSelectedNode->GetId()).TransformParamsDirty;
 }
 
 bool ModelWindow::MaterialDirty() const noexcept(!IS_DEBUG)
 {
-	return mSelectedNode && mTransforms.at(mSelectedNode->GetId()).MaterialCBufDirty;
+	return false;// mSelectedNode&& mTransforms.at(mSelectedNode->GetId()).MaterialCBufDirty;
 }
 
 bool ModelWindow::IsDirty() const noexcept(!IS_DEBUG)

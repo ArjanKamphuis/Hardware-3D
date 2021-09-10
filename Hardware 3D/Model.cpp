@@ -4,6 +4,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "ChiliXM.h"
 #include "Material.h"
 #include "Mesh.h"
 #include "ModelException.h"
@@ -27,11 +28,11 @@ Model::Model(const Graphics& gfx, const std::string& pathName, float scale)
 	for (unsigned int i = 0u; i < pScene->mNumMeshes; i++)
 	{
 		const auto& mesh = *pScene->mMeshes[i];
-		mMeshPtrs.push_back(std::make_unique<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh));
+		mMeshPtrs.push_back(std::make_unique<Mesh>(gfx, materials[mesh.mMaterialIndex], mesh, scale));
 	}
 
 	int nextId = 0;
-	mRoot = ParseNode(nextId, *pScene->mRootNode, XMMatrixScaling(scale, scale, scale));
+	mRoot = ParseNode(nextId, *pScene->mRootNode, scale);
 }
 
 Model::~Model() noexcept
@@ -58,9 +59,9 @@ std::unique_ptr<Mesh> Model::ParseMesh(const Graphics& gfx, const aiMesh& mesh, 
 	return {};
 }
 
-std::unique_ptr<Node> XM_CALLCONV Model::ParseNode(int& nextId, const aiNode& node, FXMMATRIX additionalTransform) noexcept
+std::unique_ptr<Node> XM_CALLCONV Model::ParseNode(int& nextId, const aiNode& node, float scale) noexcept
 {
-	const XMMATRIX transform = additionalTransform * XMMatrixTranspose(XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node.mTransformation)));
+	const XMMATRIX transform = ChiliXM::ScaleTranslation(XMMatrixTranspose(XMLoadFloat4x4(reinterpret_cast<const XMFLOAT4X4*>(&node.mTransformation))), scale);
 
 	std::vector<Mesh*> curMeshPtrs;
 	for (UINT i = 0; i < node.mNumMeshes; i++)
@@ -68,7 +69,7 @@ std::unique_ptr<Node> XM_CALLCONV Model::ParseNode(int& nextId, const aiNode& no
 
 	std::unique_ptr<Node> pNode = std::make_unique<Node>(nextId++, node.mName.C_Str(), std::move(curMeshPtrs), transform);
 	for (UINT i = 0; i < node.mNumChildren; i++)
-		pNode->AddChild(ParseNode(nextId, *node.mChildren[i], XMMatrixIdentity()));
+		pNode->AddChild(ParseNode(nextId, *node.mChildren[i], scale));
 
 	return pNode;
 }

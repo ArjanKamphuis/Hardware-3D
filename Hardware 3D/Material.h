@@ -12,7 +12,7 @@ public:
 	Dvtx::VertexBuffer ExtractVertices(const aiMesh& mesh) const noexcept;
 	std::vector<unsigned short> ExtractIndices(const aiMesh& mesh) const noexcept;
 
-	std::shared_ptr<Bind::VertexBuffer> MakeVertexBindable(const Graphics& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG);
+	std::shared_ptr<Bind::VertexBuffer> MakeVertexBindable(const Graphics& gfx, const aiMesh& mesh, float scale = 1.0f) const noexcept(!IS_DEBUG);
 	std::shared_ptr<Bind::IndexBuffer> MakeIndexBindable(const Graphics& gfx, const aiMesh& mesh) const noexcept(!IS_DEBUG);
 
 	std::vector<Technique> GetTechniques() const noexcept;
