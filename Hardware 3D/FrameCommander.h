@@ -26,4 +26,5 @@ private:
 	std::shared_ptr<Bind::PixelShader> mPSFull;
 	std::shared_ptr<Bind::InputLayout> mLayoutFull;
 	std::shared_ptr<Bind::Sampler> mSamplerFull;
+	std::shared_ptr<Bind::Blender> mBlenderFull;
 };

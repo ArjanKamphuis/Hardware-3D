@@ -138,7 +138,7 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 		}
 		{
 			Step draw{ 2u };
-			auto pVS = VertexShader::Resolve(gfx, L"Offset_VS.cso"s);
+			auto pVS = VertexShader::Resolve(gfx, L"Solid_VS.cso"s);
 			draw.AddBindable(InputLayout::Resolve(gfx, mVertexLayout, pVS->GetByteCode()));
 			draw.AddBindable(std::move(pVS));
 			draw.AddBindable(PixelShader::Resolve(gfx, L"Solid_PS.cso"s));
@@ -149,13 +149,6 @@ Material::Material(const Graphics& gfx, const aiMaterial& material, const std::f
 				Dcb::Buffer buffer{ std::move(layout) };
 				buffer[L"MaterialColor"s] = XMFLOAT3{ 1.0f, 0.4f, 0.4f };
 				draw.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
-			}
-			{
-				Dcb::RawLayout layout;
-				layout.Add(Dcb::Type::Float, L"Offset"s);
-				Dcb::Buffer buffer{ std::move(layout) };
-				buffer[L"Offset"s] = 0.1f;
-				draw.AddBindable(std::make_shared<CachingVertexConstantBufferEx>(gfx, buffer, 1u));
 			}
 
 			draw.AddBindable(std::make_shared<TransformCBuf>(gfx));

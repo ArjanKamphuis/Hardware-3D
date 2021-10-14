@@ -1,5 +1,6 @@
 #include "RenderTarget.h"
 
+#include <array>
 #include "DepthStencil.h"
 #include "GraphicsThrowMacros.h"
 
@@ -35,8 +36,12 @@ RenderTarget::RenderTarget(const Graphics& gfx, UINT width, UINT height)
 
 void RenderTarget::Clear(const Graphics& gfx) const noexcept
 {
-	const float color[] = { 0.07f, 0.0f, 0.12f, 1.0f };
-	GetDeviceContext(gfx)->ClearRenderTargetView(mRenderTargetView.Get(), color);
+	Clear(gfx, { 0.0f, 0.0f, 0.0f, 0.0f });
+}
+
+void RenderTarget::Clear(const Graphics& gfx, const std::array<float, 4u>& color) const noexcept
+{
+	GetDeviceContext(gfx)->ClearRenderTargetView(mRenderTargetView.Get(), color.data());
 }
 
 void RenderTarget::BindAsTexture(const Graphics& gfx, UINT slot) const noexcept

@@ -581,7 +581,7 @@
     <FxCompile Include="Fullscreen_VS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Funk_PS.hlsl">
+    <FxCompile Include="Blur_PS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

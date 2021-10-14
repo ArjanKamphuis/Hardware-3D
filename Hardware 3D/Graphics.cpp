@@ -59,7 +59,7 @@ void Graphics::BeginFrame(float r, float g, float b)
 		ImGui::NewFrame();
 	}
 
-	const float color[] = { r, g, b, 1.0f };
+	const float color[] = { r, g, b, 0.0f };
 	mDeviceContext->ClearRenderTargetView(mRenderTargetView.Get(), color);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
 }
