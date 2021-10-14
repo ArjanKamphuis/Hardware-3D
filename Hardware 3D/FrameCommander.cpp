@@ -19,7 +19,8 @@ FrameCommander::FrameCommander(const Graphics& gfx)
 	mIBFull = Bind::IndexBuffer::Resolve(gfx, L"$Full", std::move(indices));
 	mVSFull = Bind::VertexShader::Resolve(gfx, L"Fullscreen_VS.cso");
 	mPSFull = Bind::PixelShader::Resolve(gfx, L"Funk_PS.cso");
-	mILFull = Bind::InputLayout::Resolve(gfx, layout, mVSFull->GetByteCode());
+	mLayoutFull = Bind::InputLayout::Resolve(gfx, layout, mVSFull->GetByteCode());
+	mSamplerFull = Bind::Sampler::Resolve(gfx, false, true);
 }
 
 void FrameCommander::Accept(Job job, size_t target) noexcept
@@ -51,7 +52,8 @@ void FrameCommander::Execute(const Graphics& gfx) const noexcept(!IS_DEBUG)
 	mIBFull->Bind(gfx);
 	mVSFull->Bind(gfx);
 	mPSFull->Bind(gfx);
-	mILFull->Bind(gfx);
+	mLayoutFull->Bind(gfx);
+	mSamplerFull->Bind(gfx);
 	gfx.DrawIndexed(mIBFull->GetCount());
 }
 

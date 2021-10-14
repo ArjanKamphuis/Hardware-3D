@@ -24,5 +24,6 @@ private:
 	std::shared_ptr<Bind::IndexBuffer> mIBFull;
 	std::shared_ptr<Bind::VertexShader> mVSFull;
 	std::shared_ptr<Bind::PixelShader> mPSFull;
-	std::shared_ptr<Bind::InputLayout> mILFull;
+	std::shared_ptr<Bind::InputLayout> mLayoutFull;
+	std::shared_ptr<Bind::Sampler> mSamplerFull;
 };
