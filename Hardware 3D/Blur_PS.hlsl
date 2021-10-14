@@ -10,11 +10,19 @@ float4 main(float2 texC : TEXCOORD) : SV_TARGET
 	gTexture.GetDimensions(width, height);
 	const float dx = 1.0f / width;
 	const float dy = 1.0f / height;
-	float4 acc = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	
+	float accAlpha = 0.0f;
+	float3 maxColor = float3(0.0f, 0.0f, 0.0f);
 	
 	for (int y = -r; y <= r; y++)
+	{
 		for (int x = -r; x <= r; x++)
-			acc += gTexture.Sample(gSampler, texC + float2(dx * x, dy * y));
+		{
+			const float4 s = gTexture.Sample(gSampler, texC + float2(dx * x, dy * y));
+			accAlpha += s.a;
+			maxColor = max(maxColor, s.rgb);
+		}
+	}
 	
-	return acc / divisor;
+	return float4(maxColor, accAlpha / divisor);
 }
