@@ -38,12 +38,20 @@ void RenderTarget::BindAsTexture(const Graphics& gfx, UINT slot) const noexcept
 	GetDeviceContext(gfx)->PSSetShaderResources(slot, 1u, mTextureView.GetAddressOf());
 }
 
-void RenderTarget::BindAsTarget(const Graphics& gfx) const noexcept
+void RenderTarget::BindAsTarget(const Graphics& gfx, UINT unbindTextureSlot) const noexcept
 {
+	UnBindAsTexture(gfx, unbindTextureSlot);
 	GetDeviceContext(gfx)->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), nullptr);
 }
 
-void RenderTarget::BindAsTarget(const Graphics& gfx, const DepthStencil& ds) const noexcept
+void RenderTarget::BindAsTarget(const Graphics& gfx, const DepthStencil& ds, UINT unbindTextureSlot) const noexcept
 {
+	UnBindAsTexture(gfx, unbindTextureSlot);
 	GetDeviceContext(gfx)->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), ds.mDepthStencilView.Get());
+}
+
+void RenderTarget::UnBindAsTexture(const Graphics& gfx, UINT slot) const noexcept
+{
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	GetDeviceContext(gfx)->PSSetShaderResources(slot, 1u, &nullSRV);
 }
