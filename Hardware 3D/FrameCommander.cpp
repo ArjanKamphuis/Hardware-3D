@@ -32,6 +32,7 @@ void FrameCommander::Execute(const Graphics& gfx) const noexcept(!IS_DEBUG)
 	using namespace Bind;
 
 	mDepthStencil.Clear(gfx);
+	mRenderTarget.Clear(gfx);
 	mRenderTarget.BindAsTarget(gfx, mDepthStencil, 0u);
 
 	Stencil::Resolve(gfx, Stencil::Mode::Off)->Bind(gfx);
@@ -58,11 +59,4 @@ void FrameCommander::Reset() noexcept
 {
 	for (auto& pass : mPasses)
 		pass.Reset();
-}
-
-Dvtx::VertexLayout FrameCommander::MakeFullscreenQuadLayout()
-{
-	Dvtx::VertexLayout layout;
-	layout.Append(Dvtx::VertexLayout::ElementType::Position2D);
-	return layout;
 }

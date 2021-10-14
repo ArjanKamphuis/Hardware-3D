@@ -7,6 +7,8 @@ class RenderTarget : public GraphicsResource
 {
 public:
 	RenderTarget(const Graphics& gfx, UINT width, UINT height);
+
+	void Clear(const Graphics& gfx) const noexcept;
 	void BindAsTexture(const Graphics& gfx, UINT slot) const noexcept;
 	void BindAsTarget(const Graphics& gfx, UINT unbindTextureSlot) const noexcept;
 	void BindAsTarget(const Graphics& gfx, const DepthStencil& ds, UINT unbindTextureSlot) const noexcept;

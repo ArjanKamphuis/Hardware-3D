@@ -33,6 +33,12 @@ RenderTarget::RenderTarget(const Graphics& gfx, UINT width, UINT height)
 	GFX_THROW_INFO(GetDevice(gfx)->CreateRenderTargetView(pTexture.Get(), &rtvDesc, &mRenderTargetView));
 }
 
+void RenderTarget::Clear(const Graphics& gfx) const noexcept
+{
+	const float color[] = { 0.07f, 0.0f, 0.12f, 1.0f };
+	GetDeviceContext(gfx)->ClearRenderTargetView(mRenderTargetView.Get(), color);
+}
+
 void RenderTarget::BindAsTexture(const Graphics& gfx, UINT slot) const noexcept
 {
 	GetDeviceContext(gfx)->PSSetShaderResources(slot, 1u, mTextureView.GetAddressOf());

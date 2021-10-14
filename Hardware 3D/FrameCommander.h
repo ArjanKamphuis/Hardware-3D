@@ -16,9 +16,6 @@ public:
 	void Reset() noexcept;
 
 private:
-	static Dvtx::VertexLayout MakeFullscreenQuadLayout();
-
-private:
 	std::array<Pass, 3> mPasses;
 	DepthStencil mDepthStencil;
 	RenderTarget mRenderTarget;
