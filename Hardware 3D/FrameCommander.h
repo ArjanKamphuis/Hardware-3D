@@ -15,6 +15,7 @@ public:
 	void Accept(Job job, size_t target) noexcept;
 	void Execute(const Graphics& gfx) noexcept(!IS_DEBUG);
 	void Reset() noexcept;
+	void ShowWindows(const Graphics& gfx);
 
 private:
 	std::array<Pass, 3> mPasses;

@@ -300,4 +300,5 @@ void App::DoImGui(const Graphics& gfx) noexcept
 	//mRedPlane.SpawnControlWindow(gfx, "Red Plane");
 	mCube.SpawnControlWindow(gfx, "Cube1");
 	mCube2.SpawnControlWindow(gfx, "Cube2");
+	mFrameCommander.ShowWindows(gfx);
 }

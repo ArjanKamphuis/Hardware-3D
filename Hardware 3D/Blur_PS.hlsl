@@ -4,7 +4,7 @@ SamplerState gSampler;
 cbuffer cbKernel
 {
 	uint gNumTaps;
-	float gCoefficients[15];
+	float gCoefficients[31];
 };
 
 cbuffer cbControl

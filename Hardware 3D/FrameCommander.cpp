@@ -69,3 +69,8 @@ void FrameCommander::Reset() noexcept
 	for (auto& pass : mPasses)
 		pass.Reset();
 }
+
+void FrameCommander::ShowWindows(const Graphics& gfx)
+{
+	mBlur.ShowWindow(gfx);
+}
