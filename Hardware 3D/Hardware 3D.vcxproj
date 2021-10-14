@@ -113,6 +113,7 @@
     <ClCompile Include="ChiliXM.cpp" />
     <ClCompile Include="ConstantBuffersEx.cpp" />
     <ClCompile Include="Cube.cpp" />
+    <ClCompile Include="DepthStencil.cpp" />
     <ClCompile Include="Drawable.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DxgiInfoManager.cpp" />
@@ -120,6 +121,7 @@
     <ClCompile Include="FrameCommander.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="GraphicsExceptions.cpp" />
+    <ClCompile Include="GraphicsResource.cpp" />
     <ClCompile Include="ImguiManager.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -143,6 +145,7 @@
     <ClCompile Include="Pass.cpp" />
     <ClCompile Include="PerfLog.cpp" />
     <ClCompile Include="Rasterizer.cpp" />
+    <ClCompile Include="RenderTarget.cpp" />
     <ClCompile Include="ScriptCommander.cpp" />
     <ClCompile Include="ScriptCommanderExceptions.cpp" />
     <ClCompile Include="Stencil.cpp" />
@@ -181,8 +184,10 @@
     <ClInclude Include="ChiliXM.h" />
     <ClInclude Include="ConstantBuffersEx.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="DepthStencil.h" />
     <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="FrameCommander.h" />
+    <ClInclude Include="GraphicsResource.h" />
     <ClInclude Include="Job.h" />
     <ClInclude Include="LayoutCodex.h" />
     <ClInclude Include="Material.h" />
@@ -221,6 +226,7 @@
     <ClInclude Include="Pass.h" />
     <ClInclude Include="PerfLog.h" />
     <ClInclude Include="Rasterizer.h" />
+    <ClInclude Include="RenderTarget.h" />
     <ClInclude Include="ScriptCommander.h" />
     <ClInclude Include="Stencil.h" />
     <ClInclude Include="Step.h" />

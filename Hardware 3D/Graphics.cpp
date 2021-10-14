@@ -4,6 +4,7 @@
 #include <d3dcompiler.h>
 #include <DirectXMath.h>
 #include <memory>
+#include "DepthStencil.h"
 #include "GraphicsThrowMacros.h"
 #include "imgui/imgui_impl_dx11.h"
 #include "imgui/imgui_impl_win32.h"
@@ -32,6 +33,10 @@ Graphics::Graphics(HWND hWnd)
 
 	GFX_THROW_INFO(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, nullptr, 0, D3D11_SDK_VERSION, &sd, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
 	ImGui_ImplDX11_Init(mDevice.Get(), mDeviceContext.Get());
+
+	GFX_THROW_INFO(mSwapChain->GetDesc(&sd));
+	mWidth = sd.BufferDesc.Width;
+	mHeight = sd.BufferDesc.Height;
 }
 
 Graphics::~Graphics() noexcept
@@ -78,6 +83,16 @@ void Graphics::EndFrame()
 			throw GFX_DEVICE_REMOVED_EXCEPT(mDevice->GetDeviceRemovedReason());
 		throw GFX_EXCEPT(hr);
 	}
+}
+
+void Graphics::BindSwapBuffer() const noexcept
+{
+	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), nullptr);
+}
+
+void Graphics::BindSwapBuffer(const DepthStencil& ds) const noexcept
+{
+	mDeviceContext->OMSetRenderTargets(1u, mRenderTargetView.GetAddressOf(), ds.mDepthStencilView.Get());
 }
 
 void Graphics::DrawIndexed(UINT count) const noexcept(!IS_DEBUG)
@@ -145,4 +160,14 @@ void Graphics::ToggleImgui(bool state) noexcept
 bool Graphics::IsImguiEnabled() const noexcept
 {
 	return mImguiEnabled;
+}
+
+UINT Graphics::GetWidth() const noexcept
+{
+	return mWidth;
+}
+
+UINT Graphics::GetHeight() const noexcept
+{
+	return mHeight;
 }

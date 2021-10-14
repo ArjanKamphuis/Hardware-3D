@@ -4,6 +4,11 @@
 
 using namespace std::string_literals;
 
+FrameCommander::FrameCommander(const Graphics& gfx)
+	: mDepthStencil(gfx, gfx.GetWidth(), gfx.GetHeight())
+{
+}
+
 void FrameCommander::Accept(Job job, size_t target) noexcept
 {
 	mPasses[target].Accept(job);
@@ -12,6 +17,10 @@ void FrameCommander::Accept(Job job, size_t target) noexcept
 void FrameCommander::Execute(const Graphics& gfx) const noexcept(!IS_DEBUG)
 {
 	using namespace Bind;
+
+	mDepthStencil.Clear(gfx);
+	gfx.BindSwapBuffer(mDepthStencil);
+
 	Stencil::Resolve(gfx, Stencil::Mode::Off)->Bind(gfx);
 	mPasses[0].Excecute(gfx);
 

@@ -10,6 +10,8 @@
 #include "ChiliException.h"
 #include "DxgiInfoManager.h"
 
+class DepthStencil;
+
 namespace Bind
 {
 	class Bindable;
@@ -17,7 +19,7 @@ namespace Bind
 
 class Graphics
 {
-	friend class Bind::Bindable;
+	friend class GraphicsResource;
 
 #pragma region Exceptions
 public:
@@ -78,6 +80,9 @@ public:
 	void BeginFrame(float r = 0.0f, float g = 0.0f, float b = 0.0f);
 	void EndFrame();
 
+	void BindSwapBuffer() const noexcept;
+	void BindSwapBuffer(const DepthStencil& ds) const noexcept;
+
 	void DrawIndexed(UINT count) const noexcept(!IS_DEBUG);
 
 	void XM_CALLCONV SetProjection(DirectX::FXMMATRIX proj) noexcept;
@@ -89,6 +94,9 @@ public:
 
 	void ToggleImgui(bool state) noexcept;
 	bool IsImguiEnabled() const noexcept;
+
+	UINT GetWidth() const noexcept;
+	UINT GetHeight() const noexcept;
 
 private:
 #if	defined(DEBUG) | defined(_DEBUG)
@@ -103,6 +111,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDepthStencilView;
+
+	UINT mWidth;
+	UINT mHeight;
 
 	static constexpr UINT mBufferCount = 2;
 	bool mImguiEnabled = true;

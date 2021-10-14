@@ -32,7 +32,7 @@ private:
 	ScriptCommander mScriptCommander;
 	ChiliTimer mTimer;
 	Camera mCamera;
-	FrameCommander mFrameCommander;
+	FrameCommander mFrameCommander{ mWnd.Gfx() };
 	PointLight mLight;
 
 	Model mSponza{ mWnd.Gfx(), "Models/sponza/sponza.obj", 0.05f };

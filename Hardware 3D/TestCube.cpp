@@ -41,8 +41,8 @@ TestCube::TestCube(const Graphics& gfx, float size)
 		layout.Add(Dcb::Type::Float, L"SpecularWeight"s);
 		layout.Add(Dcb::Type::Float, L"SpecularGloss"s);
 		Dcb::Buffer buffer(std::move(layout));
-		buffer[L"SpecularColor"s] = XMFLOAT3{ 0.1f, 0.1f, 0.1f };
-		buffer[L"SpecularWeight"s] = 1.0f;
+		buffer[L"SpecularColor"s] = XMFLOAT3{ 1.0f, 1.0f, 1.0f };
+		buffer[L"SpecularWeight"s] = 0.1f;
 		buffer[L"SpecularGloss"] = 20.0f;
 		only.AddBindable(std::make_shared<CachingPixelConstantBufferEx>(gfx, buffer));
 		only.AddBindable(std::make_shared<TransformCBuf>(gfx));
