@@ -1,7 +1,7 @@
 Texture2D gTexture;
 SamplerState gSampler;
 
-static const int r = 7;
+static const int r = 12;
 static const float divisor = (2 * r + 1) * (2 * r + 1);
 
 float4 main(float2 texC : TEXCOORD) : SV_TARGET
