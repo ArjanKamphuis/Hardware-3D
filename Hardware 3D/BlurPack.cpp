@@ -31,14 +31,14 @@ void BlurPack::SetKernel(const Graphics& gfx, int radius, float sigma) noexcept(
 	Kernel k;
 	k.NumTaps = radius * 2 + 1;
 	float sum = 0.0f;
-	for (int i = 1; i < k.NumTaps + 1; i++)
+	for (int i = 0; i < k.NumTaps; i++)
 	{
-		const float x = static_cast<float>(i - (radius + 1));
+		const float x = static_cast<float>(i - radius);
 		const float g = ChiliMath::Gauss(x, sigma);
 		sum += g;
 		k.Coefficients[i].x = g;
 	}
-	for (int i = 1; i < k.NumTaps + 1; i++)
+	for (int i = 0; i < k.NumTaps ; i++)
 		k.Coefficients[i].x /= sum;
 	mKernelBuffer.Update(gfx, k);
 }

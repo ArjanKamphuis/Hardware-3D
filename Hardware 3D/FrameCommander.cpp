@@ -5,7 +5,7 @@
 using namespace DirectX;
 
 FrameCommander::FrameCommander(const Graphics& gfx)
-	: mDepthStencil(gfx, gfx.GetWidth(), gfx.GetHeight()), mRenderTarget(gfx, gfx.GetWidth(), gfx.GetHeight())
+	: mDepthStencil(gfx, gfx.GetWidth(), gfx.GetHeight()), mRenderTarget1(gfx, gfx.GetWidth(), gfx.GetHeight()), mRenderTarget2(gfx, gfx.GetWidth(), gfx.GetHeight()), mBlur(gfx)
 {
 	Dvtx::VertexLayout layout;
 	layout.Append(Dvtx::VertexLayout::ElementType::Position2D);
@@ -20,10 +20,8 @@ FrameCommander::FrameCommander(const Graphics& gfx)
 	std::vector<unsigned short> indices = { 0u, 1u, 2u, 1u, 3u, 2u };
 	mIBFull = Bind::IndexBuffer::Resolve(gfx, L"$Full", std::move(indices));
 	mVSFull = Bind::VertexShader::Resolve(gfx, L"Fullscreen_VS.cso");
-	mPSFull = Bind::PixelShader::Resolve(gfx, L"BlurOutline_PS.cso");
 	mLayoutFull = Bind::InputLayout::Resolve(gfx, layout, mVSFull->GetByteCode());
 	mSamplerFull = Bind::Sampler::Resolve(gfx, false, true);
-	mBlenderFull = Bind::Blender::Resolve(gfx, true);
 }
 
 void FrameCommander::Accept(Job job, size_t target) noexcept
@@ -31,36 +29,38 @@ void FrameCommander::Accept(Job job, size_t target) noexcept
 	mPasses[target].Accept(job);
 }
 
-void FrameCommander::Execute(const Graphics& gfx) const noexcept(!IS_DEBUG)
+void FrameCommander::Execute(const Graphics& gfx) noexcept(!IS_DEBUG)
 {
 	using namespace Bind;
 
 	mDepthStencil.Clear(gfx);
-	mRenderTarget.Clear(gfx);
-	gfx.BindSwapBuffer(mDepthStencil);
+	mRenderTarget1.Clear(gfx);
+	mRenderTarget2.Clear(gfx);
 
+	// Normal stuff
+	mRenderTarget1.BindAsTarget(gfx, mDepthStencil, 0u);
 	Blender::Resolve(gfx, false)->Bind(gfx);
 	Stencil::Resolve(gfx, Stencil::Mode::Off)->Bind(gfx);
 	mPasses[0].Excecute(gfx);
 
-	Stencil::Resolve(gfx, Stencil::Mode::Write)->Bind(gfx);
-	NullPixelShader::Resolve(gfx)->Bind(gfx);
-	mPasses[1].Excecute(gfx);
-
-	mRenderTarget.BindAsTarget(gfx, 0u);
-	Stencil::Resolve(gfx, Stencil::Mode::Off)->Bind(gfx);
-	mPasses[2].Excecute(gfx);
-
-	gfx.BindSwapBuffer(mDepthStencil);
-	mRenderTarget.BindAsTexture(gfx, 0u);
+	// Binds for both blurs
 	mVBFull->Bind(gfx);
 	mIBFull->Bind(gfx);
 	mVSFull->Bind(gfx);
-	mPSFull->Bind(gfx);
 	mLayoutFull->Bind(gfx);
 	mSamplerFull->Bind(gfx);
-	mBlenderFull->Bind(gfx);
-	Stencil::Resolve(gfx, Stencil::Mode::Mask)->Bind(gfx);
+	mBlur.Bind(gfx);
+
+	// Horizontal blur
+	mRenderTarget2.BindAsTarget(gfx, 0u);
+	mRenderTarget1.BindAsTexture(gfx, 0u);
+	mBlur.SetHorizontal(gfx);
+	gfx.DrawIndexed(mIBFull->GetCount());
+
+	// Vertical blur
+	gfx.BindSwapBuffer();
+	mRenderTarget2.BindAsTexture(gfx, 0u);
+	mBlur.SetVertical(gfx);
 	gfx.DrawIndexed(mIBFull->GetCount());
 }
 
