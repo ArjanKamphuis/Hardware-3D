@@ -20,7 +20,7 @@ FrameCommander::FrameCommander(const Graphics& gfx)
 	std::vector<unsigned short> indices = { 0u, 1u, 2u, 1u, 3u, 2u };
 	mIBFull = Bind::IndexBuffer::Resolve(gfx, L"$Full", std::move(indices));
 	mVSFull = Bind::VertexShader::Resolve(gfx, L"Fullscreen_VS.cso");
-	mPSFull = Bind::PixelShader::Resolve(gfx, L"Blur_PS.cso");
+	mPSFull = Bind::PixelShader::Resolve(gfx, L"BlurOutline_PS.cso");
 	mLayoutFull = Bind::InputLayout::Resolve(gfx, layout, mVSFull->GetByteCode());
 	mSamplerFull = Bind::Sampler::Resolve(gfx, false, true);
 	mBlenderFull = Bind::Blender::Resolve(gfx, true);

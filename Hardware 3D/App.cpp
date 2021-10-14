@@ -23,7 +23,7 @@ using namespace std::string_literals;
 App::App(const std::wstring& commandLine)
     : mCommandLine(commandLine), mWnd(1280, 720, L"The Donkey Fart Box"), mScriptCommander(ChiliUtil::TokenizeQuoted(commandLine)), mLight(mWnd.Gfx())
 {
-	//TestScaleMatrixTranslation();
+	TestDynamicConstant();
 
 	mCube.SetPosition({ 4.0f, 0.0f, 0.0f });
 	mCube2.SetPosition({ 0.0f, 4.0f, 0.0f });
